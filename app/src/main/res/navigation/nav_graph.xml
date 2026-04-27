@@ -1,6 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/nav_graph">
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/perfilFragment">
+
+    <fragment
+        android:id="@+id/perfilFragment"
+        android:name="com.xplorenow.ui.perfil.PerfilFragment"
+        android:label="Mi Perfil">
+
+        <action
+            android:id="@+id/action_perfil_to_editarPerfil"
+            app:destination="@id/editarPerfilFragment" />
+
+        <action
+            android:id="@+id/action_perfil_to_preferencias"
+            app:destination="@id/preferenciasFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/editarPerfilFragment"
+        android:name="com.xplorenow.ui.perfil.EditarPerfilFragment"
+        android:label="Editar Perfil" />
+
+    <fragment
+        android:id="@+id/preferenciasFragment"
+        android:name="com.xplorenow.ui.perfil.PreferenciasFragment"
+        android:label="Preferencias" />
 
 </navigation>

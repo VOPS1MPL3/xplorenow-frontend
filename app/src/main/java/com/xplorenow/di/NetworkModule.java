@@ -11,6 +11,8 @@ import okhttp3.Request;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import com.xplorenow.network.ApiService;
+
 
 @Module
 @InstallIn(SingletonComponent.class)
@@ -49,5 +51,10 @@ public class NetworkModule {
                 .client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
+    }
+    @Provides
+    @Singleton
+    public ApiService provideApiService(Retrofit retrofit) {
+        return retrofit.create(ApiService.class);
     }
 }
