@@ -86,6 +86,7 @@ public class PerfilFragment extends Fragment {
         btnCerrarSesion.setOnClickListener(v -> {
             tokenManager.clearToken();
             Toast.makeText(requireContext(), "Sesión cerrada", Toast.LENGTH_SHORT).show();
+            Navigation.findNavController(v).navigate(R.id.action_perfil_to_login);
         });
 
         cargarPerfil();
@@ -106,8 +107,9 @@ public class PerfilFragment extends Fragment {
 
                 if (response.isSuccessful() && response.body() != null) {
                     mostrarPerfil(response.body());
-                } else if (response.code() == 401) {
-                    Toast.makeText(requireContext(), "Sesión expirada", Toast.LENGTH_SHORT).show();
+                } else if (response.code() == 401 || response.code() == 403) {
+                    tokenManager.clearToken();
+                    Navigation.findNavController(requireView()).navigate(R.id.action_perfil_to_login);
                 } else {
                     Toast.makeText(requireContext(), "Error al cargar perfil", Toast.LENGTH_SHORT).show();
                 }

@@ -4,6 +4,9 @@ import com.xplorenow.model.ActualizarPerfilRequest;
 import com.xplorenow.model.CategoriaResponse;
 import com.xplorenow.model.PerfilResponse;
 import com.xplorenow.model.ReservaResponse;
+import com.xplorenow.model.auth.LoginRequest;
+import com.xplorenow.model.auth.LoginResponse;
+import com.xplorenow.model.auth.RegistroRequest;
 
 import java.util.List;
 import java.util.Map;
@@ -11,10 +14,17 @@ import java.util.Map;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Query;
 
 public interface ApiService {
+
+    @POST("auth/login")
+    Call<LoginResponse> login(@Body LoginRequest body);
+
+    @POST("auth/registro")
+    Call<LoginResponse> register(@Body RegistroRequest body);
 
     @GET("perfil")
     Call<PerfilResponse> getPerfil();

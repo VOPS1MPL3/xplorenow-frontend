@@ -18,10 +18,10 @@ import com.xplorenow.network.ApiService;
 @InstallIn(SingletonComponent.class)
 public class NetworkModule {
 
-    // En emulador 10.0.2.2 apunta a localhost de tu PC
-    // Si probás en dispositivo físico, cambiá por la IP de tu máquina
-    private static final String BASE_URL = "http://10.0.2.2:8080/";
-
+    // En emulador 10.0.2.2 apunta a localhost de la PC local
+    // Si estamos probando en dispositivo físico, hay que cambiar por la IP de nuestra máquina
+    //private static final String BASE_URL = "http://10.0.2.2:8080/";
+    private static final String BASE_URL = "http://10.229.211.209:8080/";
     @Provides
     @Singleton
     public OkHttpClient provideOkHttpClient(TokenManager tokenManager) {
