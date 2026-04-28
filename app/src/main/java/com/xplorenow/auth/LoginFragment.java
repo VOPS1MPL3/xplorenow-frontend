@@ -54,6 +54,11 @@ public class LoginFragment extends Fragment {
         btnIrOtp = view.findViewById(R.id.btnIrOtp);
         btnBiometria = view.findViewById(R.id.btnBiometria);
 
+        // Mostrar botón biometría si hay token guardado
+        if (tokenManager.hasToken()) {
+            btnBiometria.setVisibility(View.VISIBLE);
+        }
+
         btnLogin.setOnClickListener(v -> {
             String email = etEmail.getText().toString().trim();
             String password = etPassword.getText().toString().trim();
@@ -84,5 +89,53 @@ public class LoginFragment extends Fragment {
         btnIrOtp.setOnClickListener(v ->
                 Navigation.findNavController(view).navigate(R.id.action_login_to_otpSolicitar)
         );
+
+        btnBiometria.setOnClickListener(v -> biometria(view));
+    }
+
+    private void biometria(View view) {
+        androidx.biometric.BiometricManager manager =
+                androidx.biometric.BiometricManager.from(requireContext());
+
+        int canAuth = manager.canAuthenticate(
+                androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG |
+                        androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL
+        );
+
+        if (canAuth != androidx.biometric.BiometricManager.BIOMETRIC_SUCCESS) {
+            Toast.makeText(requireContext(), "Biometría no disponible", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        androidx.biometric.BiometricPrompt.PromptInfo info =
+                new androidx.biometric.BiometricPrompt.PromptInfo.Builder()
+                        .setTitle("XploreNow")
+                        .setSubtitle("Ingresá con tu huella")
+                        .setAllowedAuthenticators(
+                                androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG |
+                                        androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL
+                        )
+                        .build();
+
+        androidx.biometric.BiometricPrompt prompt = new androidx.biometric.BiometricPrompt(
+                this,
+                androidx.core.content.ContextCompat.getMainExecutor(requireContext()),
+                new androidx.biometric.BiometricPrompt.AuthenticationCallback() {
+                    @Override
+                    public void onAuthenticationSucceeded(androidx.biometric.BiometricPrompt.AuthenticationResult result) {
+                        Toast.makeText(requireContext(), "Biometría exitosa", Toast.LENGTH_SHORT).show();
+                    }
+                    @Override
+                    public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
+                        Toast.makeText(requireContext(), "Error: " + errString, Toast.LENGTH_SHORT).show();
+                    }
+                    @Override
+                    public void onAuthenticationFailed() {
+                        Toast.makeText(requireContext(), "Huella no reconocida", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
+
+        prompt.authenticate(info);
     }
 }
