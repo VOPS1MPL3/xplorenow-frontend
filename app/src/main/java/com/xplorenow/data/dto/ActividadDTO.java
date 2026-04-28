@@ -6,18 +6,17 @@ public class ActividadDTO {
     private Long id;
     private String nombre;
     private String imagenPrincipal;
-    private DestinoDTO destino;
-    private CategoriaDTO categoria;
+    private String destino;        // String, no DestinoDTO
+    private String categoria;      // String, no CategoriaDTO
     private Integer duracionMinutos;
     private BigDecimal precio;
     private Integer cuposDisponibles;
 
-    // Getters
     public Long getId() { return id; }
     public String getNombre() { return nombre; }
     public String getImagenPrincipal() { return imagenPrincipal; }
-    public DestinoDTO getDestino() { return destino; }
-    public CategoriaDTO getCategoria() { return categoria; }
+    public String getDestino() { return destino; }
+    public String getCategoria() { return categoria; }
     public Integer getDuracionMinutos() { return duracionMinutos; }
     public BigDecimal getPrecio() { return precio; }
     public Integer getCuposDisponibles() { return cuposDisponibles; }
