@@ -1,9 +1,11 @@
 package com.xplorenow.ui.home;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -11,6 +13,8 @@ import com.xplorenow.data.dto.ActividadDTO;
 import com.xplorenow.data.dto.PageResponseDTO;
 import com.xplorenow.data.repository.ActividadRepository;
 import com.xplorenow.databinding.FragmentHomeBinding;
+import java.util.ArrayList;
+import java.util.List;
 import javax.inject.Inject;
 import dagger.hilt.android.AndroidEntryPoint;
 import retrofit2.Call;
@@ -23,6 +27,8 @@ public class HomeFragment extends Fragment {
     private static final String TAG = "HomeFragment";
 
     private FragmentHomeBinding binding;
+    private ActividadAdapter adapter;
+    private final List<ActividadDTO> actividades = new ArrayList<>();
 
     @Inject
     ActividadRepository actividadRepository;
@@ -39,11 +45,18 @@ public class HomeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        binding.tvStatus.setText("Conectando con el backend...");
+
+        adapter = new ActividadAdapter(requireContext(), actividades);
+        binding.lvActividades.setAdapter(adapter);
+
         cargarActividades();
     }
 
     private void cargarActividades() {
+        binding.tvStatus.setText("Cargando...");
+        binding.tvStatus.setVisibility(View.VISIBLE);
+        binding.lvActividades.setVisibility(View.GONE);
+
         actividadRepository.listarActividades(0, 20).enqueue(
                 new Callback<PageResponseDTO<ActividadDTO>>() {
 
@@ -52,21 +65,13 @@ public class HomeFragment extends Fragment {
                             Call<PageResponseDTO<ActividadDTO>> call,
                             Response<PageResponseDTO<ActividadDTO>> response) {
 
-                        // Si el fragment fue destruido mientras esperabamos,
-                        // no toquemos la UI
                         if (binding == null) return;
 
                         if (response.isSuccessful() && response.body() != null) {
-                            int total = response.body().getTotalElements();
-                            int recibidas = response.body().getContent().size();
-                            String msg = "Recibi " + recibidas + " actividades del backend\n"
-                                    + "(total en BD: " + total + ")";
-                            binding.tvStatus.setText(msg);
-                            Log.i(TAG, msg);
+                            List<ActividadDTO> recibidas = response.body().getContent();
+                            mostrarLista(recibidas);
                         } else {
-                            String err = "Error HTTP " + response.code();
-                            binding.tvStatus.setText(err);
-                            Log.e(TAG, err);
+                            mostrarError("Error HTTP " + response.code());
                         }
                     }
 
@@ -75,16 +80,34 @@ public class HomeFragment extends Fragment {
                             Call<PageResponseDTO<ActividadDTO>> call,
                             Throwable t) {
                         if (binding == null) return;
-                        String err = "Error de red: " + t.getMessage();
-                        binding.tvStatus.setText(err);
-                        Log.e(TAG, err, t);
+                        mostrarError("Error de red: " + t.getMessage());
+                        Log.e(TAG, "onFailure", t);
                     }
                 });
+    }
+
+    private void mostrarLista(List<ActividadDTO> recibidas) {
+        if (recibidas == null || recibidas.isEmpty()) {
+            mostrarError("No hay actividades disponibles");
+            return;
+        }
+        actividades.clear();
+        actividades.addAll(recibidas);
+        adapter.notifyDataSetChanged();
+
+        binding.tvStatus.setVisibility(View.GONE);
+        binding.lvActividades.setVisibility(View.VISIBLE);
+    }
+
+    private void mostrarError(String mensaje) {
+        binding.tvStatus.setText(mensaje);
+        binding.tvStatus.setVisibility(View.VISIBLE);
+        binding.lvActividades.setVisibility(View.GONE);
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        binding = null; // evita memory leaks con ViewBinding
+        binding = null;
     }
 }
