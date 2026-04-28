@@ -10,5 +10,43 @@
         android:layout_height="wrap_content"
         android:text="XploreNow"
         android:textSize="32sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:layout_marginTop="50dp"/>
+
+    <EditText
+        android:id="@+id/etEmail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textEmailAddress"
+        android:layout_marginTop="50dp"/>
+
+    <EditText
+        android:id="@+id/etPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="numberPassword"
+        android:layout_marginTop="50dp"/>
+
+    <Button
+        android:id="@+id/btnLogin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Iniciar sesión"
+        android:layout_marginTop="50dp"/>
+
+    <Button
+        android:id="@+id/btnIrOtp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Ingresar con código"
+        android:layout_marginTop="50dp"/>
+
+    <Button
+        android:id="@+id/btnBiometria"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Ingresar con huella"
+        android:layout_marginTop="50dp"/>
 </LinearLayout>
