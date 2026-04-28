@@ -1,6 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/nav_graph">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/loginFragment">
+
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.xplorenow.auth.LoginFragment"
+        android:label="Login"
+        tools:layout="@layout/fragment_login">
+        <action
+            android:id="@+id/action_login_to_otpSolicitar"
+            app:destination="@id/otpSolicitarFragment"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/otpSolicitarFragment"
+        android:name="com.xplorenow.auth.OtpSolicitarFragment"
+        android:label="OTP Solicitar"
+        tools:layout="@layout/fragment_otp_solicitar">
+        <action
+            android:id="@+id/action_otpSolicitar_to_otpConfirmar"
+            app:destination="@id/otpConfirmarFragment"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/otpConfirmarFragment"
+        android:name="com.xplorenow.auth.OtpConfirmarFragment"
+        android:label="OTP Confirmar"
+        tools:layout="@layout/fragment_otp_confirmar">
+        <argument
+            android:name="email"
+            app:argType="string"
+            android:defaultValue=""/>
+    </fragment>
 
 </navigation>
