@@ -9,6 +9,22 @@
         android:id="@+id/homeFragment"
         android:name="com.xplorenow.ui.home.HomeFragment"
         android:label="Inicio"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home">
+
+        <action
+            android:id="@+id/action_home_to_detalle"
+            app:destination="@id/detalleFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/detalleFragment"
+        android:name="com.xplorenow.ui.home.detalle.DetalleFragment"
+        android:label="Detalle"
+        tools:layout="@layout/fragment_detalle">
+
+        <argument
+            android:name="actividadId"
+            app:argType="long" />
+    </fragment>
 
 </navigation>
