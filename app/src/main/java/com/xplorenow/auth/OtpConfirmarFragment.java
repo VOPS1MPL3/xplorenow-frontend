@@ -22,7 +22,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 @AndroidEntryPoint
-public class LoginFragment extends Fragment {
+public class OtpConfirmarFragment extends Fragment {
 
     @Inject
     ApiService apiService;
@@ -30,40 +30,42 @@ public class LoginFragment extends Fragment {
     @Inject
     TokenManager tokenManager;
 
-    private TextView tvTitulo;
-    private EditText etEmail;
-    private EditText etPassword;
-    private Button btnLogin;
-    private Button btnIrOtp;
-    private Button btnBiometria;
+    private TextView tvEmailDestino;
+    private EditText etCodigo;
+    private Button btnConfirmarOtp;
+    private Button btnReenviarOtp;
+    private String email;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_login, container, false);
+        return inflater.inflate(R.layout.fragment_otp_confirmar, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        tvTitulo = view.findViewById(R.id.tvTitulo);
-        etEmail = view.findViewById(R.id.etEmail);
-        etPassword = view.findViewById(R.id.etPassword);
-        btnLogin = view.findViewById(R.id.btnLogin);
-        btnIrOtp = view.findViewById(R.id.btnIrOtp);
-        btnBiometria = view.findViewById(R.id.btnBiometria);
+        tvEmailDestino = view.findViewById(R.id.tvEmailDestino);
+        etCodigo = view.findViewById(R.id.etCodigo);
+        btnConfirmarOtp = view.findViewById(R.id.btnConfirmarOtp);
+        btnReenviarOtp = view.findViewById(R.id.btnReenviarOtp);
 
-        btnLogin.setOnClickListener(v -> {
-            String email = etEmail.getText().toString().trim();
-            String password = etPassword.getText().toString().trim();
+        // Recibir email del fragment anterior
+        if (getArguments() != null) {
+            email = getArguments().getString("email", "");
+            tvEmailDestino.setText("Código enviado a: " + email);
+        }
 
-            if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(requireContext(), "Completá todos los campos", Toast.LENGTH_SHORT).show();
+        btnConfirmarOtp.setOnClickListener(v -> {
+            String codigo = etCodigo.getText().toString().trim();
+
+            if (codigo.length() != 6) {
+                Toast.makeText(requireContext(), "Ingresá el código de 6 dígitos", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            apiService.login(new LoginRequest(email, password))
+            apiService.confirmarOtp(new OtpConfirmarRequest(email, codigo))
                     .enqueue(new Callback<AuthResponse>() {
                         @Override
                         public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
@@ -71,7 +73,7 @@ public class LoginFragment extends Fragment {
                                 tokenManager.saveToken(response.body().getToken());
                                 Toast.makeText(requireContext(), "Login exitoso", Toast.LENGTH_SHORT).show();
                             } else {
-                                Toast.makeText(requireContext(), "Email o contraseña incorrectos", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(requireContext(), "Código incorrecto o expirado", Toast.LENGTH_SHORT).show();
                             }
                         }
                         @Override
@@ -81,8 +83,18 @@ public class LoginFragment extends Fragment {
                     });
         });
 
-        btnIrOtp.setOnClickListener(v ->
-                Navigation.findNavController(view).navigate(R.id.action_login_to_otpSolicitar)
-        );
+        btnReenviarOtp.setOnClickListener(v -> {
+            apiService.solicitarOtp(new OtpSolicitarRequest(email))
+                    .enqueue(new Callback<Void>() {
+                        @Override
+                        public void onResponse(Call<Void> call, Response<Void> response) {
+                            Toast.makeText(requireContext(), "Código reenviado", Toast.LENGTH_SHORT).show();
+                        }
+                        @Override
+                        public void onFailure(Call<Void> call, Throwable t) {
+                            Toast.makeText(requireContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        });
     }
 }
