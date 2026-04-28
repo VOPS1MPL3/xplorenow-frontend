@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,7 +17,11 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class LoginFragment extends Fragment {
 
     private TextView tvTitulo;
-
+    private EditText etEmail;
+    private EditText etPassword;
+    private Button btnLogin;
+    private Button btnIrOtp;
+    private Button btnBiometria;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -26,5 +32,10 @@ public class LoginFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         tvTitulo = view.findViewById(R.id.tvTitulo);
+        etEmail = view.findViewById(R.id.etEmail);
+        etPassword = view.findViewById(R.id.etPassword);
+        btnLogin = view.findViewById(R.id.btnLogin);
+        btnIrOtp = view.findViewById(R.id.btnIrOtp);
+        btnBiometria = view.findViewById(R.id.btnBiometria);
     }
 }
