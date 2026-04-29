@@ -75,4 +75,37 @@
         android:label="Filtros"
         tools:layout="@layout/fragment_filtros" />
 
+    <fragment
+        android:id="@+id/misReservasFragment"
+        android:name="com.xplorenow.ui.home.misreservas.MisReservasFragment"
+        android:label="Mis reservas"
+        tools:layout="@layout/fragment_mis_reservas">
+
+        <action
+            android:id="@+id/action_misReservas_to_reservaDetalle"
+            app:destination="@id/reservaDetalleFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/reservaDetalleFragment"
+        android:name="com.xplorenow.ui.home.misreservas.detalle.ReservaDetalleFragment"
+        android:label="Detalle de reserva"
+        tools:layout="@layout/fragment_reserva_detalle">
+
+        <argument
+            android:name="reservaId"
+            app:argType="long" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/historialFragment"
+        android:name="com.xplorenow.ui.home.historial.HistorialFragment"
+        android:label="Historial"
+        tools:layout="@layout/fragment_historial">
+
+        <action
+            android:id="@+id/action_historial_to_reservaDetalle"
+            app:destination="@id/reservaDetalleFragment" />
+    </fragment>
+
 </navigation>
