@@ -75,6 +75,7 @@ public class LoginFragment extends Fragment {
                             if (response.isSuccessful() && response.body() != null) {
                                 tokenManager.saveToken(response.body().getToken());
                                 Toast.makeText(requireContext(), "Login exitoso", Toast.LENGTH_SHORT).show();
+                                Navigation.findNavController(view).navigate(R.id.action_login_to_home);
                             } else {
                                 Toast.makeText(requireContext(), "Email o contraseña incorrectos", Toast.LENGTH_SHORT).show();
                             }
