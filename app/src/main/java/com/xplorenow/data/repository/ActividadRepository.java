@@ -4,6 +4,7 @@ import com.xplorenow.data.dto.ActividadDTO;
 import com.xplorenow.data.dto.ActividadDetalleDTO;
 import com.xplorenow.data.dto.FiltrosActividad;
 import com.xplorenow.data.dto.PageResponseDTO;
+import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import retrofit2.Call;
@@ -27,7 +28,6 @@ public class ActividadRepository {
         if (filtros == null) {
             return listarActividades(page, size);
         }
-        // El back acepta una sola fecha. Usamos fechaDesde si esta presente.
         String fecha = filtros.getFechaDesde();
         return api.listarActividades(
                 page, size,
@@ -41,5 +41,9 @@ public class ActividadRepository {
 
     public Call<ActividadDetalleDTO> obtenerActividad(long id) {
         return api.obtenerActividad(id);
+    }
+
+    public Call<List<ActividadDTO>> obtenerDestacadas() {
+        return api.obtenerDestacadas();
     }
 }

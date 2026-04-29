@@ -31,4 +31,7 @@ public interface XploreNowApi {
 
     @GET("categorias")
     Call<List<CategoriaDTO>> listarCategorias();
+
+    @GET("actividades/destacadas")
+    Call<List<ActividadDTO>> obtenerDestacadas();
 }

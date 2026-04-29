@@ -10,45 +10,10 @@
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
         android:title="XploreNow"
-        android:subtitle="Catalogo de actividades"
         app:titleTextColor="@android:color/white"
-        app:subtitleTextColor="@android:color/white"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
-
-    <!-- Chip que aparece cuando hay filtros aplicados -->
-    <LinearLayout
-        android:id="@+id/llFiltrosActivos"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        android:padding="12dp"
-        android:background="#FFF8E1"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <TextView
-            android:id="@+id/tvFiltrosActivos"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Filtros aplicados"
-            android:textColor="#5D4037"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-
-        <Button
-            android:id="@+id/btnLimpiarFiltros"
-            style="?attr/buttonBarButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Limpiar"
-            android:textColor="#5D4037" />
-    </LinearLayout>
 
     <TextView
         android:id="@+id/tvStatus"
@@ -59,20 +24,20 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/llFiltrosActivos" />
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
     <ListView
         android:id="@+id/lvActividades"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:divider="@android:color/transparent"
-        android:dividerHeight="0dp"
+        android:dividerHeight="8dp"
         android:visibility="gone"
-        android:padding="8dp"
+        android:padding="16dp"
         android:clipToPadding="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/llFiltrosActivos" />
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
