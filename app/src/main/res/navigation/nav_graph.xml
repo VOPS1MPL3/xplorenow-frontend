@@ -13,6 +13,11 @@
         <action
             android:id="@+id/action_login_to_otpSolicitar"
             app:destination="@id/otpSolicitarFragment"/>
+        <action
+            android:id="@+id/action_login_to_home"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true"/>
     </fragment>
 
     <fragment
@@ -34,6 +39,40 @@
             android:name="email"
             app:argType="string"
             android:defaultValue=""/>
+        <action
+            android:id="@+id/action_otpConfirmar_to_home"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true"/>
     </fragment>
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.xplorenow.ui.home.HomeFragment"
+        android:label="Inicio"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_home_to_detalle"
+            app:destination="@id/detalleFragment" />
+        <action
+            android:id="@+id/action_home_to_filtros"
+            app:destination="@id/filtrosFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/detalleFragment"
+        android:name="com.xplorenow.ui.home.detalle.DetalleFragment"
+        android:label="Detalle"
+        tools:layout="@layout/fragment_detalle">
+        <argument
+            android:name="actividadId"
+            app:argType="long" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/filtrosFragment"
+        android:name="com.xplorenow.ui.home.filtros.FiltrosFragment"
+        android:label="Filtros"
+        tools:layout="@layout/fragment_filtros" />
 
 </navigation>
