@@ -2,6 +2,7 @@ package com.xplorenow.data.repository;
 import com.xplorenow.data.api.XploreNowApi;
 import com.xplorenow.data.dto.ActividadDTO;
 import com.xplorenow.data.dto.ActividadDetalleDTO;
+import com.xplorenow.data.dto.FiltrosActividad;
 import com.xplorenow.data.dto.PageResponseDTO;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -18,7 +19,24 @@ public class ActividadRepository {
     }
 
     public Call<PageResponseDTO<ActividadDTO>> listarActividades(int page, int size) {
-        return api.listarActividades(page, size);
+        return api.listarActividades(page, size, null, null, null, null, null);
+    }
+
+    public Call<PageResponseDTO<ActividadDTO>> listarActividades(
+            int page, int size, FiltrosActividad filtros) {
+        if (filtros == null) {
+            return listarActividades(page, size);
+        }
+        // El back acepta una sola fecha. Usamos fechaDesde si esta presente.
+        String fecha = filtros.getFechaDesde();
+        return api.listarActividades(
+                page, size,
+                filtros.getDestinoId(),
+                filtros.getCategoriaId(),
+                fecha,
+                filtros.getPrecioMin(),
+                filtros.getPrecioMax()
+        );
     }
 
     public Call<ActividadDetalleDTO> obtenerActividad(long id) {

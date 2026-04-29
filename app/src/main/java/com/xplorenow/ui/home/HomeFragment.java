@@ -13,10 +13,12 @@ import androidx.navigation.Navigation;
 
 import com.xplorenow.R;
 import com.xplorenow.data.dto.ActividadDTO;
+import com.xplorenow.data.dto.FiltrosActividad;
 import com.xplorenow.data.dto.PageResponseDTO;
 import com.xplorenow.data.repository.ActividadRepository;
 import com.xplorenow.databinding.FragmentHomeBinding;
 import com.xplorenow.ui.home.detalle.DetalleFragment;
+import com.xplorenow.ui.home.filtros.FiltrosFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,12 +32,13 @@ import retrofit2.Response;
 
 @AndroidEntryPoint
 public class HomeFragment extends Fragment {
-
     private static final String TAG = "HomeFragment";
 
     private FragmentHomeBinding binding;
     private ActividadAdapter adapter;
     private final List<ActividadDTO> actividades = new ArrayList<>();
+
+    private FiltrosActividad filtrosActuales = null;
 
     @Inject
     ActividadRepository actividadRepository;
@@ -53,10 +56,36 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Menu con la accion "Filtrar" en la toolbar local del fragment
+                binding.toolbar.inflateMenu(R.menu.menu_home);
+                binding.toolbar.setOnMenuItemClickListener(item -> {
+                    if (item.getItemId() == R.id.action_filtrar) {
+                        Navigation.findNavController(requireView())
+                                .navigate(R.id.action_home_to_filtros);
+                        return true;
+                    }
+                    return false;
+                });
+
+        getParentFragmentManager().setFragmentResultListener(
+                FiltrosFragment.RESULT_KEY,
+                getViewLifecycleOwner(),
+                (requestKey, bundle) -> {
+                    filtrosActuales = bundleAFiltros(bundle);
+                    actualizarChipFiltros();
+                    cargarActividades();
+                }
+        );
+
         adapter = new ActividadAdapter(requireContext(), actividades);
         binding.lvActividades.setAdapter(adapter);
 
-        // Click en una tarjeta -> ir al detalle
+        binding.btnLimpiarFiltros.setOnClickListener(v -> {
+            filtrosActuales = null;
+            actualizarChipFiltros();
+            cargarActividades();
+        });
+
         binding.lvActividades.setOnItemClickListener((parent, v, position, id) -> {
             ActividadDTO seleccionada = actividades.get(position);
             Bundle args = new Bundle();
@@ -65,15 +94,53 @@ public class HomeFragment extends Fragment {
                     R.id.action_home_to_detalle, args);
         });
 
+
         cargarActividades();
     }
 
+    /** Convierte el Bundle que devuelve FiltrosFragment en un objeto FiltrosActividad. */
+    private FiltrosActividad bundleAFiltros(Bundle b) {
+        if (b == null || b.isEmpty()) return null;
+        FiltrosActividad f = new FiltrosActividad();
+        if (b.containsKey(FiltrosFragment.ARG_DESTINO_ID))
+            f.setDestinoId(b.getLong(FiltrosFragment.ARG_DESTINO_ID));
+        if (b.containsKey(FiltrosFragment.ARG_CATEGORIA_ID))
+            f.setCategoriaId(b.getLong(FiltrosFragment.ARG_CATEGORIA_ID));
+        if (b.containsKey(FiltrosFragment.ARG_FECHA_DESDE))
+            f.setFechaDesde(b.getString(FiltrosFragment.ARG_FECHA_DESDE));
+        if (b.containsKey(FiltrosFragment.ARG_FECHA_HASTA))
+            f.setFechaHasta(b.getString(FiltrosFragment.ARG_FECHA_HASTA));
+        if (b.containsKey(FiltrosFragment.ARG_PRECIO_MIN))
+            f.setPrecioMin(b.getDouble(FiltrosFragment.ARG_PRECIO_MIN));
+        if (b.containsKey(FiltrosFragment.ARG_PRECIO_MAX))
+            f.setPrecioMax(b.getDouble(FiltrosFragment.ARG_PRECIO_MAX));
+        return f.estaVacio() ? null : f;
+    }
+    private void actualizarChipFiltros() {
+        if (filtrosActuales == null || filtrosActuales.estaVacio()) {
+            binding.llFiltrosActivos.setVisibility(View.GONE);
+        } else {
+            binding.llFiltrosActivos.setVisibility(View.VISIBLE);
+            binding.tvFiltrosActivos.setText(
+                    "Filtros aplicados: " + describirFiltros(filtrosActuales));
+        }
+    }
+    private String describirFiltros(FiltrosActividad f) {
+        StringBuilder sb = new StringBuilder();
+        int count = 0;
+        if (f.getDestinoId() != null) { count++; }
+        if (f.getCategoriaId() != null) { count++; }
+        if (f.getFechaDesde() != null || f.getFechaHasta() != null) { count++; }
+        if (f.getPrecioMin() != null || f.getPrecioMax() != null) { count++; }
+        sb.append(count).append(count == 1 ? " filtro" : " filtros");
+        return sb.toString();
+    }
     private void cargarActividades() {
         binding.tvStatus.setText("Cargando...");
         binding.tvStatus.setVisibility(View.VISIBLE);
         binding.lvActividades.setVisibility(View.GONE);
 
-        actividadRepository.listarActividades(0, 20).enqueue(
+        actividadRepository.listarActividades(0, 20, filtrosActuales).enqueue(
                 new Callback<PageResponseDTO<ActividadDTO>>() {
                     @Override
                     public void onResponse(
@@ -100,7 +167,7 @@ public class HomeFragment extends Fragment {
 
     private void mostrarLista(List<ActividadDTO> recibidas) {
         if (recibidas == null || recibidas.isEmpty()) {
-            mostrarError("No hay actividades disponibles");
+            mostrarError("No hay actividades que coincidan con los filtros");
             return;
         }
         actividades.clear();
