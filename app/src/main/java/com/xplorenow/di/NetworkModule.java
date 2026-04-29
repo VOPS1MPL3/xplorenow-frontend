@@ -1,5 +1,6 @@
 package com.xplorenow.di;
 
+import com.xplorenow.network.ApiService;
 import com.xplorenow.util.TokenManager;
 import javax.inject.Singleton;
 import dagger.Module;
@@ -16,8 +17,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 @InstallIn(SingletonComponent.class)
 public class NetworkModule {
 
-    // En emulador 10.0.2.2 apunta a localhost de tu PC
-    // Si probás en dispositivo físico, cambiá por la IP de tu máquina
     private static final String BASE_URL = "http://10.0.2.2:8080/";
 
     @Provides
@@ -49,5 +48,11 @@ public class NetworkModule {
                 .client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
+    }
+
+    @Provides
+    @Singleton
+    public ApiService provideApiService(Retrofit retrofit) {
+        return retrofit.create(ApiService.class);
     }
 }

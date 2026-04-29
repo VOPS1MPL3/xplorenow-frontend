@@ -3,18 +3,57 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/homeFragment">
+    app:startDestination="@id/loginFragment">
+
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.xplorenow.auth.LoginFragment"
+        android:label="Login"
+        tools:layout="@layout/fragment_login">
+        <action
+            android:id="@+id/action_login_to_otpSolicitar"
+            app:destination="@id/otpSolicitarFragment"/>
+        <action
+            android:id="@+id/action_login_to_home"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/otpSolicitarFragment"
+        android:name="com.xplorenow.auth.OtpSolicitarFragment"
+        android:label="OTP Solicitar"
+        tools:layout="@layout/fragment_otp_solicitar">
+        <action
+            android:id="@+id/action_otpSolicitar_to_otpConfirmar"
+            app:destination="@id/otpConfirmarFragment"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/otpConfirmarFragment"
+        android:name="com.xplorenow.auth.OtpConfirmarFragment"
+        android:label="OTP Confirmar"
+        tools:layout="@layout/fragment_otp_confirmar">
+        <argument
+            android:name="email"
+            app:argType="string"
+            android:defaultValue=""/>
+        <action
+            android:id="@+id/action_otpConfirmar_to_home"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true"/>
+    </fragment>
 
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.xplorenow.ui.home.HomeFragment"
         android:label="Inicio"
         tools:layout="@layout/fragment_home">
-
         <action
             android:id="@+id/action_home_to_detalle"
             app:destination="@id/detalleFragment" />
-
         <action
             android:id="@+id/action_home_to_filtros"
             app:destination="@id/filtrosFragment" />
@@ -25,7 +64,6 @@
         android:name="com.xplorenow.ui.home.detalle.DetalleFragment"
         android:label="Detalle"
         tools:layout="@layout/fragment_detalle">
-
         <argument
             android:name="actividadId"
             app:argType="long" />
