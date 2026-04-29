@@ -4,6 +4,7 @@ import com.xplorenow.data.dto.ActividadDetalleDTO;
 import com.xplorenow.data.dto.CategoriaDTO;
 import com.xplorenow.data.dto.DestinoDTO;
 import com.xplorenow.data.dto.PageResponseDTO;
+import com.xplorenow.data.dto.ReservaDTO;
 import java.util.List;
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -34,4 +35,7 @@ public interface XploreNowApi {
 
     @GET("actividades/destacadas")
     Call<List<ActividadDTO>> obtenerDestacadas();
+
+    @GET("reservas/mis")
+    Call<List<ReservaDTO>> misReservas(@Query("estado") String estado);
 }
