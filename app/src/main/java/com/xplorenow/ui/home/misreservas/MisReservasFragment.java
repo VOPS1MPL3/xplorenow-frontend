@@ -13,6 +13,9 @@ import com.xplorenow.data.dto.EstadoReserva;
 import com.xplorenow.data.dto.ReservaDTO;
 import com.xplorenow.data.repository.ReservaRepository;
 import com.xplorenow.databinding.FragmentMisReservasBinding;
+import androidx.navigation.Navigation;
+import com.xplorenow.R;
+import com.xplorenow.ui.home.misreservas.detalle.ReservaDetalleFragment;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -52,6 +55,14 @@ public class MisReservasFragment extends Fragment {
 
         adapter = new ReservaAdapter(requireContext(), reservas);
         binding.lvReservas.setAdapter(adapter);
+
+        binding.lvReservas.setOnItemClickListener((parent, v, position, id) -> {
+            ReservaDTO seleccionada = reservas.get(position);
+            Bundle args = new Bundle();
+            args.putLong(ReservaDetalleFragment.ARG_RESERVA_ID, seleccionada.getId());
+            Navigation.findNavController(v).navigate(
+                    R.id.action_misReservas_to_reservaDetalle, args);
+        });
 
         ArrayAdapter<String> spAdapter = new ArrayAdapter<>(
                 requireContext(),
