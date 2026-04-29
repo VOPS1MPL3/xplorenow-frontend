@@ -278,5 +278,18 @@
                 tools:text="Cancelacion gratuita hasta 24hs antes." />
         </LinearLayout>
 
+        <!-- Boton cancelar reserva -->
+        <Button
+            android:id="@+id/btnCancelar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="24dp"
+            android:visibility="gone"
+            android:text="Cancelar reserva"
+            android:backgroundTint="#B71C1C"
+            android:textColor="@android:color/white" />
+
     </LinearLayout>
 </ScrollView>

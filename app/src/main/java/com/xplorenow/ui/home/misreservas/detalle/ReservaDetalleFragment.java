@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import com.bumptech.glide.Glide;
+import androidx.appcompat.app.AlertDialog;
 import com.xplorenow.data.dto.EstadoReserva;
 import com.xplorenow.data.dto.ReservaDetalleDTO;
 import com.xplorenow.data.repository.ReservaRepository;
@@ -28,6 +29,8 @@ public class ReservaDetalleFragment extends Fragment {
     public static final String ARG_RESERVA_ID = "reservaId";
 
     private FragmentReservaDetalleBinding binding;
+
+    private long reservaIdActual = -1L;
 
     @Inject
     ReservaRepository reservaRepository;
@@ -53,7 +56,11 @@ public class ReservaDetalleFragment extends Fragment {
                         "El mapa se va a integrar en el punto 10",
                         Toast.LENGTH_SHORT).show());
 
-        long reservaId = requireArguments().getLong(ARG_RESERVA_ID, -1L);
+        binding.btnCancelar.setOnClickListener(v -> confirmarCancelacion());
+
+        reservaIdActual = requireArguments().getLong(ARG_RESERVA_ID, -1L);
+        long reservaId = reservaIdActual;
+
         if (reservaId < 0) {
             Toast.makeText(requireContext(), "Reserva invalida", Toast.LENGTH_SHORT).show();
             return;
@@ -110,6 +117,12 @@ public class ReservaDetalleFragment extends Fragment {
         binding.tvGuia.setText(d.getGuiaAsignado());
         binding.tvIdioma.setText(d.getIdioma());
         binding.tvPolitica.setText(d.getPoliticaCancelacion());
+
+        if (d.getEstado() == EstadoReserva.CONFIRMADA) {
+            binding.btnCancelar.setVisibility(View.VISIBLE);
+        } else {
+            binding.btnCancelar.setVisibility(View.GONE);
+        }
     }
 
     private int colorPara(EstadoReserva e) {
@@ -120,6 +133,53 @@ public class ReservaDetalleFragment extends Fragment {
             case FINALIZADA: return Color.parseColor("#37474F");
             default: return Color.GRAY;
         }
+    }
+
+    private void confirmarCancelacion() {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Cancelar reserva")
+                .setMessage("¿Estas seguro de cancelar esta reserva?")
+                .setPositiveButton("Si, cancelar", (dialog, which) -> ejecutarCancelacion())
+                .setNegativeButton("No", null)
+                .show();
+    }
+
+    private void ejecutarCancelacion() {
+        if (reservaIdActual < 0) return;
+        binding.btnCancelar.setEnabled(false);
+        binding.btnCancelar.setText("Cancelando...");
+
+        reservaRepository.cancelarReserva(reservaIdActual).enqueue(
+                new Callback<ReservaDetalleDTO>() {
+                    @Override
+                    public void onResponse(Call<ReservaDetalleDTO> call,
+                                           Response<ReservaDetalleDTO> response) {
+                        if (binding == null) return;
+                        if (response.isSuccessful() && response.body() != null) {
+                            Toast.makeText(requireContext(),
+                                    "Reserva cancelada",
+                                    Toast.LENGTH_SHORT).show();
+                            mostrar(response.body()); // refresca con el nuevo estado
+                        } else {
+                            binding.btnCancelar.setEnabled(true);
+                            binding.btnCancelar.setText("Cancelar reserva");
+                            Toast.makeText(requireContext(),
+                                    "No se pudo cancelar (HTTP " + response.code() + ")",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ReservaDetalleDTO> call, Throwable t) {
+                        if (binding == null) return;
+                        binding.btnCancelar.setEnabled(true);
+                        binding.btnCancelar.setText("Cancelar reserva");
+                        Toast.makeText(requireContext(),
+                                "Error de red: " + t.getMessage(),
+                                Toast.LENGTH_LONG).show();
+                        Log.e(TAG, "cancelar onFailure", t);
+                    }
+                });
     }
 
     @Override

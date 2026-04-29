@@ -25,4 +25,8 @@ public class ReservaRepository {
     public Call<ReservaDetalleDTO> obtenerReserva(long id) {
         return api.obtenerReserva(id);
     }
+
+    public Call<ReservaDetalleDTO> cancelarReserva(long id) {
+        return api.cancelarReserva(id);
+    }
 }
