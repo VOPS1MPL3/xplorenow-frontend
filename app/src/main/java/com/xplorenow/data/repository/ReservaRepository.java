@@ -29,4 +29,8 @@ public class ReservaRepository {
     public Call<ReservaDetalleDTO> cancelarReserva(long id) {
         return api.cancelarReserva(id);
     }
+
+    public Call<List<ReservaDTO>> historial(Long destinoId, String fechaDesde, String fechaHasta) {
+        return api.historial(destinoId, fechaDesde, fechaHasta);
+    }
 }

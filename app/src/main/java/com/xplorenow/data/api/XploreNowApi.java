@@ -46,4 +46,11 @@ public interface XploreNowApi {
 
     @POST("reservas/{id}/cancelar")
     Call<ReservaDetalleDTO> cancelarReserva(@Path("id") long id);
+
+    @GET("reservas/historial")
+    Call<List<ReservaDTO>> historial(
+            @Query("destinoId") Long destinoId,
+            @Query("fechaDesde") String fechaDesde,
+            @Query("fechaHasta") String fechaHasta
+    );
 }

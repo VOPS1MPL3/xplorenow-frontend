@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
         navController.addOnDestinationChangedListener((controller, destination, args) -> {
             int id = destination.getId();
-            if (id == R.id.homeFragment || id == R.id.misReservasFragment) {
+            if (id == R.id.homeFragment || id == R.id.misReservasFragment || id == R.id.historialFragment) {
                 binding.bottomNav.setVisibility(View.VISIBLE);
             } else {
                 binding.bottomNav.setVisibility(View.GONE);

@@ -97,4 +97,15 @@
             app:argType="long" />
     </fragment>
 
+    <fragment
+        android:id="@+id/historialFragment"
+        android:name="com.xplorenow.ui.home.historial.HistorialFragment"
+        android:label="Historial"
+        tools:layout="@layout/fragment_historial">
+
+        <action
+            android:id="@+id/action_historial_to_reservaDetalle"
+            app:destination="@id/reservaDetalleFragment" />
+    </fragment>
+
 </navigation>
