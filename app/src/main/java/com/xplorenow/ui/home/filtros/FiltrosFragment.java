@@ -7,16 +7,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
+import com.xplorenow.R;
 import com.xplorenow.data.dto.CategoriaDTO;
 import com.xplorenow.data.dto.DestinoDTO;
-import com.xplorenow.data.dto.FiltrosActividad;
 import com.xplorenow.data.repository.CatalogoRepository;
-import com.xplorenow.databinding.FragmentFiltrosBinding;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -29,7 +32,9 @@ import retrofit2.Response;
 
 @AndroidEntryPoint
 public class FiltrosFragment extends Fragment {
+
     private static final String TAG = "FiltrosFragment";
+
     public static final String RESULT_KEY = "filtros_result";
     public static final String ARG_DESTINO_ID = "destinoId";
     public static final String ARG_CATEGORIA_ID = "categoriaId";
@@ -38,7 +43,10 @@ public class FiltrosFragment extends Fragment {
     public static final String ARG_PRECIO_MIN = "precioMin";
     public static final String ARG_PRECIO_MAX = "precioMax";
 
-    private FragmentFiltrosBinding binding;
+    private Spinner spDestino, spCategoria;
+    private TextView tvFechaDesde, tvFechaHasta;
+    private EditText etPrecioMin, etPrecioMax;
+    private Button btnLimpiar, btnAplicar;
 
     @Inject
     CatalogoRepository catalogoRepository;
@@ -51,24 +59,31 @@ public class FiltrosFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        binding = FragmentFiltrosBinding.inflate(inflater, container, false);
-        return binding.getRoot();
+        return inflater.inflate(R.layout.fragment_filtros, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        spDestino = view.findViewById(R.id.spDestino);
+        spCategoria = view.findViewById(R.id.spCategoria);
+        tvFechaDesde = view.findViewById(R.id.tvFechaDesde);
+        tvFechaHasta = view.findViewById(R.id.tvFechaHasta);
+        etPrecioMin = view.findViewById(R.id.etPrecioMin);
+        etPrecioMax = view.findViewById(R.id.etPrecioMax);
+        btnLimpiar = view.findViewById(R.id.btnLimpiar);
+        btnAplicar = view.findViewById(R.id.btnAplicar);
+
         cargarDestinos();
         cargarCategorias();
 
-        binding.tvFechaDesde.setOnClickListener(v ->
-                mostrarDatePicker(binding.tvFechaDesde));
-        binding.tvFechaHasta.setOnClickListener(v ->
-                mostrarDatePicker(binding.tvFechaHasta));
+        tvFechaDesde.setOnClickListener(v -> mostrarDatePicker(tvFechaDesde));
+        tvFechaHasta.setOnClickListener(v -> mostrarDatePicker(tvFechaHasta));
 
-        binding.btnLimpiar.setOnClickListener(v -> limpiar());
-        binding.btnAplicar.setOnClickListener(v -> aplicar());
+        btnLimpiar.setOnClickListener(v -> limpiar());
+        btnAplicar.setOnClickListener(v -> aplicar());
+
     }
 
     private void cargarDestinos() {
@@ -76,7 +91,7 @@ public class FiltrosFragment extends Fragment {
             @Override
             public void onResponse(Call<List<DestinoDTO>> call,
                                    Response<List<DestinoDTO>> response) {
-                if (binding == null) return;
+                if (getView() == null) return;
                 if (response.isSuccessful() && response.body() != null) {
                     destinos.clear();
                     destinos.addAll(response.body());
@@ -90,7 +105,7 @@ public class FiltrosFragment extends Fragment {
                             android.R.layout.simple_spinner_item, labels);
                     ad.setDropDownViewResource(
                             android.R.layout.simple_spinner_dropdown_item);
-                    binding.spDestino.setAdapter(ad);
+                    spDestino.setAdapter(ad);
                 }
             }
 
@@ -106,7 +121,7 @@ public class FiltrosFragment extends Fragment {
             @Override
             public void onResponse(Call<List<CategoriaDTO>> call,
                                    Response<List<CategoriaDTO>> response) {
-                if (binding == null) return;
+                if (getView() == null) return;
                 if (response.isSuccessful() && response.body() != null) {
                     categorias.clear();
                     categorias.addAll(response.body());
@@ -120,7 +135,7 @@ public class FiltrosFragment extends Fragment {
                             android.R.layout.simple_spinner_item, labels);
                     ad.setDropDownViewResource(
                             android.R.layout.simple_spinner_dropdown_item);
-                    binding.spCategoria.setAdapter(ad);
+                    spCategoria.setAdapter(ad);
                 }
             }
 
@@ -131,7 +146,7 @@ public class FiltrosFragment extends Fragment {
         });
     }
 
-    private void mostrarDatePicker(android.widget.TextView target) {
+    private void mostrarDatePicker(TextView target) {
         Calendar cal = Calendar.getInstance();
         DatePickerDialog dialog = new DatePickerDialog(
                 requireContext(),
@@ -146,26 +161,24 @@ public class FiltrosFragment extends Fragment {
         );
 
         long limiteMin = System.currentTimeMillis();
-        if (target.getId() == binding.tvFechaHasta.getId()) {
-            String desde = binding.tvFechaDesde.getText().toString();
+
+        if (target.getId() == tvFechaHasta.getId()) {
+            String desde = tvFechaDesde.getText().toString();
             if (!TextUtils.isEmpty(desde)) {
                 Long timestamp = parseFechaATimestamp(desde);
-                if (timestamp != null) {
-                    limiteMin = timestamp;
-                }
+                if (timestamp != null) limiteMin = timestamp;
             }
         }
         dialog.getDatePicker().setMinDate(limiteMin);
-
         dialog.show();
     }
+
     private Long parseFechaATimestamp(String fecha) {
         try {
             String[] partes = fecha.split("-");
             if (partes.length != 3) return null;
             Calendar c = Calendar.getInstance();
-            c.set(
-                    Integer.parseInt(partes[0]),
+            c.set(Integer.parseInt(partes[0]),
                     Integer.parseInt(partes[1]) - 1,
                     Integer.parseInt(partes[2]),
                     0, 0, 0);
@@ -177,15 +190,14 @@ public class FiltrosFragment extends Fragment {
     }
 
     private void limpiar() {
-        Bundle result = new Bundle(); // todos los campos null = sin filtros
+        Bundle result = new Bundle();
         getParentFragmentManager().setFragmentResult(RESULT_KEY, result);
         Navigation.findNavController(requireView()).popBackStack();
     }
 
     private void aplicar() {
-        // Validacion: si las dos fechas estan completas, "hasta" >= "desde"
-        String desde = binding.tvFechaDesde.getText().toString();
-        String hasta = binding.tvFechaHasta.getText().toString();
+        String desde = tvFechaDesde.getText().toString();
+        String hasta = tvFechaHasta.getText().toString();
         if (!TextUtils.isEmpty(desde) && !TextUtils.isEmpty(hasta)) {
             if (hasta.compareTo(desde) < 0) {
                 Toast.makeText(requireContext(),
@@ -196,29 +208,26 @@ public class FiltrosFragment extends Fragment {
         }
 
         Bundle result = new Bundle();
-        int posDestino = binding.spDestino.getSelectedItemPosition();
+
+        int posDestino = spDestino.getSelectedItemPosition();
         if (posDestino > 0 && posDestino - 1 < destinos.size()) {
             result.putLong(ARG_DESTINO_ID, destinos.get(posDestino - 1).getId());
         }
 
-        int posCategoria = binding.spCategoria.getSelectedItemPosition();
+        int posCategoria = spCategoria.getSelectedItemPosition();
         if (posCategoria > 0 && posCategoria - 1 < categorias.size()) {
             result.putLong(ARG_CATEGORIA_ID, categorias.get(posCategoria - 1).getId());
         }
 
-        if (!TextUtils.isEmpty(desde)) {
-            result.putString(ARG_FECHA_DESDE, desde);
-        }
-        if (!TextUtils.isEmpty(hasta)) {
-            result.putString(ARG_FECHA_HASTA, hasta);
-        }
+        if (!TextUtils.isEmpty(desde)) result.putString(ARG_FECHA_DESDE, desde);
+        if (!TextUtils.isEmpty(hasta)) result.putString(ARG_FECHA_HASTA, hasta);
 
         try {
-            String pmin = binding.etPrecioMin.getText().toString();
+            String pmin = etPrecioMin.getText().toString();
             if (!TextUtils.isEmpty(pmin)) {
                 result.putDouble(ARG_PRECIO_MIN, Double.parseDouble(pmin));
             }
-            String pmax = binding.etPrecioMax.getText().toString();
+            String pmax = etPrecioMax.getText().toString();
             if (!TextUtils.isEmpty(pmax)) {
                 result.putDouble(ARG_PRECIO_MAX, Double.parseDouble(pmax));
             }
@@ -230,11 +239,5 @@ public class FiltrosFragment extends Fragment {
 
         getParentFragmentManager().setFragmentResult(RESULT_KEY, result);
         Navigation.findNavController(requireView()).popBackStack();
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
     }
 }

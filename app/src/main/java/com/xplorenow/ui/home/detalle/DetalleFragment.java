@@ -4,18 +4,22 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
+import androidx.navigation.Navigation;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import com.bumptech.glide.Glide;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.xplorenow.R;
 import com.xplorenow.data.dto.ActividadDetalleDTO;
 import com.xplorenow.data.repository.ActividadRepository;
 import com.xplorenow.data.util.PrecioFormatter;
-import com.xplorenow.databinding.FragmentDetalleBinding;
-import com.xplorenow.databinding.ItemFotoBinding;
 import java.util.List;
 import javax.inject.Inject;
 import dagger.hilt.android.AndroidEntryPoint;
@@ -29,7 +33,15 @@ public class DetalleFragment extends Fragment {
     private static final String TAG = "DetalleFragment";
     public static final String ARG_ACTIVIDAD_ID = "actividadId";
 
-    private FragmentDetalleBinding binding;
+    private ImageView ivImagenPrincipal;
+    private TextView tvNombre, tvDestinoCategoria, tvPrecio, tvCupos;
+    private TextView tvDescripcion, tvQueIncluye, tvPuntoEncuentro;
+    private TextView tvGuia, tvIdioma, tvPoliticaCancelacion;
+    private Button btnVerMapa;
+    private HorizontalScrollView hsvGaleria;
+    private LinearLayout llGaleriaContainer;
+
+    private MaterialToolbar toolbar;
 
     @Inject
     ActividadRepository actividadRepository;
@@ -39,16 +51,33 @@ public class DetalleFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        binding = FragmentDetalleBinding.inflate(inflater, container, false);
-        return binding.getRoot();
+        return inflater.inflate(R.layout.fragment_detalle, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Boton placeholder de "Ver mapa" (punto 10 del TPO, lo hace otro)
-        binding.btnVerMapa.setOnClickListener(v ->
+        ivImagenPrincipal = view.findViewById(R.id.ivImagenPrincipal);
+        tvNombre = view.findViewById(R.id.tvNombre);
+        tvDestinoCategoria = view.findViewById(R.id.tvDestinoCategoria);
+        tvPrecio = view.findViewById(R.id.tvPrecio);
+        tvCupos = view.findViewById(R.id.tvCupos);
+        tvDescripcion = view.findViewById(R.id.tvDescripcion);
+        tvQueIncluye = view.findViewById(R.id.tvQueIncluye);
+        tvPuntoEncuentro = view.findViewById(R.id.tvPuntoEncuentro);
+        tvGuia = view.findViewById(R.id.tvGuia);
+        tvIdioma = view.findViewById(R.id.tvIdioma);
+        tvPoliticaCancelacion = view.findViewById(R.id.tvPoliticaCancelacion);
+        btnVerMapa = view.findViewById(R.id.btnVerMapa);
+        hsvGaleria = view.findViewById(R.id.hsvGaleria);
+        llGaleriaContainer = view.findViewById(R.id.llGaleriaContainer);
+
+        toolbar = view.findViewById(R.id.toolbar);
+        toolbar.setNavigationOnClickListener(v ->
+                Navigation.findNavController(v).popBackStack());
+
+        btnVerMapa.setOnClickListener(v ->
                 Toast.makeText(requireContext(),
                         "El mapa se va a integrar en el punto 10",
                         Toast.LENGTH_SHORT).show());
@@ -59,7 +88,6 @@ public class DetalleFragment extends Fragment {
                     "Actividad invalida", Toast.LENGTH_SHORT).show();
             return;
         }
-
         cargarDetalle(actividadId);
     }
 
@@ -69,7 +97,7 @@ public class DetalleFragment extends Fragment {
                     @Override
                     public void onResponse(Call<ActividadDetalleDTO> call,
                                            Response<ActividadDetalleDTO> response) {
-                        if (binding == null) return;
+                        if (getView() == null) return;
                         if (response.isSuccessful() && response.body() != null) {
                             mostrarDetalle(response.body());
                         } else {
@@ -82,7 +110,7 @@ public class DetalleFragment extends Fragment {
 
                     @Override
                     public void onFailure(Call<ActividadDetalleDTO> call, Throwable t) {
-                        if (binding == null) return;
+                        if (getView() == null) return;
                         Log.e(TAG, "onFailure", t);
                         Toast.makeText(requireContext(),
                                 "Error de red: " + t.getMessage(),
@@ -95,45 +123,41 @@ public class DetalleFragment extends Fragment {
         Glide.with(this)
                 .load(d.getImagenPrincipal())
                 .placeholder(android.R.color.darker_gray)
-                .into(binding.ivImagenPrincipal);
+                .into(ivImagenPrincipal);
 
-        binding.tvNombre.setText(d.getNombre());
-        binding.tvDestinoCategoria.setText(
+        tvNombre.setText(d.getNombre());
+        tvDestinoCategoria.setText(
                 d.getDestino() + " - " + d.getCategoria()
                         + " - " + formatDuracion(d.getDuracionMinutos()));
-        binding.tvPrecio.setText(PrecioFormatter.format(d.getPrecio()));
-        binding.tvCupos.setText(d.getCuposDisponibles() + " cupos disponibles");
-        binding.tvDescripcion.setText(d.getDescripcion());
-        binding.tvQueIncluye.setText(d.getQueIncluye());
-        binding.tvPuntoEncuentro.setText(d.getPuntoEncuentro());
-        binding.tvGuia.setText(d.getGuiaAsignado());
-        binding.tvIdioma.setText(d.getIdioma());
-        binding.tvPoliticaCancelacion.setText(d.getPoliticaCancelacion());
+        tvPrecio.setText(PrecioFormatter.format(d.getPrecio()));
+        tvCupos.setText(d.getCuposDisponibles() + " cupos disponibles");
+        tvDescripcion.setText(d.getDescripcion());
+        tvQueIncluye.setText(d.getQueIncluye());
+        tvPuntoEncuentro.setText(d.getPuntoEncuentro());
+        tvGuia.setText(d.getGuiaAsignado());
+        tvIdioma.setText(d.getIdioma());
+        tvPoliticaCancelacion.setText(d.getPoliticaCancelacion());
 
         cargarGaleria(d.getGaleriaUrls());
     }
 
     private void cargarGaleria(List<String> urls) {
-        binding.llGaleriaContainer.removeAllViews();
+        llGaleriaContainer.removeAllViews();
 
         if (urls == null || urls.isEmpty()) {
-            // Sin galeria, ocultamos la HorizontalScrollView
-            binding.hsvGaleria.setVisibility(View.GONE);
+            hsvGaleria.setVisibility(View.GONE);
             return;
         }
 
         for (String url : urls) {
-            ItemFotoBinding fotoBinding = ItemFotoBinding.inflate(
-                    LayoutInflater.from(requireContext()),
-                    binding.llGaleriaContainer,
-                    false
-            );
-            ImageView iv = fotoBinding.ivFoto;
+            View foto = LayoutInflater.from(requireContext())
+                    .inflate(R.layout.item_foto, llGaleriaContainer, false);
+            ImageView iv = foto.findViewById(R.id.ivFoto);
             Glide.with(this)
                     .load(url)
                     .placeholder(android.R.color.darker_gray)
                     .into(iv);
-            binding.llGaleriaContainer.addView(fotoBinding.getRoot());
+            llGaleriaContainer.addView(foto);
         }
     }
 
@@ -144,11 +168,5 @@ public class DetalleFragment extends Fragment {
         int mins = minutos % 60;
         if (mins == 0) return horas + " h";
         return horas + "h " + mins + "m";
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
     }
 }

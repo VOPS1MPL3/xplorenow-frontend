@@ -5,17 +5,21 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import com.bumptech.glide.Glide;
-import androidx.appcompat.app.AlertDialog;
+import com.google.android.material.appbar.MaterialToolbar;
+import com.xplorenow.R;
 import com.xplorenow.data.dto.EstadoReserva;
 import com.xplorenow.data.dto.ReservaDetalleDTO;
 import com.xplorenow.data.repository.ReservaRepository;
-import com.xplorenow.databinding.FragmentReservaDetalleBinding;
 import javax.inject.Inject;
 import dagger.hilt.android.AndroidEntryPoint;
 import retrofit2.Call;
@@ -28,7 +32,12 @@ public class ReservaDetalleFragment extends Fragment {
     private static final String TAG = "ReservaDetalleFragment";
     public static final String ARG_RESERVA_ID = "reservaId";
 
-    private FragmentReservaDetalleBinding binding;
+    private MaterialToolbar toolbar;
+    private ImageView ivImagen;
+    private TextView tvVoucher, tvEstado, tvNombre, tvDestinoCategoria;
+    private TextView tvFechaHora, tvParticipantes, tvPuntoEncuentro;
+    private TextView tvGuia, tvIdioma, tvPolitica;
+    private Button btnVerMapa, btnCancelar;
 
     private long reservaIdActual = -1L;
 
@@ -40,32 +49,44 @@ public class ReservaDetalleFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        binding = FragmentReservaDetalleBinding.inflate(inflater, container, false);
-        return binding.getRoot();
+        return inflater.inflate(R.layout.fragment_reserva_detalle, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        binding.toolbar.setNavigationOnClickListener(v ->
+        toolbar = view.findViewById(R.id.toolbar);
+        ivImagen = view.findViewById(R.id.ivImagen);
+        tvVoucher = view.findViewById(R.id.tvVoucher);
+        tvEstado = view.findViewById(R.id.tvEstado);
+        tvNombre = view.findViewById(R.id.tvNombre);
+        tvDestinoCategoria = view.findViewById(R.id.tvDestinoCategoria);
+        tvFechaHora = view.findViewById(R.id.tvFechaHora);
+        tvParticipantes = view.findViewById(R.id.tvParticipantes);
+        tvPuntoEncuentro = view.findViewById(R.id.tvPuntoEncuentro);
+        tvGuia = view.findViewById(R.id.tvGuia);
+        tvIdioma = view.findViewById(R.id.tvIdioma);
+        tvPolitica = view.findViewById(R.id.tvPolitica);
+        btnVerMapa = view.findViewById(R.id.btnVerMapa);
+        btnCancelar = view.findViewById(R.id.btnCancelar);
+
+        toolbar.setNavigationOnClickListener(v ->
                 Navigation.findNavController(v).popBackStack());
 
-        binding.btnVerMapa.setOnClickListener(v ->
+        btnVerMapa.setOnClickListener(v ->
                 Toast.makeText(requireContext(),
                         "El mapa se va a integrar en el punto 10",
                         Toast.LENGTH_SHORT).show());
 
-        binding.btnCancelar.setOnClickListener(v -> confirmarCancelacion());
+        btnCancelar.setOnClickListener(v -> confirmarCancelacion());
 
         reservaIdActual = requireArguments().getLong(ARG_RESERVA_ID, -1L);
-        long reservaId = reservaIdActual;
-
-        if (reservaId < 0) {
+        if (reservaIdActual < 0) {
             Toast.makeText(requireContext(), "Reserva invalida", Toast.LENGTH_SHORT).show();
             return;
         }
-        cargarDetalle(reservaId);
+        cargarDetalle(reservaIdActual);
     }
 
     private void cargarDetalle(long id) {
@@ -73,7 +94,7 @@ public class ReservaDetalleFragment extends Fragment {
             @Override
             public void onResponse(Call<ReservaDetalleDTO> call,
                                    Response<ReservaDetalleDTO> response) {
-                if (binding == null) return;
+                if (getView() == null) return;
                 if (response.isSuccessful() && response.body() != null) {
                     mostrar(response.body());
                 } else {
@@ -85,7 +106,7 @@ public class ReservaDetalleFragment extends Fragment {
 
             @Override
             public void onFailure(Call<ReservaDetalleDTO> call, Throwable t) {
-                if (binding == null) return;
+                if (getView() == null) return;
                 Log.e(TAG, "onFailure", t);
                 Toast.makeText(requireContext(),
                         "Error de red: " + t.getMessage(),
@@ -98,30 +119,29 @@ public class ReservaDetalleFragment extends Fragment {
         Glide.with(this)
                 .load(d.getActividadImagen())
                 .placeholder(android.R.color.darker_gray)
-                .into(binding.ivImagen);
+                .into(ivImagen);
 
-        binding.tvVoucher.setText(d.getVoucherCodigo());
-        binding.tvEstado.setText(d.getEstado() != null ? d.getEstado().name() : "");
-        binding.tvEstado.setBackgroundColor(colorPara(d.getEstado()));
+        tvVoucher.setText(d.getVoucherCodigo());
+        tvEstado.setText(d.getEstado() != null ? d.getEstado().name() : "");
+        tvEstado.setBackgroundColor(colorPara(d.getEstado()));
 
-        binding.tvNombre.setText(d.getActividadNombre());
-        binding.tvDestinoCategoria.setText(
-                d.getDestino() + " - " + d.getCategoria());
+        tvNombre.setText(d.getActividadNombre());
+        tvDestinoCategoria.setText(d.getDestino() + " - " + d.getCategoria());
 
         String hora = d.getHora() != null && d.getHora().length() >= 5
                 ? d.getHora().substring(0, 5) : d.getHora();
-        binding.tvFechaHora.setText(d.getFecha() + " - " + hora);
+        tvFechaHora.setText(d.getFecha() + " - " + hora);
 
-        binding.tvParticipantes.setText(d.getCantidadParticipantes() + " personas");
-        binding.tvPuntoEncuentro.setText(d.getPuntoEncuentro());
-        binding.tvGuia.setText(d.getGuiaAsignado());
-        binding.tvIdioma.setText(d.getIdioma());
-        binding.tvPolitica.setText(d.getPoliticaCancelacion());
+        tvParticipantes.setText(d.getCantidadParticipantes() + " personas");
+        tvPuntoEncuentro.setText(d.getPuntoEncuentro());
+        tvGuia.setText(d.getGuiaAsignado());
+        tvIdioma.setText(d.getIdioma());
+        tvPolitica.setText(d.getPoliticaCancelacion());
 
         if (d.getEstado() == EstadoReserva.CONFIRMADA) {
-            binding.btnCancelar.setVisibility(View.VISIBLE);
+            btnCancelar.setVisibility(View.VISIBLE);
         } else {
-            binding.btnCancelar.setVisibility(View.GONE);
+            btnCancelar.setVisibility(View.GONE);
         }
     }
 
@@ -146,23 +166,23 @@ public class ReservaDetalleFragment extends Fragment {
 
     private void ejecutarCancelacion() {
         if (reservaIdActual < 0) return;
-        binding.btnCancelar.setEnabled(false);
-        binding.btnCancelar.setText("Cancelando...");
+        btnCancelar.setEnabled(false);
+        btnCancelar.setText("Cancelando...");
 
         reservaRepository.cancelarReserva(reservaIdActual).enqueue(
                 new Callback<ReservaDetalleDTO>() {
                     @Override
                     public void onResponse(Call<ReservaDetalleDTO> call,
                                            Response<ReservaDetalleDTO> response) {
-                        if (binding == null) return;
+                        if (getView() == null) return;
                         if (response.isSuccessful() && response.body() != null) {
                             Toast.makeText(requireContext(),
                                     "Reserva cancelada",
                                     Toast.LENGTH_SHORT).show();
-                            mostrar(response.body()); // refresca con el nuevo estado
+                            mostrar(response.body());
                         } else {
-                            binding.btnCancelar.setEnabled(true);
-                            binding.btnCancelar.setText("Cancelar reserva");
+                            btnCancelar.setEnabled(true);
+                            btnCancelar.setText("Cancelar reserva");
                             Toast.makeText(requireContext(),
                                     "No se pudo cancelar (HTTP " + response.code() + ")",
                                     Toast.LENGTH_SHORT).show();
@@ -171,20 +191,14 @@ public class ReservaDetalleFragment extends Fragment {
 
                     @Override
                     public void onFailure(Call<ReservaDetalleDTO> call, Throwable t) {
-                        if (binding == null) return;
-                        binding.btnCancelar.setEnabled(true);
-                        binding.btnCancelar.setText("Cancelar reserva");
+                        if (getView() == null) return;
+                        btnCancelar.setEnabled(true);
+                        btnCancelar.setText("Cancelar reserva");
                         Toast.makeText(requireContext(),
                                 "Error de red: " + t.getMessage(),
                                 Toast.LENGTH_LONG).show();
                         Log.e(TAG, "cancelar onFailure", t);
                     }
                 });
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
     }
 }
