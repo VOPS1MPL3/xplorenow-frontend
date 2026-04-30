@@ -1,57 +1,21 @@
 package com.xplorenow.network;
 
-import com.xplorenow.model.ActualizarPerfilRequest;
-import com.xplorenow.model.CategoriaResponse;
-import com.xplorenow.model.PerfilResponse;
-import com.xplorenow.model.ReservaResponse;
-import com.xplorenow.model.auth.LoginRequest;
-import com.xplorenow.model.auth.LoginResponse;
-import com.xplorenow.model.auth.OtpConfirmarRequest;
-import com.xplorenow.model.auth.OtpSolicitarRequest;
-import com.xplorenow.model.auth.RegistroRequest;
-
-import java.util.List;
-import java.util.Map;
-
+import com.xplorenow.auth.AuthResponse;
+import com.xplorenow.auth.LoginRequest;
+import com.xplorenow.auth.OtpConfirmarRequest;
+import com.xplorenow.auth.OtpSolicitarRequest;
 import retrofit2.Call;
 import retrofit2.http.Body;
-import retrofit2.http.GET;
 import retrofit2.http.POST;
-import retrofit2.http.PUT;
-import retrofit2.http.Query;
 
 public interface ApiService {
 
-    // Auth endpoints
     @POST("auth/login")
-    Call<LoginResponse> login(@Body LoginRequest body);
-
-    @POST("auth/registro")
-    Call<LoginResponse> register(@Body RegistroRequest body);
+    Call<AuthResponse> login(@Body LoginRequest request);
 
     @POST("auth/otp/solicitar")
-    Call<Void> solicitarOtp(@Body OtpSolicitarRequest body);
+    Call<Void> solicitarOtp(@Body OtpSolicitarRequest request);
 
     @POST("auth/otp/confirmar")
-    Call<LoginResponse> confirmarOtp(@Body OtpConfirmarRequest body);
-
-    // Profile endpoints
-    @GET("perfil")
-    Call<PerfilResponse> getPerfil();
-
-    @PUT("perfil")
-    Call<PerfilResponse> actualizarPerfil(@Body ActualizarPerfilRequest body);
-
-    @PUT("perfil/preferencias")
-    Call<Void> actualizarPreferencias(@Body Map<String, List<Long>> body);
-
-    @GET("categorias")
-    Call<List<CategoriaResponse>> getCategorias();
-
-    // Activities and Reservations
-    @GET("reservas/mis")
-    Call<List<ReservaResponse>> getMisReservas();
-
-    @GET("reservas/mis")
-    Call<List<ReservaResponse>> getMisReservasPorEstado(@Query("estado") String estado);
+    Call<AuthResponse> confirmarOtp(@Body OtpConfirmarRequest request);
 }

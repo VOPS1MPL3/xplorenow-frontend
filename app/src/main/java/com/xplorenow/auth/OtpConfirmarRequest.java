@@ -1,4 +1,4 @@
-package com.xplorenow.model.auth;
+package com.xplorenow.auth;
 
 public class OtpConfirmarRequest {
     private String email;
@@ -8,7 +8,4 @@ public class OtpConfirmarRequest {
         this.email = email;
         this.codigo = codigo;
     }
-
-    public String getEmail() { return email; }
-    public String getCodigo() { return codigo; }
 }

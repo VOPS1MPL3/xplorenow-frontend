@@ -1,4 +1,4 @@
-package com.xplorenow.model.auth;
+package com.xplorenow.auth;
 
 public class OtpSolicitarRequest {
     private String email;
@@ -6,6 +6,4 @@ public class OtpSolicitarRequest {
     public OtpSolicitarRequest(String email) {
         this.email = email;
     }
-
-    public String getEmail() { return email; }
 }
