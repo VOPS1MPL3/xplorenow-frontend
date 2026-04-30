@@ -16,8 +16,7 @@
             android:layout_height="wrap_content"
             android:background="?attr/colorPrimary"
             app:title="Detalle de reserva"
-            app:titleTextColor="@android:color/white"
-            app:navigationIcon="@android:drawable/ic_menu_revert" />
+            app:titleTextColor="@android:color/white" />
 
         <ImageView
             android:id="@+id/ivImagen"

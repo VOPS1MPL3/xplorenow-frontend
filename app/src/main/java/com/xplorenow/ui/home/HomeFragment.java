@@ -1,37 +1,31 @@
 package com.xplorenow.ui.home;
-
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
-
 import com.bumptech.glide.Glide;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.xplorenow.R;
 import com.xplorenow.data.dto.ActividadDTO;
 import com.xplorenow.data.dto.FiltrosActividad;
 import com.xplorenow.data.dto.PageResponseDTO;
 import com.xplorenow.data.repository.ActividadRepository;
 import com.xplorenow.data.util.PrecioFormatter;
-import com.xplorenow.databinding.FragmentHomeBinding;
-import com.xplorenow.databinding.FooterCargarMasBinding;
-import com.xplorenow.databinding.HeaderDestacadasBinding;
-import com.xplorenow.databinding.ItemDestacadaBinding;
 import com.xplorenow.ui.home.detalle.DetalleFragment;
 import com.xplorenow.ui.home.filtros.FiltrosFragment;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.inject.Inject;
-
 import dagger.hilt.android.AndroidEntryPoint;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -39,13 +33,26 @@ import retrofit2.Response;
 
 @AndroidEntryPoint
 public class HomeFragment extends Fragment {
+
     private static final String TAG = "HomeFragment";
     private static final int PAGE_SIZE = 5;
-    private FragmentHomeBinding binding;
-    private HeaderDestacadasBinding headerBinding;
-    private FooterCargarMasBinding footerBinding;
+
+    private MaterialToolbar toolbar;
+    private TextView tvStatus;
+    private ListView lvActividades;
+
+    // Header views
+    private TextView tvDestacadasTitulo;
+    private HorizontalScrollView hsvDestacadas;
+    private LinearLayout llDestacadasContainer;
+
+    // Footer views
+    private android.widget.Button btnCargarMas;
+    private TextView tvFinDeLista;
+
     private ActividadAdapter adapter;
     private final List<ActividadDTO> actividades = new ArrayList<>();
+
     private FiltrosActividad filtrosActuales = null;
     private int paginaActual = 0;
     private boolean esUltimaPagina = false;
@@ -59,17 +66,20 @@ public class HomeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        binding = FragmentHomeBinding.inflate(inflater, container, false);
-        return binding.getRoot();
+        return inflater.inflate(R.layout.fragment_home, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        toolbar = view.findViewById(R.id.toolbar);
+        tvStatus = view.findViewById(R.id.tvStatus);
+        lvActividades = view.findViewById(R.id.lvActividades);
+
         // Menu de filtrar
-        binding.toolbar.inflateMenu(R.menu.menu_home);
-        binding.toolbar.setOnMenuItemClickListener(item -> {
+        toolbar.inflateMenu(R.menu.menu_home);
+        toolbar.setOnMenuItemClickListener(item -> {
             if (item.getItemId() == R.id.action_filtrar) {
                 Navigation.findNavController(requireView())
                         .navigate(R.id.action_home_to_filtros);
@@ -78,6 +88,7 @@ public class HomeFragment extends Fragment {
             return false;
         });
 
+        // Resultado de los filtros
         getParentFragmentManager().setFragmentResultListener(
                 FiltrosFragment.RESULT_KEY,
                 getViewLifecycleOwner(),
@@ -88,27 +99,27 @@ public class HomeFragment extends Fragment {
         );
 
         // Header (destacadas + titulo "Catalogo completo")
-        headerBinding = HeaderDestacadasBinding.inflate(
-                LayoutInflater.from(requireContext()),
-                binding.lvActividades, false);
-        binding.lvActividades.addHeaderView(headerBinding.getRoot(), null, false);
+        View header = LayoutInflater.from(requireContext())
+                .inflate(R.layout.header_destacadas, lvActividades, false);
+        tvDestacadasTitulo = header.findViewById(R.id.tvDestacadasTitulo);
+        hsvDestacadas = header.findViewById(R.id.hsvDestacadas);
+        llDestacadasContainer = header.findViewById(R.id.llDestacadasContainer);
+        lvActividades.addHeaderView(header, null, false);
 
         // Footer (boton "Cargar mas")
-        footerBinding = FooterCargarMasBinding.inflate(
-                LayoutInflater.from(requireContext()),
-                binding.lvActividades, false);
-        binding.lvActividades.addFooterView(footerBinding.getRoot(), null, false);
-        footerBinding.btnCargarMas.setOnClickListener(v -> cargarSiguientePagina());
+        View footer = LayoutInflater.from(requireContext())
+                .inflate(R.layout.footer_cargar_mas, lvActividades, false);
+        btnCargarMas = footer.findViewById(R.id.btnCargarMas);
+        tvFinDeLista = footer.findViewById(R.id.tvFinDeLista);
+        lvActividades.addFooterView(footer, null, false);
+        btnCargarMas.setOnClickListener(v -> cargarSiguientePagina());
 
         adapter = new ActividadAdapter(requireContext(), actividades);
-        binding.lvActividades.setAdapter(adapter);
+        lvActividades.setAdapter(adapter);
 
-        binding.lvActividades.setOnItemClickListener((parent, v, position, id) -> {
-            // position es relativo al adapter -- el header se descuenta automaticamente
+        lvActividades.setOnItemClickListener((parent, v, position, id) -> {
             Object item = parent.getItemAtPosition(position);
-            if (!(item instanceof ActividadDTO)) {
-                return; // tap en header o footer
-            }
+            if (!(item instanceof ActividadDTO)) return;
             ActividadDTO seleccionada = (ActividadDTO) item;
             Bundle args = new Bundle();
             args.putLong(DetalleFragment.ARG_ACTIVIDAD_ID, seleccionada.getId());
@@ -120,24 +131,25 @@ public class HomeFragment extends Fragment {
         cargarPrimeraPagina();
     }
 
+    // ---------- Destacadas ----------
+
     private void cargarDestacadas() {
         actividadRepository.obtenerDestacadas().enqueue(
                 new Callback<List<ActividadDTO>>() {
                     @Override
                     public void onResponse(Call<List<ActividadDTO>> call,
                                            Response<List<ActividadDTO>> response) {
-                        if (binding == null) return;
+                        if (getView() == null) return;
                         if (response.isSuccessful() && response.body() != null) {
                             mostrarDestacadas(response.body());
                         } else {
-                            // Sin destacadas, ocultamos toda la seccion
                             ocultarDestacadas();
                         }
                     }
 
                     @Override
                     public void onFailure(Call<List<ActividadDTO>> call, Throwable t) {
-                        if (binding == null) return;
+                        if (getView() == null) return;
                         Log.e(TAG, "destacadas onFailure", t);
                         ocultarDestacadas();
                     }
@@ -145,55 +157,59 @@ public class HomeFragment extends Fragment {
     }
 
     private void mostrarDestacadas(List<ActividadDTO> recibidas) {
-        headerBinding.llDestacadasContainer.removeAllViews();
+        llDestacadasContainer.removeAllViews();
         if (recibidas == null || recibidas.isEmpty()) {
             ocultarDestacadas();
             return;
         }
         for (ActividadDTO a : recibidas) {
-            ItemDestacadaBinding ib = ItemDestacadaBinding.inflate(
-                    LayoutInflater.from(requireContext()),
-                    headerBinding.llDestacadasContainer, false);
-            ib.tvDestacadaNombre.setText(a.getNombre());
-            ib.tvDestacadaPrecio.setText(PrecioFormatter.format(a.getPrecio()));
+            View card = LayoutInflater.from(requireContext())
+                    .inflate(R.layout.item_destacada, llDestacadasContainer, false);
+            ImageView ivImg = card.findViewById(R.id.ivDestacadaImagen);
+            TextView tvNom = card.findViewById(R.id.tvDestacadaNombre);
+            TextView tvPre = card.findViewById(R.id.tvDestacadaPrecio);
+
+            tvNom.setText(a.getNombre());
+            tvPre.setText(PrecioFormatter.format(a.getPrecio()));
             Glide.with(this)
                     .load(a.getImagenPrincipal())
                     .placeholder(android.R.color.darker_gray)
-                    .into(ib.ivDestacadaImagen);
+                    .into(ivImg);
 
-            // Tap en una destacada -> ir al detalle
-            ib.getRoot().setOnClickListener(v -> {
+            card.setOnClickListener(v -> {
                 Bundle args = new Bundle();
                 args.putLong(DetalleFragment.ARG_ACTIVIDAD_ID, a.getId());
                 Navigation.findNavController(v).navigate(
                         R.id.action_home_to_detalle, args);
             });
 
-            headerBinding.llDestacadasContainer.addView(ib.getRoot());
+            llDestacadasContainer.addView(card);
         }
-        headerBinding.tvDestacadasTitulo.setVisibility(View.VISIBLE);
-        headerBinding.hsvDestacadas.setVisibility(View.VISIBLE);
+        tvDestacadasTitulo.setVisibility(View.VISIBLE);
+        hsvDestacadas.setVisibility(View.VISIBLE);
     }
 
     private void ocultarDestacadas() {
-        headerBinding.tvDestacadasTitulo.setVisibility(View.GONE);
-        headerBinding.hsvDestacadas.setVisibility(View.GONE);
+        tvDestacadasTitulo.setVisibility(View.GONE);
+        hsvDestacadas.setVisibility(View.GONE);
     }
+
+    // ---------- Listado paginado ----------
 
     private void reiniciarYRecargar() {
         actividades.clear();
         adapter.notifyDataSetChanged();
         paginaActual = 0;
         esUltimaPagina = false;
-        footerBinding.btnCargarMas.setVisibility(View.VISIBLE);
-        footerBinding.tvFinDeLista.setVisibility(View.GONE);
+        btnCargarMas.setVisibility(View.VISIBLE);
+        tvFinDeLista.setVisibility(View.GONE);
         cargarPrimeraPagina();
     }
 
     private void cargarPrimeraPagina() {
-        binding.tvStatus.setText("Cargando...");
-        binding.tvStatus.setVisibility(View.VISIBLE);
-        binding.lvActividades.setVisibility(View.GONE);
+        tvStatus.setText("Cargando...");
+        tvStatus.setVisibility(View.VISIBLE);
+        lvActividades.setVisibility(View.GONE);
         cargarPagina(0);
     }
 
@@ -205,8 +221,8 @@ public class HomeFragment extends Fragment {
     private void cargarPagina(int pagina) {
         if (cargando) return;
         cargando = true;
-        footerBinding.btnCargarMas.setEnabled(false);
-        footerBinding.btnCargarMas.setText("Cargando...");
+        btnCargarMas.setEnabled(false);
+        btnCargarMas.setText("Cargando...");
 
         actividadRepository.listarActividades(pagina, PAGE_SIZE, filtrosActuales).enqueue(
                 new Callback<PageResponseDTO<ActividadDTO>>() {
@@ -215,7 +231,7 @@ public class HomeFragment extends Fragment {
                             Call<PageResponseDTO<ActividadDTO>> call,
                             Response<PageResponseDTO<ActividadDTO>> response) {
                         cargando = false;
-                        if (binding == null) return;
+                        if (getView() == null) return;
                         if (response.isSuccessful() && response.body() != null) {
                             paginaActual = response.body().getNumber();
                             esUltimaPagina = response.body().isLast();
@@ -231,7 +247,7 @@ public class HomeFragment extends Fragment {
                             Call<PageResponseDTO<ActividadDTO>> call,
                             Throwable t) {
                         cargando = false;
-                        if (binding == null) return;
+                        if (getView() == null) return;
                         mostrarError("Error de red: " + t.getMessage());
                         actualizarFooter();
                         Log.e(TAG, "onFailure", t);
@@ -240,12 +256,8 @@ public class HomeFragment extends Fragment {
     }
 
     private void agregarActividades(List<ActividadDTO> recibidas) {
-        if (paginaActual == 0) {
-            actividades.clear();
-        }
-        if (recibidas != null) {
-            actividades.addAll(recibidas);
-        }
+        if (paginaActual == 0) actividades.clear();
+        if (recibidas != null) actividades.addAll(recibidas);
 
         if (actividades.isEmpty()) {
             mostrarError("No hay actividades que coincidan con los filtros");
@@ -253,26 +265,26 @@ public class HomeFragment extends Fragment {
         }
 
         adapter.notifyDataSetChanged();
-        binding.tvStatus.setVisibility(View.GONE);
-        binding.lvActividades.setVisibility(View.VISIBLE);
+        tvStatus.setVisibility(View.GONE);
+        lvActividades.setVisibility(View.VISIBLE);
     }
 
     private void actualizarFooter() {
         if (esUltimaPagina) {
-            footerBinding.btnCargarMas.setVisibility(View.GONE);
-            footerBinding.tvFinDeLista.setVisibility(View.VISIBLE);
+            btnCargarMas.setVisibility(View.GONE);
+            tvFinDeLista.setVisibility(View.VISIBLE);
         } else {
-            footerBinding.btnCargarMas.setVisibility(View.VISIBLE);
-            footerBinding.btnCargarMas.setEnabled(true);
-            footerBinding.btnCargarMas.setText("Cargar mas");
-            footerBinding.tvFinDeLista.setVisibility(View.GONE);
+            btnCargarMas.setVisibility(View.VISIBLE);
+            btnCargarMas.setEnabled(true);
+            btnCargarMas.setText("Cargar mas");
+            tvFinDeLista.setVisibility(View.GONE);
         }
     }
 
     private void mostrarError(String mensaje) {
-        binding.tvStatus.setText(mensaje);
-        binding.tvStatus.setVisibility(View.VISIBLE);
-        binding.lvActividades.setVisibility(View.GONE);
+        tvStatus.setText(mensaje);
+        tvStatus.setVisibility(View.VISIBLE);
+        lvActividades.setVisibility(View.GONE);
     }
 
     private FiltrosActividad bundleAFiltros(Bundle b) {
@@ -291,13 +303,5 @@ public class HomeFragment extends Fragment {
         if (b.containsKey(FiltrosFragment.ARG_PRECIO_MAX))
             f.setPrecioMax(b.getDouble(FiltrosFragment.ARG_PRECIO_MAX));
         return f.estaVacio() ? null : f;
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
-        headerBinding = null;
-        footerBinding = null;
     }
 }

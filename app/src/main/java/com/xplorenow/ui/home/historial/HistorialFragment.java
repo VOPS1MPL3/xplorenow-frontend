@@ -7,6 +7,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,7 +20,6 @@ import com.xplorenow.data.dto.DestinoDTO;
 import com.xplorenow.data.dto.ReservaDTO;
 import com.xplorenow.data.repository.CatalogoRepository;
 import com.xplorenow.data.repository.ReservaRepository;
-import com.xplorenow.databinding.FragmentHistorialBinding;
 import com.xplorenow.ui.home.misreservas.ReservaAdapter;
 import com.xplorenow.ui.home.misreservas.detalle.ReservaDetalleFragment;
 import java.util.ArrayList;
@@ -35,7 +37,11 @@ public class HistorialFragment extends Fragment {
 
     private static final String TAG = "HistorialFragment";
 
-    private FragmentHistorialBinding binding;
+    private Spinner spDestino;
+    private TextView tvFechaDesde, tvFechaHasta, tvStatus;
+    private Button btnLimpiar, btnAplicar;
+    private ListView lvHistorial;
+
     private ReservaAdapter adapter;
     private final List<ReservaDTO> reservas = new ArrayList<>();
     private final List<DestinoDTO> destinos = new ArrayList<>();
@@ -51,18 +57,25 @@ public class HistorialFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        binding = FragmentHistorialBinding.inflate(inflater, container, false);
-        return binding.getRoot();
+        return inflater.inflate(R.layout.fragment_historial, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        adapter = new ReservaAdapter(requireContext(), reservas);
-        binding.lvHistorial.setAdapter(adapter);
+        spDestino = view.findViewById(R.id.spDestino);
+        tvFechaDesde = view.findViewById(R.id.tvFechaDesde);
+        tvFechaHasta = view.findViewById(R.id.tvFechaHasta);
+        tvStatus = view.findViewById(R.id.tvStatus);
+        btnLimpiar = view.findViewById(R.id.btnLimpiar);
+        btnAplicar = view.findViewById(R.id.btnAplicar);
+        lvHistorial = view.findViewById(R.id.lvHistorial);
 
-        binding.lvHistorial.setOnItemClickListener((parent, v, position, id) -> {
+        adapter = new ReservaAdapter(requireContext(), reservas);
+        lvHistorial.setAdapter(adapter);
+
+        lvHistorial.setOnItemClickListener((parent, v, position, id) -> {
             ReservaDTO seleccionada = reservas.get(position);
             Bundle args = new Bundle();
             args.putLong(ReservaDetalleFragment.ARG_RESERVA_ID, seleccionada.getId());
@@ -70,14 +83,14 @@ public class HistorialFragment extends Fragment {
                     R.id.action_historial_to_reservaDetalle, args);
         });
 
-        binding.tvFechaDesde.setOnClickListener(v -> mostrarDatePicker(binding.tvFechaDesde));
-        binding.tvFechaHasta.setOnClickListener(v -> mostrarDatePicker(binding.tvFechaHasta));
+        tvFechaDesde.setOnClickListener(v -> mostrarDatePicker(tvFechaDesde));
+        tvFechaHasta.setOnClickListener(v -> mostrarDatePicker(tvFechaHasta));
 
-        binding.btnAplicar.setOnClickListener(v -> cargar());
-        binding.btnLimpiar.setOnClickListener(v -> {
-            binding.spDestino.setSelection(0);
-            binding.tvFechaDesde.setText("");
-            binding.tvFechaHasta.setText("");
+        btnAplicar.setOnClickListener(v -> cargar());
+        btnLimpiar.setOnClickListener(v -> {
+            spDestino.setSelection(0);
+            tvFechaDesde.setText("");
+            tvFechaHasta.setText("");
             cargar();
         });
 
@@ -90,7 +103,7 @@ public class HistorialFragment extends Fragment {
             @Override
             public void onResponse(Call<List<DestinoDTO>> call,
                                    Response<List<DestinoDTO>> response) {
-                if (binding == null) return;
+                if (getView() == null) return;
                 if (response.isSuccessful() && response.body() != null) {
                     destinos.clear();
                     destinos.addAll(response.body());
@@ -103,7 +116,7 @@ public class HistorialFragment extends Fragment {
                             requireContext(),
                             android.R.layout.simple_spinner_item, labels);
                     ad.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                    binding.spDestino.setAdapter(ad);
+                    spDestino.setAdapter(ad);
                 }
             }
 
@@ -115,8 +128,8 @@ public class HistorialFragment extends Fragment {
     }
 
     private void cargar() {
-        String desdeStr = binding.tvFechaDesde.getText().toString();
-        String hastaStr = binding.tvFechaHasta.getText().toString();
+        String desdeStr = tvFechaDesde.getText().toString();
+        String hastaStr = tvFechaHasta.getText().toString();
         if (!TextUtils.isEmpty(desdeStr) && !TextUtils.isEmpty(hastaStr)) {
             if (hastaStr.compareTo(desdeStr) < 0) {
                 error("La fecha 'hasta' no puede ser anterior a 'desde'");
@@ -124,27 +137,25 @@ public class HistorialFragment extends Fragment {
             }
         }
 
-        binding.tvStatus.setText("Cargando...");
-        binding.tvStatus.setVisibility(View.VISIBLE);
-        binding.lvHistorial.setVisibility(View.GONE);
+        tvStatus.setText("Cargando...");
+        tvStatus.setVisibility(View.VISIBLE);
+        lvHistorial.setVisibility(View.GONE);
 
         Long destinoId = null;
-        int pos = binding.spDestino.getSelectedItemPosition();
+        int pos = spDestino.getSelectedItemPosition();
         if (pos > 0 && pos - 1 < destinos.size()) {
             destinoId = destinos.get(pos - 1).getId();
         }
 
-        String desde = binding.tvFechaDesde.getText().toString();
-        String hasta = binding.tvFechaHasta.getText().toString();
-        if (TextUtils.isEmpty(desde)) desde = null;
-        if (TextUtils.isEmpty(hasta)) hasta = null;
+        if (TextUtils.isEmpty(desdeStr)) desdeStr = null;
+        if (TextUtils.isEmpty(hastaStr)) hastaStr = null;
 
-        reservaRepository.historial(destinoId, desde, hasta).enqueue(
+        reservaRepository.historial(destinoId, desdeStr, hastaStr).enqueue(
                 new Callback<List<ReservaDTO>>() {
                     @Override
                     public void onResponse(Call<List<ReservaDTO>> call,
                                            Response<List<ReservaDTO>> response) {
-                        if (binding == null) return;
+                        if (getView() == null) return;
                         if (response.isSuccessful() && response.body() != null) {
                             mostrar(response.body());
                         } else {
@@ -154,7 +165,7 @@ public class HistorialFragment extends Fragment {
 
                     @Override
                     public void onFailure(Call<List<ReservaDTO>> call, Throwable t) {
-                        if (binding == null) return;
+                        if (getView() == null) return;
                         error("Error de red: " + t.getMessage());
                         Log.e(TAG, "onFailure", t);
                     }
@@ -169,14 +180,14 @@ public class HistorialFragment extends Fragment {
         reservas.clear();
         reservas.addAll(recibidas);
         adapter.notifyDataSetChanged();
-        binding.tvStatus.setVisibility(View.GONE);
-        binding.lvHistorial.setVisibility(View.VISIBLE);
+        tvStatus.setVisibility(View.GONE);
+        lvHistorial.setVisibility(View.VISIBLE);
     }
 
     private void error(String msg) {
-        binding.tvStatus.setText(msg);
-        binding.tvStatus.setVisibility(View.VISIBLE);
-        binding.lvHistorial.setVisibility(View.GONE);
+        tvStatus.setText(msg);
+        tvStatus.setVisibility(View.VISIBLE);
+        lvHistorial.setVisibility(View.GONE);
     }
 
     private void mostrarDatePicker(TextView target) {
@@ -193,8 +204,8 @@ public class HistorialFragment extends Fragment {
                 cal.get(Calendar.DAY_OF_MONTH)
         );
 
-        if (target.getId() == binding.tvFechaHasta.getId()) {
-            String desde = binding.tvFechaDesde.getText().toString();
+        if (target.getId() == tvFechaHasta.getId()) {
+            String desde = tvFechaDesde.getText().toString();
             if (!TextUtils.isEmpty(desde)) {
                 Long ts = parseFechaATimestamp(desde);
                 if (ts != null) dialog.getDatePicker().setMinDate(ts);
@@ -209,8 +220,7 @@ public class HistorialFragment extends Fragment {
             String[] partes = fecha.split("-");
             if (partes.length != 3) return null;
             Calendar c = Calendar.getInstance();
-            c.set(
-                    Integer.parseInt(partes[0]),
+            c.set(Integer.parseInt(partes[0]),
                     Integer.parseInt(partes[1]) - 1,
                     Integer.parseInt(partes[2]),
                     0, 0, 0);
@@ -219,11 +229,5 @@ public class HistorialFragment extends Fragment {
         } catch (NumberFormatException e) {
             return null;
         }
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
     }
 }
