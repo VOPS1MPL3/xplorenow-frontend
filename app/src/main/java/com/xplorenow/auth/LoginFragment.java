@@ -48,18 +48,20 @@ public class LoginFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        tvTitulo    = view.findViewById(R.id.tvTitulo);
-        etEmail     = view.findViewById(R.id.etEmail);
-        etPassword  = view.findViewById(R.id.etPassword);
-        btnLogin    = view.findViewById(R.id.btnLogin);
-        btnIrOtp    = view.findViewById(R.id.btnIrOtp);
-        btnRegistro = view.findViewById(R.id.btnRegistro);
+        tvTitulo     = view.findViewById(R.id.tvTitulo);
+        etEmail      = view.findViewById(R.id.etEmail);
+        etPassword   = view.findViewById(R.id.etPassword);
+        btnLogin     = view.findViewById(R.id.btnLogin);
+        btnIrOtp     = view.findViewById(R.id.btnIrOtp);
+        btnRegistro  = view.findViewById(R.id.btnRegistro);
         btnBiometria = view.findViewById(R.id.btnBiometria);
 
-        // Mostrar botón biometría solo si hay token guardado
-        if (tokenManager.hasToken()) {
+        // Mostrar biometría solo si el token existe Y no venció
+        if (tokenManager.isTokenValid()) {
             btnBiometria.setVisibility(View.VISIBLE);
         } else {
+            // Si hay token pero venció, lo limpiamos
+            tokenManager.clearToken();
             btnBiometria.setVisibility(View.GONE);
         }
 
@@ -91,7 +93,7 @@ public class LoginFragment extends Fragment {
                     });
         });
 
-        // Ir a solicitar OTP
+        // Ir a OTP
         btnIrOtp.setOnClickListener(v ->
                 Navigation.findNavController(view).navigate(R.id.action_login_to_otpSolicitar)
         );
@@ -106,6 +108,16 @@ public class LoginFragment extends Fragment {
     }
 
     private void autenticarConBiometria(View view) {
+        // Doble chequeo: verificar validez justo antes de lanzar el prompt
+        if (!tokenManager.isTokenValid()) {
+            tokenManager.clearToken();
+            btnBiometria.setVisibility(View.GONE);
+            Toast.makeText(requireContext(),
+                    "Sesión expirada, ingresá con tu contraseña",
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+
         androidx.biometric.BiometricManager manager =
                 androidx.biometric.BiometricManager.from(requireContext());
 
@@ -135,17 +147,8 @@ public class LoginFragment extends Fragment {
                 new androidx.biometric.BiometricPrompt.AuthenticationCallback() {
                     @Override
                     public void onAuthenticationSucceeded(androidx.biometric.BiometricPrompt.AuthenticationResult result) {
-                        // Token válido guardado -> navegar al Home
-                        if (tokenManager.hasToken()) {
-                            Navigation.findNavController(view).navigate(R.id.action_login_to_home);
-                        } else {
-                            // Token expirado o borrado -> volver a login clásico
-                            tokenManager.clearToken();
-                            btnBiometria.setVisibility(View.GONE);
-                            Toast.makeText(requireContext(),
-                                    "Sesión expirada, ingresá con tu contraseña",
-                                    Toast.LENGTH_LONG).show();
-                        }
+                        // Token válido confirmado -> ir al Home
+                        Navigation.findNavController(view).navigate(R.id.action_login_to_home);
                     }
                     @Override
                     public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
