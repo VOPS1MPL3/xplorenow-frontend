@@ -67,6 +67,9 @@
         <argument
             android:name="actividadId"
             app:argType="long" />
+        <action
+        android:id="@+id/action_detalle_to_horarios"
+        app:destination="@id/horariosFragment" />
     </fragment>
 
     <fragment
@@ -108,4 +111,16 @@
             app:destination="@id/reservaDetalleFragment" />
     </fragment>
 
+    <fragment
+        android:id="@+id/horariosFragment"
+        android:name="com.xplorenow.ui.home.detalle.HorariosFragment"
+        android:label="Seleccionar horario"
+        tools:layout="@layout/fragment_horarios">
+        <argument
+            android:name="actividadId"
+            app:argType="long" />
+        <action
+            android:id="@+id/action_horarios_to_reservaDetalle"
+            app:destination="@id/reservaDetalleFragment" />
+    </fragment>
 </navigation>

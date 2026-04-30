@@ -12,6 +12,10 @@ import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
+import com.xplorenow.data.dto.CrearReservaRequest;
+import com.xplorenow.data.dto.HorarioDTO;
+import retrofit2.http.Body;
+
 
 public interface XploreNowApi {
 
@@ -53,4 +57,14 @@ public interface XploreNowApi {
             @Query("fechaDesde") String fechaDesde,
             @Query("fechaHasta") String fechaHasta
     );
+
+    @GET("actividades/{id}/horarios")
+    Call<List<HorarioDTO>> getHorarios(
+        @Path("id") long actividadId,
+        @Query("fecha") String fecha
+    );
+
+    @POST("reservas")
+    Call<ReservaDetalleDTO> crearReserva(@Body CrearReservaRequest body);
+
 }

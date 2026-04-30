@@ -3,6 +3,7 @@ import com.xplorenow.data.api.XploreNowApi;
 import com.xplorenow.data.dto.EstadoReserva;
 import com.xplorenow.data.dto.ReservaDTO;
 import com.xplorenow.data.dto.ReservaDetalleDTO;
+import com.xplorenow.data.dto.CrearReservaRequest;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -32,5 +33,8 @@ public class ReservaRepository {
 
     public Call<List<ReservaDTO>> historial(Long destinoId, String fechaDesde, String fechaHasta) {
         return api.historial(destinoId, fechaDesde, fechaHasta);
+    }
+    public Call<ReservaDetalleDTO> crearReserva(CrearReservaRequest request) {
+    return api.crearReserva(request);
     }
 }

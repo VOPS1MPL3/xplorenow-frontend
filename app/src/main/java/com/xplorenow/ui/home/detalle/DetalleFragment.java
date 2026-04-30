@@ -43,6 +43,8 @@ public class DetalleFragment extends Fragment {
 
     private MaterialToolbar toolbar;
 
+    private Button btnReservar;
+
     @Inject
     ActividadRepository actividadRepository;
 
@@ -72,6 +74,7 @@ public class DetalleFragment extends Fragment {
         btnVerMapa = view.findViewById(R.id.btnVerMapa);
         hsvGaleria = view.findViewById(R.id.hsvGaleria);
         llGaleriaContainer = view.findViewById(R.id.llGaleriaContainer);
+        btnReservar = view.findViewById(R.id.btnReservar);
 
         toolbar = view.findViewById(R.id.toolbar);
         toolbar.setNavigationOnClickListener(v ->
@@ -89,6 +92,12 @@ public class DetalleFragment extends Fragment {
             return;
         }
         cargarDetalle(actividadId);
+        btnReservar.setOnClickListener(v -> {
+            Bundle args = new Bundle();
+            args.putLong("actividadId", actividadId);
+            Navigation.findNavController(v)
+                .navigate(R.id.action_detalle_to_horarios, args);
+        });
     }
 
     private void cargarDetalle(long actividadId) {
