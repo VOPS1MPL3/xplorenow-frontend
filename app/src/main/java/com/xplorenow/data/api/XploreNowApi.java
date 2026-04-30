@@ -1,21 +1,23 @@
 package com.xplorenow.data.api;
+
 import com.xplorenow.data.dto.ActividadDTO;
 import com.xplorenow.data.dto.ActividadDetalleDTO;
+import com.xplorenow.data.dto.CalificacionDTO;
+import com.xplorenow.data.dto.CalificacionRequest;
 import com.xplorenow.data.dto.CategoriaDTO;
+import com.xplorenow.data.dto.CrearReservaRequest;
 import com.xplorenow.data.dto.DestinoDTO;
+import com.xplorenow.data.dto.HorarioDTO;
 import com.xplorenow.data.dto.PageResponseDTO;
 import com.xplorenow.data.dto.ReservaDTO;
 import com.xplorenow.data.dto.ReservaDetalleDTO;
-import retrofit2.http.POST;
 import java.util.List;
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
-import com.xplorenow.data.dto.CrearReservaRequest;
-import com.xplorenow.data.dto.HorarioDTO;
-import retrofit2.http.Body;
-
 
 public interface XploreNowApi {
 
@@ -60,11 +62,20 @@ public interface XploreNowApi {
 
     @GET("actividades/{id}/horarios")
     Call<List<HorarioDTO>> getHorarios(
-        @Path("id") long actividadId,
-        @Query("fecha") String fecha
+            @Path("id") long actividadId,
+            @Query("fecha") String fecha
     );
 
     @POST("reservas")
     Call<ReservaDetalleDTO> crearReserva(@Body CrearReservaRequest body);
 
+    // Punto 6 - Calificaciones
+    @POST("reservas/{id}/calificacion")
+    Call<CalificacionDTO> calificarReserva(
+            @Path("id") long reservaId,
+            @Body CalificacionRequest body
+    );
+
+    @GET("reservas/{id}/calificacion")
+    Call<CalificacionDTO> obtenerCalificacion(@Path("id") long reservaId);
 }
