@@ -18,8 +18,18 @@ import retrofit2.converter.gson.GsonConverterFactory;
 @InstallIn(SingletonComponent.class)
 public class NetworkModule {
 
-    // IP de tu máquina para pruebas en dispositivo físico (conectados al mismo Wi-Fi)
+    // URL por defecto para el emulador
+    //private static final String BASE_URL = "http://10.0.2.2:8080/";
     private static final String BASE_URL = "http://10.229.211.209:8080/";
+    @Provides
+    @Singleton
+    public Retrofit provideRetrofit(OkHttpClient client) {
+        return new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .client(client)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+    }
 
     @Provides
     @Singleton
@@ -39,16 +49,6 @@ public class NetworkModule {
                     return chain.proceed(original);
                 })
                 .addInterceptor(logging)
-                .build();
-    }
-
-    @Provides
-    @Singleton
-    public Retrofit provideRetrofit(OkHttpClient client) {
-        return new Retrofit.Builder()
-                .baseUrl(BASE_URL)
-                .client(client)
-                .addConverterFactory(GsonConverterFactory.create())
                 .build();
     }
 

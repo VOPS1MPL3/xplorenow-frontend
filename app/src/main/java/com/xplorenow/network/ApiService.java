@@ -6,6 +6,8 @@ import com.xplorenow.model.PerfilResponse;
 import com.xplorenow.model.ReservaResponse;
 import com.xplorenow.model.auth.LoginRequest;
 import com.xplorenow.model.auth.LoginResponse;
+import com.xplorenow.model.auth.OtpConfirmarRequest;
+import com.xplorenow.model.auth.OtpSolicitarRequest;
 import com.xplorenow.model.auth.RegistroRequest;
 
 import java.util.List;
@@ -26,6 +28,12 @@ public interface ApiService {
 
     @POST("auth/registro")
     Call<LoginResponse> register(@Body RegistroRequest body);
+
+    @POST("auth/otp/solicitar")
+    Call<Void> solicitarOtp(@Body OtpSolicitarRequest body);
+
+    @POST("auth/otp/confirmar")
+    Call<LoginResponse> confirmarOtp(@Body OtpConfirmarRequest body);
 
     // Profile endpoints
     @GET("perfil")
