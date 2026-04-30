@@ -51,7 +51,6 @@ public class OtpConfirmarFragment extends Fragment {
         btnConfirmarOtp = view.findViewById(R.id.btnConfirmarOtp);
         btnReenviarOtp = view.findViewById(R.id.btnReenviarOtp);
 
-        // Recibir email del fragment anterior
         if (getArguments() != null) {
             email = getArguments().getString("email", "");
             tvEmailDestino.setText("Código enviado a: " + email);
@@ -71,7 +70,9 @@ public class OtpConfirmarFragment extends Fragment {
                         public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
                             if (response.isSuccessful() && response.body() != null) {
                                 tokenManager.saveToken(response.body().getToken());
-                                Toast.makeText(requireContext(), "Login exitoso", Toast.LENGTH_SHORT).show();
+                                // Navegar al Home limpiando el back stack
+                                Navigation.findNavController(view)
+                                        .navigate(R.id.action_otpConfirmar_to_home);
                             } else {
                                 Toast.makeText(requireContext(), "Código incorrecto o expirado", Toast.LENGTH_SHORT).show();
                             }
