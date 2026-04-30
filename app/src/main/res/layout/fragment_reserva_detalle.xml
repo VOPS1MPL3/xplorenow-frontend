@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <!-- Toolbar fijo arriba, fuera del ScrollView -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -30,7 +29,6 @@
                 android:scaleType="centerCrop"
                 android:contentDescription="Imagen actividad" />
 
-            <!-- Voucher destacado -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -80,7 +78,6 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Datos principales -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -105,12 +102,8 @@
                     tools:text="Buenos Aires - Free Tour" />
             </LinearLayout>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#E0E0E0" />
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E0E0E0" />
 
-            <!-- Fecha y hora -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -133,12 +126,8 @@
                     tools:text="2026-05-15 - 10:00" />
             </LinearLayout>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#E0E0E0" />
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E0E0E0" />
 
-            <!-- Participantes -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -161,12 +150,8 @@
                     tools:text="2 personas" />
             </LinearLayout>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#E0E0E0" />
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E0E0E0" />
 
-            <!-- Punto de encuentro -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -196,12 +181,8 @@
                     android:text="Ver mapa" />
             </LinearLayout>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#E0E0E0" />
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E0E0E0" />
 
-            <!-- Guia + idioma -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -253,12 +234,8 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#E0E0E0" />
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E0E0E0" />
 
-            <!-- Politica -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -281,7 +258,6 @@
                     tools:text="Cancelacion gratuita hasta 24hs antes." />
             </LinearLayout>
 
-            <!-- Boton cancelar reserva -->
             <Button
                 android:id="@+id/btnCancelar"
                 android:layout_width="match_parent"
@@ -294,7 +270,6 @@
                 android:backgroundTint="#B71C1C"
                 android:textColor="@android:color/white" />
 
-            <!-- Punto 6: Botón calificar -->
             <Button
                 android:id="@+id/btnCalificar"
                 android:layout_width="match_parent"
@@ -305,7 +280,6 @@
                 android:text="Calificar actividad"
                 android:visibility="gone" />
 
-            <!-- Punto 6: Calificación existente (modo lectura) -->
             <LinearLayout
                 android:id="@+id/layoutCalificacionExistente"
                 android:layout_width="match_parent"
