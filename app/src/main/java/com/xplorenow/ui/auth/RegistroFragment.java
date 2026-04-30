@@ -86,7 +86,7 @@ public class RegistroFragment extends Fragment {
                 if (response.isSuccessful() && response.body() != null) {
                     tokenManager.saveToken(response.body().getToken());
                     Toast.makeText(requireContext(), "Registro exitoso", Toast.LENGTH_SHORT).show();
-                    Navigation.findNavController(requireView()).navigate(R.id.action_login_to_perfil);
+                    Navigation.findNavController(requireView()).navigate(R.id.action_login_to_home);
                 } else {
                     Toast.makeText(requireContext(), "Error al registrarse", Toast.LENGTH_SHORT).show();
                 }

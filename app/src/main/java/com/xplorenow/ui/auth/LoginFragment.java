@@ -48,7 +48,7 @@ public class LoginFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         if (tokenManager.hasToken()) {
-            Navigation.findNavController(view).navigate(R.id.action_login_to_perfil);
+            Navigation.findNavController(view).navigate(R.id.action_login_to_home);
             return;
         }
 
@@ -84,7 +84,7 @@ public class LoginFragment extends Fragment {
 
                 if (response.isSuccessful() && response.body() != null) {
                     tokenManager.saveToken(response.body().getToken());
-                    Navigation.findNavController(requireView()).navigate(R.id.action_login_to_perfil);
+                    Navigation.findNavController(requireView()).navigate(R.id.action_login_to_home);
                 } else {
                     Toast.makeText(requireContext(), "Credenciales incorrectas", Toast.LENGTH_SHORT).show();
                 }
