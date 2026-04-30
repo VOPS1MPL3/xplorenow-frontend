@@ -43,7 +43,6 @@ public class ReservaDetalleFragment extends Fragment {
     private TextView tvGuia, tvIdioma, tvPolitica;
     private Button btnVerMapa, btnCancelar, btnCalificar;
 
-    // Vista de calificación existente (solo lectura)
     private View layoutCalificacionExistente;
     private TextView tvRatingActividad, tvRatingGuia, tvComentario;
 
@@ -156,11 +155,9 @@ public class ReservaDetalleFragment extends Fragment {
         tvIdioma.setText(d.getIdioma());
         tvPolitica.setText(d.getPoliticaCancelacion());
 
-        // Botón cancelar solo si CONFIRMADA
         btnCancelar.setVisibility(
                 d.getEstado() == EstadoReserva.CONFIRMADA ? View.VISIBLE : View.GONE);
 
-        // Lógica de calificación: solo para FINALIZADA
         btnCalificar.setVisibility(View.GONE);
         layoutCalificacionExistente.setVisibility(View.GONE);
 
@@ -169,11 +166,6 @@ public class ReservaDetalleFragment extends Fragment {
         }
     }
 
-    /**
-     * Consulta si ya existe una calificación para esta reserva.
-     * Si existe → la muestra en modo lectura.
-     * Si no existe → muestra el botón para calificar.
-     */
     private void verificarCalificacion() {
         api.obtenerCalificacion(reservaIdActual)
                 .enqueue(new Callback<CalificacionDTO>() {
@@ -182,10 +174,8 @@ public class ReservaDetalleFragment extends Fragment {
                                            Response<CalificacionDTO> response) {
                         if (getView() == null) return;
                         if (response.isSuccessful() && response.body() != null) {
-                            // Ya calificó → mostrar en modo lectura
                             mostrarCalificacionExistente(response.body());
                         } else {
-                            // Aún no calificó → mostrar botón
                             btnCalificar.setVisibility(View.VISIBLE);
                             btnCalificar.setOnClickListener(v -> irACalificar(v));
                         }
@@ -194,7 +184,6 @@ public class ReservaDetalleFragment extends Fragment {
                     @Override
                     public void onFailure(Call<CalificacionDTO> call, Throwable t) {
                         if (getView() == null) return;
-                        // Si falla la red asumimos que puede calificar
                         btnCalificar.setVisibility(View.VISIBLE);
                         btnCalificar.setOnClickListener(v -> irACalificar(v));
                     }
@@ -211,6 +200,26 @@ public class ReservaDetalleFragment extends Fragment {
         } else {
             tvComentario.setVisibility(View.GONE);
         }
+
+        // Al tocar la sección abre el dialog con detalle completo
+        layoutCalificacionExistente.setOnClickListener(v ->
+                mostrarDialogCalificacion(c));
+    }
+
+    private void mostrarDialogCalificacion(CalificacionDTO c) {
+        String mensaje =
+                "Actividad: " + estrellas(c.getRatingActividad()) + "\n" +
+                        "Guía: " + estrellas(c.getRatingGuia());
+
+        if (c.getComentario() != null && !c.getComentario().isEmpty()) {
+            mensaje += "\n\n\"" + c.getComentario() + "\"";
+        }
+
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Tu calificación")
+                .setMessage(mensaje)
+                .setPositiveButton("Cerrar", null)
+                .show();
     }
 
     private String estrellas(Integer rating) {
