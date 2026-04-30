@@ -20,12 +20,14 @@ import retrofit2.http.Query;
 
 public interface ApiService {
 
+    // Auth endpoints
     @POST("auth/login")
     Call<LoginResponse> login(@Body LoginRequest body);
 
     @POST("auth/registro")
     Call<LoginResponse> register(@Body RegistroRequest body);
 
+    // Profile endpoints
     @GET("perfil")
     Call<PerfilResponse> getPerfil();
 
@@ -38,6 +40,7 @@ public interface ApiService {
     @GET("categorias")
     Call<List<CategoriaResponse>> getCategorias();
 
+    // Activities and Reservations
     @GET("reservas/mis")
     Call<List<ReservaResponse>> getMisReservas();
 

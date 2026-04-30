@@ -1,5 +1,6 @@
 package com.xplorenow.di;
 
+import com.xplorenow.network.ApiService;
 import com.xplorenow.util.TokenManager;
 import javax.inject.Singleton;
 import dagger.Module;
@@ -11,17 +12,15 @@ import okhttp3.Request;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-import com.xplorenow.network.ApiService;
 
 
 @Module
 @InstallIn(SingletonComponent.class)
 public class NetworkModule {
 
-    // En emulador 10.0.2.2 apunta a localhost de la PC local
-    // Si estamos probando en dispositivo físico, hay que cambiar por la IP de nuestra máquina
-    //private static final String BASE_URL = "http://10.0.2.2:8080/";
+    // IP de tu máquina para pruebas en dispositivo físico (conectados al mismo Wi-Fi)
     private static final String BASE_URL = "http://10.229.211.209:8080/";
+
     @Provides
     @Singleton
     public OkHttpClient provideOkHttpClient(TokenManager tokenManager) {
@@ -52,6 +51,7 @@ public class NetworkModule {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
     }
+
     @Provides
     @Singleton
     public ApiService provideApiService(Retrofit retrofit) {

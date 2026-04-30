@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/loginFragment">
 
+    <!-- Authentication -->
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.xplorenow.ui.auth.LoginFragment"
-        android:label="Iniciar Sesión">
+        android:label="Iniciar Sesión"
+        tools:layout="@layout/fragment_login">
         <action
             android:id="@+id/action_login_to_registro"
             app:destination="@id/registroFragment" />
@@ -21,12 +24,15 @@
     <fragment
         android:id="@+id/registroFragment"
         android:name="com.xplorenow.ui.auth.RegistroFragment"
-        android:label="Registrarse" />
+        android:label="Registrarse"
+        tools:layout="@layout/fragment_registro" />
 
+    <!-- Profile -->
     <fragment
         android:id="@+id/perfilFragment"
         android:name="com.xplorenow.ui.perfil.PerfilFragment"
-        android:label="Mi Perfil">
+        android:label="Mi Perfil"
+        tools:layout="@layout/fragment_perfil">
         <action
             android:id="@+id/action_perfil_to_editarPerfil"
             app:destination="@id/editarPerfilFragment" />
@@ -43,11 +49,73 @@
     <fragment
         android:id="@+id/editarPerfilFragment"
         android:name="com.xplorenow.ui.perfil.EditarPerfilFragment"
-        android:label="Editar Perfil" />
+        android:label="Editar Perfil"
+        tools:layout="@layout/fragment_editar_perfil" />
 
     <fragment
         android:id="@+id/preferenciasFragment"
         android:name="com.xplorenow.ui.perfil.PreferenciasFragment"
-        android:label="Preferencias" />
+        android:label="Preferencias"
+        tools:layout="@layout/fragment_preferencias" />
+
+    <!-- Home and Features from Main -->
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.xplorenow.ui.home.HomeFragment"
+        android:label="Inicio"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_home_to_detalle"
+            app:destination="@id/detalleFragment" />
+        <action
+            android:id="@+id/action_home_to_filtros"
+            app:destination="@id/filtrosFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/detalleFragment"
+        android:name="com.xplorenow.ui.home.detalle.DetalleFragment"
+        android:label="Detalle"
+        tools:layout="@layout/fragment_detalle">
+        <argument
+            android:name="actividadId"
+            app:argType="long" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/filtrosFragment"
+        android:name="com.xplorenow.ui.home.filtros.FiltrosFragment"
+        android:label="Filtros"
+        tools:layout="@layout/fragment_filtros" />
+
+    <fragment
+        android:id="@+id/misReservasFragment"
+        android:name="com.xplorenow.ui.home.misreservas.MisReservasFragment"
+        android:label="Mis reservas"
+        tools:layout="@layout/fragment_mis_reservas">
+        <action
+            android:id="@+id/action_misReservas_to_reservaDetalle"
+            app:destination="@id/reservaDetalleFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/reservaDetalleFragment"
+        android:name="com.xplorenow.ui.home.misreservas.detalle.ReservaDetalleFragment"
+        android:label="Detalle de reserva"
+        tools:layout="@layout/fragment_reserva_detalle">
+        <argument
+            android:name="reservaId"
+            app:argType="long" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/historialFragment"
+        android:name="com.xplorenow.ui.home.historial.HistorialFragment"
+        android:label="Historial"
+        tools:layout="@layout/fragment_historial">
+        <action
+            android:id="@+id/action_historial_to_reservaDetalle"
+            app:destination="@id/reservaDetalleFragment" />
+    </fragment>
 
 </navigation>
