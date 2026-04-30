@@ -1,4 +1,4 @@
-package com.xplorenow.auth;
+package com.xplorenow.model.auth;
 
 public class LoginRequest {
     private String email;
@@ -8,4 +8,7 @@ public class LoginRequest {
         this.email = email;
         this.password = password;
     }
+
+    public String getEmail() { return email; }
+    public String getPassword() { return password; }
 }

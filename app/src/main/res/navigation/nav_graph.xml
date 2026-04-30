@@ -5,47 +5,65 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/loginFragment">
 
+    <!-- Authentication -->
     <fragment
         android:id="@+id/loginFragment"
-        android:name="com.xplorenow.auth.LoginFragment"
-        android:label="Login"
+        android:name="com.xplorenow.ui.auth.LoginFragment"
+        android:label="Iniciar Sesión"
         tools:layout="@layout/fragment_login">
         <action
-            android:id="@+id/action_login_to_otpSolicitar"
-            app:destination="@id/otpSolicitarFragment"/>
+            android:id="@+id/action_login_to_registro"
+            app:destination="@id/registroFragment" />
         <action
             android:id="@+id/action_login_to_home"
             app:destination="@id/homeFragment"
             app:popUpTo="@id/loginFragment"
-            app:popUpToInclusive="true"/>
-    </fragment>
-
-    <fragment
-        android:id="@+id/otpSolicitarFragment"
-        android:name="com.xplorenow.auth.OtpSolicitarFragment"
-        android:label="OTP Solicitar"
-        tools:layout="@layout/fragment_otp_solicitar">
+            app:popUpToInclusive="true" />
         <action
-            android:id="@+id/action_otpSolicitar_to_otpConfirmar"
-            app:destination="@id/otpConfirmarFragment"/>
-    </fragment>
-
-    <fragment
-        android:id="@+id/otpConfirmarFragment"
-        android:name="com.xplorenow.auth.OtpConfirmarFragment"
-        android:label="OTP Confirmar"
-        tools:layout="@layout/fragment_otp_confirmar">
-        <argument
-            android:name="email"
-            app:argType="string"
-            android:defaultValue=""/>
-        <action
-            android:id="@+id/action_otpConfirmar_to_home"
-            app:destination="@id/homeFragment"
+            android:id="@+id/action_login_to_perfil"
+            app:destination="@id/perfilFragment"
             app:popUpTo="@id/loginFragment"
-            app:popUpToInclusive="true"/>
+            app:popUpToInclusive="true" />
     </fragment>
 
+    <fragment
+        android:id="@+id/registroFragment"
+        android:name="com.xplorenow.ui.auth.RegistroFragment"
+        android:label="Registrarse"
+        tools:layout="@layout/fragment_registro" />
+
+    <!-- Profile -->
+    <fragment
+        android:id="@+id/perfilFragment"
+        android:name="com.xplorenow.ui.perfil.PerfilFragment"
+        android:label="Mi Perfil"
+        tools:layout="@layout/fragment_perfil">
+        <action
+            android:id="@+id/action_perfil_to_editarPerfil"
+            app:destination="@id/editarPerfilFragment" />
+        <action
+            android:id="@+id/action_perfil_to_preferencias"
+            app:destination="@id/preferenciasFragment" />
+        <action
+            android:id="@+id/action_perfil_to_login"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/editarPerfilFragment"
+        android:name="com.xplorenow.ui.perfil.EditarPerfilFragment"
+        android:label="Editar Perfil"
+        tools:layout="@layout/fragment_editar_perfil" />
+
+    <fragment
+        android:id="@+id/preferenciasFragment"
+        android:name="com.xplorenow.ui.perfil.PreferenciasFragment"
+        android:label="Preferencias"
+        tools:layout="@layout/fragment_preferencias" />
+
+    <!-- Home and Features from Main -->
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.xplorenow.ui.home.HomeFragment"
@@ -80,7 +98,6 @@
         android:name="com.xplorenow.ui.home.misreservas.MisReservasFragment"
         android:label="Mis reservas"
         tools:layout="@layout/fragment_mis_reservas">
-
         <action
             android:id="@+id/action_misReservas_to_reservaDetalle"
             app:destination="@id/reservaDetalleFragment" />
@@ -91,7 +108,6 @@
         android:name="com.xplorenow.ui.home.misreservas.detalle.ReservaDetalleFragment"
         android:label="Detalle de reserva"
         tools:layout="@layout/fragment_reserva_detalle">
-
         <argument
             android:name="reservaId"
             app:argType="long" />
@@ -102,7 +118,6 @@
         android:name="com.xplorenow.ui.home.historial.HistorialFragment"
         android:label="Historial"
         tools:layout="@layout/fragment_historial">
-
         <action
             android:id="@+id/action_historial_to_reservaDetalle"
             app:destination="@id/reservaDetalleFragment" />
