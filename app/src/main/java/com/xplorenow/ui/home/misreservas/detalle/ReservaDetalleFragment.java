@@ -24,6 +24,9 @@ import com.xplorenow.data.dto.EstadoReserva;
 import com.xplorenow.data.dto.ReservaDetalleDTO;
 import com.xplorenow.data.repository.ReservaRepository;
 import com.xplorenow.ui.home.calificacion.CalificacionFragment;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import javax.inject.Inject;
 import dagger.hilt.android.AndroidEntryPoint;
 import retrofit2.Call;
@@ -48,6 +51,8 @@ public class ReservaDetalleFragment extends Fragment {
 
     private long reservaIdActual = -1L;
     private String actividadNombre = "";
+    private String fechaActividad  = "";
+    private String horaActividad   = "";
 
     @Inject
     ReservaRepository reservaRepository;
@@ -133,6 +138,8 @@ public class ReservaDetalleFragment extends Fragment {
 
     private void mostrar(ReservaDetalleDTO d) {
         actividadNombre = d.getActividadNombre() != null ? d.getActividadNombre() : "";
+        fechaActividad  = d.getFecha()           != null ? d.getFecha()           : "";
+        horaActividad   = d.getHora()            != null ? d.getHora()            : "";
 
         Glide.with(this)
                 .load(d.getActividadImagen())
@@ -145,9 +152,9 @@ public class ReservaDetalleFragment extends Fragment {
         tvNombre.setText(actividadNombre);
         tvDestinoCategoria.setText(d.getDestino() + " - " + d.getCategoria());
 
-        String hora = d.getHora() != null && d.getHora().length() >= 5
-                ? d.getHora().substring(0, 5) : d.getHora();
-        tvFechaHora.setText(d.getFecha() + " - " + hora);
+        String horaCorta = horaActividad.length() >= 5
+                ? horaActividad.substring(0, 5) : horaActividad;
+        tvFechaHora.setText(fechaActividad + " - " + horaCorta);
 
         tvParticipantes.setText(d.getCantidadParticipantes() + " personas");
         tvPuntoEncuentro.setText(d.getPuntoEncuentro());
@@ -174,34 +181,59 @@ public class ReservaDetalleFragment extends Fragment {
                                            Response<CalificacionDTO> response) {
                         if (getView() == null) return;
                         if (response.isSuccessful() && response.body() != null) {
+                            // Ya calificó → mostrar en modo lectura
                             mostrarCalificacionExistente(response.body());
                         } else {
-                            btnCalificar.setVisibility(View.VISIBLE);
-                            btnCalificar.setOnClickListener(v -> irACalificar(v));
+                            // No calificó → verificar si está dentro de las 48hs
+                            if (dentroDeVentana48hs()) {
+                                btnCalificar.setVisibility(View.VISIBLE);
+                                btnCalificar.setOnClickListener(v -> irACalificar(v));
+                            } else {
+                                mostrarAvisoVencido();
+                            }
                         }
                     }
 
                     @Override
                     public void onFailure(Call<CalificacionDTO> call, Throwable t) {
                         if (getView() == null) return;
+                        // Si hay error de red asumimos que puede calificar
                         btnCalificar.setVisibility(View.VISIBLE);
                         btnCalificar.setOnClickListener(v -> irACalificar(v));
                     }
                 });
     }
 
+    /**
+     * Calcula si la actividad terminó hace menos de 48hs.
+     * Usa la fecha y hora de la actividad que ya están en el DTO.
+     */
+    private boolean dentroDeVentana48hs() {
+        try {
+            String horaCorta = horaActividad.length() >= 5
+                    ? horaActividad.substring(0, 5) : horaActividad;
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US);
+            Date fechaHoraActividad = sdf.parse(fechaActividad + " " + horaCorta);
+            if (fechaHoraActividad == null) return false;
+            long diff = System.currentTimeMillis() - fechaHoraActividad.getTime();
+            return diff <= 48L * 60 * 60 * 1000;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     private void mostrarCalificacionExistente(CalificacionDTO c) {
         layoutCalificacionExistente.setVisibility(View.VISIBLE);
         tvRatingActividad.setText("Actividad: " + estrellas(c.getRatingActividad()));
         tvRatingGuia.setText("Guía: " + estrellas(c.getRatingGuia()));
+        tvRatingGuia.setVisibility(View.VISIBLE);
         if (c.getComentario() != null && !c.getComentario().isEmpty()) {
             tvComentario.setText("\"" + c.getComentario() + "\"");
             tvComentario.setVisibility(View.VISIBLE);
         } else {
             tvComentario.setVisibility(View.GONE);
         }
-
-        // Al tocar la sección abre el dialog con detalle completo
+        // Al tocar abre dialog con detalle completo
         layoutCalificacionExistente.setOnClickListener(v ->
                 mostrarDialogCalificacion(c));
     }
@@ -209,7 +241,7 @@ public class ReservaDetalleFragment extends Fragment {
     private void mostrarDialogCalificacion(CalificacionDTO c) {
         String mensaje =
                 "Actividad: " + estrellas(c.getRatingActividad()) + "\n" +
-                        "Guía: " + estrellas(c.getRatingGuia());
+                        "Guía: "      + estrellas(c.getRatingGuia());
 
         if (c.getComentario() != null && !c.getComentario().isEmpty()) {
             mensaje += "\n\n\"" + c.getComentario() + "\"";
@@ -220,6 +252,15 @@ public class ReservaDetalleFragment extends Fragment {
                 .setMessage(mensaje)
                 .setPositiveButton("Cerrar", null)
                 .show();
+    }
+
+    private void mostrarAvisoVencido() {
+        layoutCalificacionExistente.setVisibility(View.VISIBLE);
+        layoutCalificacionExistente.setOnClickListener(null);
+        tvRatingActividad.setText("⏰ El plazo para calificar esta actividad venció");
+        tvRatingActividad.setTextColor(Color.parseColor("#B71C1C"));
+        tvRatingGuia.setVisibility(View.GONE);
+        tvComentario.setVisibility(View.GONE);
     }
 
     private String estrellas(Integer rating) {
