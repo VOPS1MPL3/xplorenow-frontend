@@ -290,5 +290,63 @@
             android:backgroundTint="#B71C1C"
             android:textColor="@android:color/white" />
 
+
+        <!-- Punto 6: Botón calificar (solo para FINALIZADA sin calificación) -->
+        <Button
+            android:id="@+id/btnCalificar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:text="Calificar actividad"
+            android:visibility="gone" />
+
+        <!-- Punto 6: Calificación existente (modo lectura) -->
+        <LinearLayout
+            android:id="@+id/layoutCalificacionExistente"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="24dp"
+            android:padding="12dp"
+            android:background="#F5F5F5"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tu calificación"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:id="@+id/tvRatingActividad"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:layout_marginBottom="4dp"/>
+
+            <TextView
+                android:id="@+id/tvRatingGuia"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:layout_marginBottom="4dp"/>
+
+            <TextView
+                android:id="@+id/tvComentario"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"
+                android:textColor="#555555"
+                android:fontFamily="serif"
+                android:visibility="gone"/>
+
+        </LinearLayout>
+
     </LinearLayout>
 </ScrollView>
