@@ -33,6 +33,36 @@
     </HorizontalScrollView>
 
     <TextView
+        android:id="@+id/tvNoticiasTitulo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="8dp"
+        android:layout_marginTop="20dp"
+        android:text="Noticias y ofertas"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
+    <ListView
+        android:id="@+id/lvNoticias"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:nestedScrollingEnabled="false"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/btnVerTodasNoticias"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="4dp"
+        android:text="Ver todas"
+        android:textSize="13sp"
+        style="?attr/borderlessButtonStyle"
+        android:visibility="gone" />
+
+    <TextView
         android:id="@+id/tvCatalogoTitulo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

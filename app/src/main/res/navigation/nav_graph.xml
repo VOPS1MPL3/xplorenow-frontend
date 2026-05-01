@@ -72,6 +72,9 @@
         <action
             android:id="@+id/action_home_to_filtros"
             app:destination="@id/filtrosFragment" />
+        <action
+            android:id="@+id/action_home_to_noticiaDetalle"
+            app:destination="@id/noticiaDetalleFragment" />
     </fragment>
 
     <fragment
@@ -139,7 +142,6 @@
             app:destination="@id/reservaDetalleFragment" />
     </fragment>
 
-
     <fragment
         android:id="@+id/calificacionFragment"
         android:name="com.xplorenow.ui.home.calificacion.CalificacionFragment"
@@ -152,6 +154,16 @@
             android:name="actividadNombre"
             app:argType="string"
             android:defaultValue="" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/noticiaDetalleFragment"
+        android:name="com.xplorenow.ui.home.noticia.NoticiaDetalleFragment"
+        android:label="Noticia"
+        tools:layout="@layout/fragment_noticia_detalle">
+        <argument
+            android:name="noticiaId"
+            app:argType="long" />
     </fragment>
 
 </navigation>
