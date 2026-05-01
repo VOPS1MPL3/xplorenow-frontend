@@ -11,6 +11,7 @@ import com.xplorenow.data.dto.HorarioDTO;
 import com.xplorenow.data.dto.PageResponseDTO;
 import com.xplorenow.data.dto.ReservaDTO;
 import com.xplorenow.data.dto.ReservaDetalleDTO;
+import com.xplorenow.data.dto.NoticiaDTO;
 import java.util.List;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -78,4 +79,11 @@ public interface XploreNowApi {
 
     @GET("reservas/{id}/calificacion")
     Call<CalificacionDTO> obtenerCalificacion(@Path("id") long reservaId);
+
+    // Punto 9 Noticias
+    @GET("noticias")
+    Call<List<NoticiaDTO>> listarNoticias();
+
+    @GET("noticias/{id}")
+    Call<NoticiaDTO> obtenerNoticia(@Path("id") long id);
 }

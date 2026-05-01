@@ -30,6 +30,10 @@ import dagger.hilt.android.AndroidEntryPoint;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import com.xplorenow.data.dto.NoticiaDTO;
+import com.xplorenow.data.repository.NoticiaRepository;
+import com.xplorenow.ui.home.NoticiaAdapter;
+import android.widget.Button;
 
 @AndroidEntryPoint
 public class HomeFragment extends Fragment {
@@ -45,6 +49,11 @@ public class HomeFragment extends Fragment {
     private TextView tvDestacadasTitulo;
     private HorizontalScrollView hsvDestacadas;
     private LinearLayout llDestacadasContainer;
+    private TextView tvNoticiasTitulo;
+    private ListView lvNoticias;
+    private NoticiaAdapter noticiaAdapter;
+    private final List<NoticiaDTO> noticias = new ArrayList<>();
+    private Button btnVerTodasNoticias;
 
     // Footer views
     private android.widget.Button btnCargarMas;
@@ -60,6 +69,8 @@ public class HomeFragment extends Fragment {
 
     @Inject
     ActividadRepository actividadRepository;
+    @Inject
+    NoticiaRepository noticiaRepository;
 
     @Nullable
     @Override
@@ -104,6 +115,35 @@ public class HomeFragment extends Fragment {
         tvDestacadasTitulo = header.findViewById(R.id.tvDestacadasTitulo);
         hsvDestacadas = header.findViewById(R.id.hsvDestacadas);
         llDestacadasContainer = header.findViewById(R.id.llDestacadasContainer);
+
+        tvNoticiasTitulo = header.findViewById(R.id.tvNoticiasTitulo);
+        lvNoticias = header.findViewById(R.id.lvNoticias);
+        noticiaAdapter = new NoticiaAdapter(requireContext(), noticias);
+        lvNoticias.setAdapter(noticiaAdapter);
+
+        btnVerTodasNoticias = header.findViewById(R.id.btnVerTodasNoticias);
+        btnVerTodasNoticias.setOnClickListener(v -> {
+            btnVerTodasNoticias.setVisibility(View.GONE);
+        noticiaAdapter.setLimitado(false);
+        noticiaAdapter.notifyDataSetChanged();
+        lvNoticias.post(() -> ajustarAlturaListView(lvNoticias));
+        });
+
+        lvNoticias.setOnItemClickListener((parent, v, position, id) -> {
+            NoticiaDTO noticia = noticias.get(position);
+            Bundle args = new Bundle();
+            if (noticia.getActividadRelacionadaId() != null) {
+                args.putLong(DetalleFragment.ARG_ACTIVIDAD_ID,
+                    noticia.getActividadRelacionadaId());
+                Navigation.findNavController(v)
+                    .navigate(R.id.action_home_to_detalle, args);
+            } else {
+                args.putLong("noticiaId", noticia.getId());
+                Navigation.findNavController(v)
+                    .navigate(R.id.action_home_to_noticiaDetalle, args);
+            }
+        });
+
         lvActividades.addHeaderView(header, null, false);
 
         // Footer (boton "Cargar mas")
@@ -129,6 +169,7 @@ public class HomeFragment extends Fragment {
 
         cargarDestacadas();
         cargarPrimeraPagina();
+        cargarNoticias();
     }
 
     // ---------- Destacadas ----------
@@ -304,4 +345,54 @@ public class HomeFragment extends Fragment {
             f.setPrecioMax(b.getDouble(FiltrosFragment.ARG_PRECIO_MAX));
         return f.estaVacio() ? null : f;
     }
+
+    private void cargarNoticias() {
+        noticiaRepository.listarNoticias().enqueue(new Callback<List<NoticiaDTO>>() {
+            @Override
+            public void onResponse(Call<List<NoticiaDTO>> call,
+                                    Response<List<NoticiaDTO>> response) {
+                if (getView() == null) return;
+                if (response.isSuccessful() && response.body() != null
+                        && !response.body().isEmpty()) {
+                    mostrarNoticias(response.body());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<NoticiaDTO>> call, Throwable t) {
+                if (getView() == null) return;
+                Log.e(TAG, "noticias onFailure", t);
+            }
+        });
+    }
+
+
+    private void mostrarNoticias(List<NoticiaDTO> recibidas) {
+        noticias.clear();
+        noticias.addAll(recibidas);
+        noticiaAdapter.notifyDataSetChanged();
+        tvNoticiasTitulo.setVisibility(View.VISIBLE);
+        lvNoticias.setVisibility(View.VISIBLE);
+        if (recibidas.size() > 2) {
+            btnVerTodasNoticias.setVisibility(View.VISIBLE);
+        }
+        lvNoticias.post(() -> ajustarAlturaListView(lvNoticias));
+    }
+
+    private void ajustarAlturaListView(ListView lv) {
+        if (lv.getAdapter() == null) return;
+        int totalHeight = 0;
+        for (int i = 0; i < lv.getAdapter().getCount(); i++) {
+            View item = lv.getAdapter().getView(i, null, lv);
+            item.measure(
+                    View.MeasureSpec.makeMeasureSpec(lv.getWidth(), View.MeasureSpec.AT_MOST),
+                    View.MeasureSpec.UNSPECIFIED);
+            totalHeight += item.getMeasuredHeight();
+        }
+        ViewGroup.LayoutParams params = lv.getLayoutParams();
+        params.height = totalHeight + (lv.getDividerHeight() * (lv.getAdapter().getCount() - 1));
+        lv.setLayoutParams(params);
+        lv.requestLayout();
+    }
+
 }
