@@ -96,6 +96,17 @@
             app:destination="@id/horariosFragment" />
     </fragment>
 
+    <!-- Mis Favoritos (Punto 7 del TPO) -->
+    <fragment
+        android:id="@+id/favoritosFragment"
+        android:name="com.xplorenow.ui.home.favoritos.FavoritosFragment"
+        android:label="Mis favoritos"
+        tools:layout="@layout/fragment_favoritos">
+        <action
+            android:id="@+id/action_favoritos_to_detalle"
+            app:destination="@id/detalleFragment" />
+    </fragment>
+
     <fragment
         android:id="@+id/filtrosFragment"
         android:name="com.xplorenow.ui.home.filtros.FiltrosFragment"

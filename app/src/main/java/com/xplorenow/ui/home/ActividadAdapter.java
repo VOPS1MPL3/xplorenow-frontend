@@ -1,25 +1,72 @@
 package com.xplorenow.ui.home;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
+
 import com.bumptech.glide.Glide;
 import com.xplorenow.R;
 import com.xplorenow.data.dto.ActividadDTO;
 import com.xplorenow.data.util.PrecioFormatter;
+
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-
+/**
+ * Adapter del catalogo. Muestra cada actividad como card y dibuja el
+ * corazon de favorito flotando arriba a la derecha de la imagen.
+ *
+ * Decisiones:
+ *  - El estado de "es favorita" se guarda en un Set<Long> de actividadId.
+ *    El Fragment dueno del adapter se encarga de mantener el set sincronizado
+ *    con el servidor (carga inicial via GET /favoritos al entrar a Home).
+ *  - El click del corazon se delega via callback al Fragment, que llama al
+ *    repositorio (POST/DELETE) y actualiza el set + notifyDataSetChanged().
+ *    Asi el adapter no conoce nada de Retrofit y queda testeable.
+ */
 public class ActividadAdapter extends ArrayAdapter<ActividadDTO> {
+
+    /** Callback que ejecuta el Fragment cuando el usuario toca el corazon. */
+    public interface OnFavoritoToggleListener {
+        void onToggle(ActividadDTO actividad, boolean nuevoEstado);
+    }
+
+    private final Set<Long> favoritosIds = new HashSet<>();
+    private OnFavoritoToggleListener favoritoListener;
 
     public ActividadAdapter(@NonNull Context context, @NonNull List<ActividadDTO> items) {
         // El segundo parametro (resource) no lo usamos porque inflamos el
         // layout manualmente, pero el constructor lo pide. Pasamos 0.
         super(context, 0, items);
+    }
+
+    public void setFavoritoListener(OnFavoritoToggleListener listener) {
+        this.favoritoListener = listener;
+    }
+
+    /** Reemplaza el set de favoritos (lo llama el Fragment al cargar /favoritos). */
+    public void setFavoritos(@NonNull Set<Long> ids) {
+        favoritosIds.clear();
+        favoritosIds.addAll(ids);
+        notifyDataSetChanged();
+    }
+
+    public void marcarLocal(long actividadId) {
+        favoritosIds.add(actividadId);
+        notifyDataSetChanged();
+    }
+
+    public void desmarcarLocal(long actividadId) {
+        favoritosIds.remove(actividadId);
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -38,13 +85,16 @@ public class ActividadAdapter extends ArrayAdapter<ActividadDTO> {
 
         ActividadDTO actividad = getItem(position);
         if (actividad != null) {
-            holder.bind(actividad);
+            holder.bind(actividad, favoritosIds.contains(actividad.getId()),
+                    favoritoListener);
         }
 
         return convertView;
     }
+
     private static class ViewHolder {
         final ImageView ivImagen;
+        final ImageButton btnFavorito;
         final TextView tvNombre;
         final TextView tvDestinoCategoria;
         final TextView tvDuracion;
@@ -53,6 +103,7 @@ public class ActividadAdapter extends ArrayAdapter<ActividadDTO> {
 
         ViewHolder(View row) {
             ivImagen = row.findViewById(R.id.ivImagen);
+            btnFavorito = row.findViewById(R.id.btnFavorito);
             tvNombre = row.findViewById(R.id.tvNombre);
             tvDestinoCategoria = row.findViewById(R.id.tvDestinoCategoria);
             tvDuracion = row.findViewById(R.id.tvDuracion);
@@ -60,7 +111,8 @@ public class ActividadAdapter extends ArrayAdapter<ActividadDTO> {
             tvCupos = row.findViewById(R.id.tvCupos);
         }
 
-        void bind(ActividadDTO a) {
+        void bind(ActividadDTO a, boolean esFavorita,
+                  OnFavoritoToggleListener listener) {
             tvNombre.setText(a.getNombre());
             tvDestinoCategoria.setText(a.getDestino() + " - " + a.getCategoria());
             tvDuracion.setText(formatDuracion(a.getDuracionMinutos()));
@@ -71,6 +123,17 @@ public class ActividadAdapter extends ArrayAdapter<ActividadDTO> {
                     .load(a.getImagenPrincipal())
                     .placeholder(android.R.color.darker_gray)
                     .into(ivImagen);
+
+            // Estado del corazon
+            btnFavorito.setImageResource(esFavorita
+                    ? R.drawable.ic_corazon_lleno
+                    : R.drawable.ic_corazon_vacio);
+
+            btnFavorito.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onToggle(a, !esFavorita);
+                }
+            });
         }
 
         private String formatDuracion(Integer minutos) {

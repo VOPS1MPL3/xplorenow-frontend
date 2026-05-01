@@ -8,6 +8,7 @@ import com.xplorenow.data.dto.CalificacionRequest;
 import com.xplorenow.data.dto.CategoriaDTO;
 import com.xplorenow.data.dto.CrearReservaRequest;
 import com.xplorenow.data.dto.DestinoDTO;
+import com.xplorenow.data.dto.FavoritoDTO;
 import com.xplorenow.data.dto.HorarioDTO;
 import com.xplorenow.data.dto.NoticiaDTO;
 import com.xplorenow.data.dto.PageResponseDTO;
@@ -18,6 +19,7 @@ import com.xplorenow.data.dto.ReservaDetalleDTO;
 import java.util.List;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
@@ -101,4 +103,15 @@ public interface XploreNowApi {
 
     @PUT("perfil/preferencias")
     Call<PerfilDTO> actualizarPreferencias(@Body PreferenciasRequest request);
+
+    // ===== Favoritos (Punto 7 del TPO) =====
+
+    @GET("favoritos")
+    Call<List<FavoritoDTO>> misFavoritos();
+
+    @POST("favoritos/{actividadId}")
+    Call<FavoritoDTO> marcarFavorito(@Path("actividadId") long actividadId);
+
+    @DELETE("favoritos/{actividadId}")
+    Call<Void> desmarcarFavorito(@Path("actividadId") long actividadId);
 }

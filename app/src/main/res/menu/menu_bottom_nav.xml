@@ -7,6 +7,11 @@
         android:icon="@android:drawable/ic_menu_compass" />
 
     <item
+        android:id="@+id/favoritosFragment"
+        android:title="Favoritos"
+        android:icon="@drawable/ic_corazon_lleno" />
+
+    <item
         android:id="@+id/misReservasFragment"
         android:title="Mis reservas"
         android:icon="@android:drawable/ic_menu_agenda" />

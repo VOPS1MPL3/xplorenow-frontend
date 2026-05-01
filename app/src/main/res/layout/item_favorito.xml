@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="8dp"
+    android:layout_marginVertical="6dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp">
+
+        <!-- Imagen miniatura -->
+        <ImageView
+            android:id="@+id/ivImagen"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:scaleType="centerCrop"
+            android:contentDescription="Imagen"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <!-- Nombre -->
+        <TextView
+            android:id="@+id/tvNombre"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:maxLines="2"
+            android:ellipsize="end"
+            tools:text="Free Tour por San Telmo"
+            app:layout_constraintTop_toTopOf="@id/ivImagen"
+            app:layout_constraintStart_toEndOf="@id/ivImagen"
+            app:layout_constraintEnd_toStartOf="@id/btnQuitar" />
+
+        <!-- Boton para quitar de favoritos (corazon lleno chico arriba derecha) -->
+        <ImageButton
+            android:id="@+id/btnQuitar"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:padding="6dp"
+            android:src="@drawable/ic_corazon_lleno"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Quitar de favoritos"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Destino - categoria -->
+        <TextView
+            android:id="@+id/tvDestinoCategoria"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="2dp"
+            android:textSize="13sp"
+            android:textColor="#888888"
+            tools:text="Buenos Aires - Free Tour"
+            app:layout_constraintTop_toBottomOf="@id/tvNombre"
+            app:layout_constraintStart_toEndOf="@id/ivImagen"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Precio -->
+        <TextView
+            android:id="@+id/tvPrecio"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="6dp"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="#A78BFA"
+            tools:text="$ 18.500"
+            app:layout_constraintTop_toBottomOf="@id/tvDestinoCategoria"
+            app:layout_constraintStart_toEndOf="@id/ivImagen"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Badge de novedad: punto 16 del TPO. Solo visible si tieneNovedad=true. -->
+        <TextView
+            android:id="@+id/tvBadgeNovedad"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="6dp"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:background="@drawable/bg_badge_novedad"
+            android:visibility="gone"
+            tools:text="¡Bajó de precio!"
+            tools:visibility="visible"
+            app:layout_constraintTop_toBottomOf="@id/tvPrecio"
+            app:layout_constraintStart_toEndOf="@id/ivImagen" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.cardview.widget.CardView>
