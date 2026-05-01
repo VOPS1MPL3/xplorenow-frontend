@@ -30,7 +30,9 @@ public class RegistroFragment extends Fragment {
     TokenManager tokenManager;
 
     private EditText etNombre;
+    private EditText etApellido;
     private EditText etEmail;
+    private EditText etTelefono;
     private EditText etPassword;
     private EditText etPasswordConfirm;
     private Button btnRegistrar;
@@ -38,7 +40,9 @@ public class RegistroFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_registro, container, false);
     }
 
@@ -46,55 +50,75 @@ public class RegistroFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        etNombre         = view.findViewById(R.id.etNombre);
-        etEmail          = view.findViewById(R.id.etEmail);
-        etPassword       = view.findViewById(R.id.etPassword);
+        etNombre          = view.findViewById(R.id.etNombre);
+        etApellido        = view.findViewById(R.id.etApellido);
+        etEmail           = view.findViewById(R.id.etEmail);
+        etTelefono        = view.findViewById(R.id.etTelefono);
+        etPassword        = view.findViewById(R.id.etPassword);
         etPasswordConfirm = view.findViewById(R.id.etPasswordConfirm);
-        btnRegistrar     = view.findViewById(R.id.btnRegistrar);
-        btnVolver        = view.findViewById(R.id.btnVolver);
+        btnRegistrar      = view.findViewById(R.id.btnRegistrar);
+        btnVolver         = view.findViewById(R.id.btnVolver);
 
         btnRegistrar.setOnClickListener(v -> {
             String nombre   = etNombre.getText().toString().trim();
+            String apellido = etApellido.getText().toString().trim();
             String email    = etEmail.getText().toString().trim();
+            String telefono = etTelefono.getText().toString().trim();
             String password = etPassword.getText().toString().trim();
             String confirm  = etPasswordConfirm.getText().toString().trim();
 
-            // Validaciones básicas en la app (el back no las hace)
-            if (nombre.isEmpty() || email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(requireContext(), "Completá todos los campos", Toast.LENGTH_SHORT).show();
+            // Validaciones del lado de la app: el back no las hace todas.
+            if (nombre.isEmpty() || apellido.isEmpty()
+                    || email.isEmpty() || telefono.isEmpty()
+                    || password.isEmpty()) {
+                Toast.makeText(requireContext(),
+                        "Completá todos los campos",
+                        Toast.LENGTH_SHORT).show();
                 return;
             }
             if (!password.equals(confirm)) {
-                Toast.makeText(requireContext(), "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(),
+                        "Las contraseñas no coinciden",
+                        Toast.LENGTH_SHORT).show();
                 return;
             }
             if (password.length() < 6) {
-                Toast.makeText(requireContext(), "La contraseña debe tener al menos 6 caracteres", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(),
+                        "La contraseña debe tener al menos 6 caracteres",
+                        Toast.LENGTH_SHORT).show();
                 return;
             }
 
             btnRegistrar.setEnabled(false);
 
-            apiService.registro(new RegistroRequest(email, password, nombre))
+            apiService.registro(new RegistroRequest(
+                            email, password, nombre, apellido, telefono))
                     .enqueue(new Callback<AuthResponse>() {
                         @Override
-                        public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
+                        public void onResponse(Call<AuthResponse> call,
+                                               Response<AuthResponse> response) {
                             btnRegistrar.setEnabled(true);
                             if (response.isSuccessful() && response.body() != null) {
                                 tokenManager.saveToken(response.body().getToken());
-                                // Registro exitoso -> ir al Home limpiando back stack
                                 Navigation.findNavController(view)
                                         .navigate(R.id.action_registro_to_home);
                             } else if (response.code() == 400) {
-                                Toast.makeText(requireContext(), "El email ya está registrado", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(requireContext(),
+                                        "El email ya está registrado",
+                                        Toast.LENGTH_SHORT).show();
                             } else {
-                                Toast.makeText(requireContext(), "Error al registrarse, intentá de nuevo", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(requireContext(),
+                                        "Error al registrarse, intentá de nuevo",
+                                        Toast.LENGTH_SHORT).show();
                             }
                         }
+
                         @Override
                         public void onFailure(Call<AuthResponse> call, Throwable t) {
                             btnRegistrar.setEnabled(true);
-                            Toast.makeText(requireContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(requireContext(),
+                                    "Error de conexión",
+                                    Toast.LENGTH_SHORT).show();
                         }
                     });
         });

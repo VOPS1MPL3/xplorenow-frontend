@@ -29,7 +29,24 @@
         android:layout_height="wrap_content"
         android:inputType="textPassword"
         android:hint="Contraseña"
-        android:layout_marginBottom="24dp"/>
+        android:layout_marginBottom="8dp"/>
+
+    <!-- Link a la recuperacion de contrasena: alineado a la derecha,
+         sutil y con color de acento para que se note como link clickeable. -->
+    <TextView
+        android:id="@+id/tvOlvideContrasena"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="¿Olvidaste tu contraseña?"
+        android:textColor="#A78BFA"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:gravity="end"
+        android:padding="8dp"
+        android:layout_marginBottom="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?attr/selectableItemBackground" />
 
     <Button
         android:id="@+id/btnLogin"

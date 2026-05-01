@@ -1,7 +1,16 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.XploreNow" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+    <!-- Tema noche: misma paleta violeta oscura que el modo claro.
+         Antes este archivo dejaba que Material3 aplique sus colores por
+         default (lila claro) y rompia la consistencia con el resto de la app. -->
+    <style name="Base.Theme.XploreNow" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#2D1B4E</item>
+        <item name="colorPrimaryDark">#1A0F2E</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorAccent">#A78BFA</item>
+
+        <item name="android:statusBarColor">#1A0F2E</item>
+        <item name="android:windowLightStatusBar">false</item>
+
+        <item name="materialButtonStyle">@style/XploreNow.Button</item>
     </style>
 </resources>

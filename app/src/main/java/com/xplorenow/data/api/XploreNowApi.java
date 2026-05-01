@@ -2,21 +2,25 @@ package com.xplorenow.data.api;
 
 import com.xplorenow.data.dto.ActividadDTO;
 import com.xplorenow.data.dto.ActividadDetalleDTO;
+import com.xplorenow.data.dto.ActualizarPerfilRequest;
 import com.xplorenow.data.dto.CalificacionDTO;
 import com.xplorenow.data.dto.CalificacionRequest;
 import com.xplorenow.data.dto.CategoriaDTO;
 import com.xplorenow.data.dto.CrearReservaRequest;
 import com.xplorenow.data.dto.DestinoDTO;
 import com.xplorenow.data.dto.HorarioDTO;
+import com.xplorenow.data.dto.NoticiaDTO;
 import com.xplorenow.data.dto.PageResponseDTO;
+import com.xplorenow.data.dto.PerfilDTO;
+import com.xplorenow.data.dto.PreferenciasRequest;
 import com.xplorenow.data.dto.ReservaDTO;
 import com.xplorenow.data.dto.ReservaDetalleDTO;
-import com.xplorenow.data.dto.NoticiaDTO;
 import java.util.List;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
@@ -86,4 +90,15 @@ public interface XploreNowApi {
 
     @GET("noticias/{id}")
     Call<NoticiaDTO> obtenerNoticia(@Path("id") long id);
+
+    // ===== Perfil (Punto 2 del TPO) =====
+
+    @GET("perfil")
+    Call<PerfilDTO> obtenerPerfil();
+
+    @PUT("perfil")
+    Call<PerfilDTO> actualizarPerfil(@Body ActualizarPerfilRequest request);
+
+    @PUT("perfil/preferencias")
+    Call<PerfilDTO> actualizarPreferencias(@Body PreferenciasRequest request);
 }

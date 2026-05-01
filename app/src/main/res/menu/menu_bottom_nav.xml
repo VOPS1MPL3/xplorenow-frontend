@@ -16,4 +16,9 @@
         android:title="Historial"
         android:icon="@android:drawable/ic_menu_recent_history" />
 
+    <item
+        android:id="@+id/perfilFragment"
+        android:title="Perfil"
+        android:icon="@android:drawable/ic_menu_myplaces" />
+
 </menu>

@@ -33,6 +33,7 @@ public class LoginFragment extends Fragment {
     private TextView tvTitulo;
     private EditText etEmail;
     private EditText etPassword;
+    private TextView tvOlvideContrasena;
     private Button btnLogin;
     private Button btnIrOtp;
     private Button btnRegistro;
@@ -48,13 +49,14 @@ public class LoginFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        tvTitulo     = view.findViewById(R.id.tvTitulo);
-        etEmail      = view.findViewById(R.id.etEmail);
-        etPassword   = view.findViewById(R.id.etPassword);
-        btnLogin     = view.findViewById(R.id.btnLogin);
-        btnIrOtp     = view.findViewById(R.id.btnIrOtp);
-        btnRegistro  = view.findViewById(R.id.btnRegistro);
-        btnBiometria = view.findViewById(R.id.btnBiometria);
+        tvTitulo           = view.findViewById(R.id.tvTitulo);
+        etEmail            = view.findViewById(R.id.etEmail);
+        etPassword         = view.findViewById(R.id.etPassword);
+        tvOlvideContrasena = view.findViewById(R.id.tvOlvideContrasena);
+        btnLogin           = view.findViewById(R.id.btnLogin);
+        btnIrOtp           = view.findViewById(R.id.btnIrOtp);
+        btnRegistro        = view.findViewById(R.id.btnRegistro);
+        btnBiometria       = view.findViewById(R.id.btnBiometria);
 
         // Mostrar biometría solo si el token existe Y no venció
         if (tokenManager.isTokenValid()) {
@@ -101,6 +103,12 @@ public class LoginFragment extends Fragment {
         // Ir a registro
         btnRegistro.setOnClickListener(v ->
                 Navigation.findNavController(view).navigate(R.id.action_login_to_registro)
+        );
+
+        // Olvide mi contrasena: navegar al fragment que pide el email para
+        // disparar el envio de OTP.
+        tvOlvideContrasena.setOnClickListener(v ->
+                Navigation.findNavController(view).navigate(R.id.action_login_to_olvide)
         );
 
         // Biometría

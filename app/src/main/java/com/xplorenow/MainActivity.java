@@ -35,7 +35,8 @@ public class MainActivity extends AppCompatActivity {
             int id = destination.getId();
             if (id == R.id.homeFragment
                     || id == R.id.misReservasFragment
-                    || id == R.id.historialFragment) {
+                    || id == R.id.historialFragment
+                    || id == R.id.perfilFragment) {
                 bottomNav.setVisibility(View.VISIBLE);
             } else {
                 bottomNav.setVisibility(View.GONE);

@@ -20,7 +20,6 @@ import com.xplorenow.R;
 import com.xplorenow.data.dto.ActividadDetalleDTO;
 import com.xplorenow.data.repository.ActividadRepository;
 import com.xplorenow.data.util.PrecioFormatter;
-import com.xplorenow.util.MapUtil;
 import java.util.List;
 import javax.inject.Inject;
 import dagger.hilt.android.AndroidEntryPoint;
@@ -43,8 +42,8 @@ public class DetalleFragment extends Fragment {
     private LinearLayout llGaleriaContainer;
 
     private MaterialToolbar toolbar;
+
     private Button btnReservar;
-    private ActividadDetalleDTO actividadActual;
 
     @Inject
     ActividadRepository actividadRepository;
@@ -81,16 +80,10 @@ public class DetalleFragment extends Fragment {
         toolbar.setNavigationOnClickListener(v ->
                 Navigation.findNavController(v).popBackStack());
 
-        btnVerMapa.setOnClickListener(v -> {
-            if (actividadActual != null) {
-                MapUtil.abrirMapaNavegacion(requireContext(), 
-                        actividadActual.getLatitud(), 
-                        actividadActual.getLongitud(), 
-                        actividadActual.getNombre());
-            } else {
-                Toast.makeText(requireContext(), "Cargando información del mapa...", Toast.LENGTH_SHORT).show();
-            }
-        });
+        btnVerMapa.setOnClickListener(v ->
+                Toast.makeText(requireContext(),
+                        "El mapa se va a integrar en el punto 10",
+                        Toast.LENGTH_SHORT).show());
 
         long actividadId = requireArguments().getLong(ARG_ACTIVIDAD_ID, -1L);
         if (actividadId < 0) {
@@ -136,7 +129,6 @@ public class DetalleFragment extends Fragment {
     }
 
     private void mostrarDetalle(ActividadDetalleDTO d) {
-        this.actividadActual = d;
         Glide.with(this)
                 .load(d.getImagenPrincipal())
                 .placeholder(android.R.color.darker_gray)

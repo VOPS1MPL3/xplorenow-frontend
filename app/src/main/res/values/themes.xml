@@ -1,6 +1,40 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <style name="Base.Theme.XploreNow" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Paleta violeta oscura coherente con el resto de la app.
+             colorPrimary lo usan automaticamente los MaterialToolbar
+             que tienen android:background="?attr/colorPrimary". -->
+        <item name="colorPrimary">#2D1B4E</item>
+        <item name="colorPrimaryDark">#1A0F2E</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorAccent">#A78BFA</item>
+
+        <!-- Status bar violeta oscura para que no quede transparente sobre el header -->
+        <item name="android:statusBarColor">#1A0F2E</item>
+        <item name="android:windowLightStatusBar">false</item>
+
+        <!-- Estilo por default de los <Button>: lila brillante con texto blanco.
+             Se aplica automaticamente a todos los Button del proyecto sin tocar
+             un solo layout. Lo que ya tenia un style explicito (ej: buttonBarButtonStyle)
+             se mantiene como esta. -->
+        <item name="materialButtonStyle">@style/XploreNow.Button</item>
+    </style>
+
+    <!-- Boton primario: relleno lila brillante. -->
+    <style name="XploreNow.Button" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">#A78BFA</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="rippleColor">#33FFFFFF</item>
     </style>
 
     <style name="Theme.XploreNow" parent="Base.Theme.XploreNow" />
+
+    <!-- Estilo de boton outline usado por fragment_perfil.xml.
+         Se mantiene el resto del tema como en main; este estilo se agrega
+         para no romper el layout de perfil al unificar. -->
+    <style name="XploreNow.Button.Outlined" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="strokeColor">#A78BFA</item>
+        <item name="strokeWidth">1.5dp</item>
+        <item name="android:textColor">#A78BFA</item>
+        <item name="rippleColor">#33A78BFA</item>
+    </style>
 </resources>
