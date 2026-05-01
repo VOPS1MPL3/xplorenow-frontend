@@ -31,9 +31,14 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import com.xplorenow.data.dto.NoticiaDTO;
+import com.xplorenow.data.dto.FavoritoDTO;
 import com.xplorenow.data.repository.NoticiaRepository;
+import com.xplorenow.data.repository.FavoritoRepository;
 import com.xplorenow.ui.home.NoticiaAdapter;
 import android.widget.Button;
+import android.widget.Toast;
+import java.util.HashSet;
+import java.util.Set;
 
 @AndroidEntryPoint
 public class HomeFragment extends Fragment {
@@ -71,6 +76,8 @@ public class HomeFragment extends Fragment {
     ActividadRepository actividadRepository;
     @Inject
     NoticiaRepository noticiaRepository;
+    @Inject
+    FavoritoRepository favoritoRepository;
 
     @Nullable
     @Override
@@ -157,6 +164,58 @@ public class HomeFragment extends Fragment {
         adapter = new ActividadAdapter(requireContext(), actividades);
         lvActividades.setAdapter(adapter);
 
+        // Toggle de favorito desde la card del catalogo (Punto 7).
+        // Optimistic update: cambiamos el icono al toque y revertimos si el
+        // backend falla, para que la UI se sienta instantanea.
+        adapter.setFavoritoListener((act, nuevoEstado) -> {
+            long actividadId = act.getId();
+            if (nuevoEstado) {
+                adapter.marcarLocal(actividadId);
+                favoritoRepository.marcar(actividadId).enqueue(
+                        new Callback<FavoritoDTO>() {
+                            @Override public void onResponse(
+                                    Call<FavoritoDTO> c, Response<FavoritoDTO> r) {
+                                if (!r.isSuccessful() && getView() != null) {
+                                    adapter.desmarcarLocal(actividadId);
+                                    Toast.makeText(requireContext(),
+                                            "No se pudo marcar como favorito",
+                                            Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                            @Override public void onFailure(
+                                    Call<FavoritoDTO> c, Throwable t) {
+                                if (getView() == null) return;
+                                adapter.desmarcarLocal(actividadId);
+                                Toast.makeText(requireContext(),
+                                        "Error de conexión",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        });
+            } else {
+                adapter.desmarcarLocal(actividadId);
+                favoritoRepository.desmarcar(actividadId).enqueue(
+                        new Callback<Void>() {
+                            @Override public void onResponse(
+                                    Call<Void> c, Response<Void> r) {
+                                if (!r.isSuccessful() && getView() != null) {
+                                    adapter.marcarLocal(actividadId);
+                                    Toast.makeText(requireContext(),
+                                            "No se pudo quitar de favoritos",
+                                            Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                            @Override public void onFailure(
+                                    Call<Void> c, Throwable t) {
+                                if (getView() == null) return;
+                                adapter.marcarLocal(actividadId);
+                                Toast.makeText(requireContext(),
+                                        "Error de conexión",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        });
+            }
+        });
+
         lvActividades.setOnItemClickListener((parent, v, position, id) -> {
             Object item = parent.getItemAtPosition(position);
             if (!(item instanceof ActividadDTO)) return;
@@ -170,6 +229,41 @@ public class HomeFragment extends Fragment {
         cargarDestacadas();
         cargarPrimeraPagina();
         cargarNoticias();
+        cargarFavoritos();
+    }
+
+    /**
+     * Carga el set de actividades favoritas del usuario para que el adapter
+     * dibuje el corazon lleno donde corresponda. Se invoca al entrar a Home
+     * y tambien en onResume() para refrescar despues de volver del detalle.
+     */
+    private void cargarFavoritos() {
+        favoritoRepository.misFavoritos().enqueue(new Callback<List<FavoritoDTO>>() {
+            @Override
+            public void onResponse(Call<List<FavoritoDTO>> call,
+                                   Response<List<FavoritoDTO>> response) {
+                if (getView() == null) return;
+                if (response.isSuccessful() && response.body() != null) {
+                    Set<Long> ids = new HashSet<>();
+                    for (FavoritoDTO f : response.body()) {
+                        if (f.getActividadId() != null) ids.add(f.getActividadId());
+                    }
+                    adapter.setFavoritos(ids);
+                }
+            }
+            @Override
+            public void onFailure(Call<List<FavoritoDTO>> call, Throwable t) {
+                if (getView() == null) return;
+                Log.e(TAG, "favoritos onFailure", t);
+            }
+        });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Volver del detalle puede haber cambiado el estado de favoritos.
+        if (adapter != null) cargarFavoritos();
     }
 
     // ---------- Destacadas ----------
