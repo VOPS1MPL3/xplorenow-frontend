@@ -24,6 +24,8 @@ import com.xplorenow.data.dto.EstadoReserva;
 import com.xplorenow.data.dto.ReservaDetalleDTO;
 import com.xplorenow.data.repository.ReservaRepository;
 import com.xplorenow.ui.home.calificacion.CalificacionFragment;
+import com.xplorenow.util.MapUtil;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -53,6 +55,7 @@ public class ReservaDetalleFragment extends Fragment {
     private String actividadNombre = "";
     private String fechaActividad  = "";
     private String horaActividad   = "";
+    private ReservaDetalleDTO reservaActual;
 
     @Inject
     ReservaRepository reservaRepository;
@@ -95,10 +98,16 @@ public class ReservaDetalleFragment extends Fragment {
         toolbar.setNavigationOnClickListener(v ->
                 Navigation.findNavController(v).popBackStack());
 
-        btnVerMapa.setOnClickListener(v ->
-                Toast.makeText(requireContext(),
-                        "El mapa se va a integrar en el punto 10",
-                        Toast.LENGTH_SHORT).show());
+        btnVerMapa.setOnClickListener(v -> {
+            if (reservaActual != null) {
+                MapUtil.abrirMapaNavegacion(requireContext(),
+                        reservaActual.getLatitud(),
+                        reservaActual.getLongitud(),
+                        reservaActual.getActividadNombre());
+            } else {
+                Toast.makeText(requireContext(), "Cargando información del mapa...", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         btnCancelar.setOnClickListener(v -> confirmarCancelacion());
 
@@ -137,6 +146,7 @@ public class ReservaDetalleFragment extends Fragment {
     }
 
     private void mostrar(ReservaDetalleDTO d) {
+        this.reservaActual = d;
         actividadNombre = d.getActividadNombre() != null ? d.getActividadNombre() : "";
         fechaActividad  = d.getFecha()           != null ? d.getFecha()           : "";
         horaActividad   = d.getHora()            != null ? d.getHora()            : "";
