@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AROMANZA - Proyecto</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg custom-navbar">
+      <div class="container-fluid">
+        <div class="navbar-inner">
+          <a class="navbar-brand" href="#">
+            <img src="assets/LOGO_principal.jpg" alt="AROMANZA logo" class="nav-logo">
+          </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navMenu">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item"><a class="nav-link active" href="#hero">Inicio</a></li>
+            <li class="nav-item"><a class="nav-link" href="#nuestra-historia">Nuestra historia</a></li>
+            <li class="nav-item"><a class="nav-link" href="#nuestros-productos">Nuestros Productos</a></li>
+            <li class="nav-item"><a class="nav-link" href="promociones.html">Promociones</a></li>
+            <li class="nav-item"><a class="nav-link" href="#contacto">Contacto</a></li>
+          </ul>
+        </div>
+        </div>
+      </div>
+  </nav>
+
+  <main class="site-main">
+
+  <header id="hero">
+      <!-- Full-bleed carousel -->
+      <div class="hero-carousel">
+        <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">
+          <div class="carousel-inner">
+            <div class="carousel-item active" data-pos="center center">
+              <img src="assets/Banner1.png" class="d-block w-100 carousel-img" alt="Banner 1">
+            </div>
+            <div class="carousel-item" data-pos="70% 50%">
+              <img src="assets/Banner2.png" class="d-block w-100 carousel-img" alt="Banner 2">
+            </div>
+            <div class="carousel-item" data-pos="80% 50%">
+              <img src="assets/Banner3.png" class="d-block w-100 carousel-img" alt="Banner 3">
+            </div>
+            <div class="carousel-item" data-pos="85% 50%">
+              <img src="assets/banner4.png" class="d-block w-100 carousel-img" alt="Banner 4">
+            </div>
+          </div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Anterior</span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Siguiente</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Overlay removed: banner now unobstructed -->
+    </header>
+
+    <section id="nuestra-historia" class="py-5 bg-light">
+      <div class="container">
+        <h2 class="mb-4">Nuestra historia</h2>
+        <div class="row">
+          <div class="col-12">
+            <p>
+              Aromanza nació del interés de Joe Levy por las hierbas, flores y especias, combinando su experiencia familiar en el rubro de la salud y belleza con las plataformas digitales para ofrecer una perfumería virtual. Actualmente, la línea Aromanza, de revista Caras, se especializa en sahumerios y productos de aromaterapia, buscando la excelencia en fragancias y packaging para crear experiencias sensoriales únicas y una atmósfera de paz y bienestar.
+            </p>
+            <p>
+              Levy, director de ventas de Aromanza, tenía un negocio familiar de tratamientos naturales en Estados Unidos y se interesó en los ingredientes naturales, lo que lo llevó a explorar el mercado de las esencias.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  <section id="nuestros-productos" class="py-5">
+      <div class="container">
+        <h2 class="mb-4">Nuestros productos</h2>
+        <div class="row g-4">
+          <div class="col-md-4">
+            <div class="card h-100">
+              <a href="sahumerios.html"><img src="assets/Sahumerios.png" class="card-img-top" alt="Sahumerios"></a>
+              <div class="card-body">
+                <h5 class="card-title">Sahumerios</h5>
+                <p class="card-text">Sahumerios artesanales y mezclas tradicionales.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card h-100">
+              <a href="difusores.html"><img src="assets/Difusores.png" class="card-img-top" alt="Difusores"></a>
+              <div class="card-body">
+                <h5 class="card-title">Difusores</h5>
+                <p class="card-text">Difusores de ambiente en distintas fragancias.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card h-100">
+              <a href="aromatizantes.html"><img src="assets/AROMATIZANTES.png" class="card-img-top" alt="Aromatizantes"></a>
+              <div class="card-body">
+                <h5 class="card-title">Aromatizantes</h5>
+                <p class="card-text">Aromatizantes en aerosol y spray, presentaciones varias.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contacto" class="py-5">
+      <div class="container">
+        <h2 class="mb-4">Contacto</h2>
+        <div class="row">
+          <div class="col-md-6">
+            <form id="contactForm" novalidate>
+              <div class="mb-3">
+                <label for="name" class="form-label">Nombre</label>
+                <input type="text" class="form-control" id="name" required>
+                <div class="invalid-feedback">Por favor ingresa tu nombre.</div>
+              </div>
+              <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" required>
+                <div class="invalid-feedback">Por favor ingresa un email válido.</div>
+              </div>
+              <div class="mb-3">
+                <label for="message" class="form-label">Mensaje</label>
+                <textarea class="form-control message-box" id="message" rows="6" required></textarea>
+                <div class="invalid-feedback">Por favor escribe un mensaje.</div>
+              </div>
+              <button class="btn btn-primary" type="submit">Enviar</button>
+            </form>
+          </div>
+          <div class="col-md-6 contact-panel">
+            <div class="mt-3">
+              <div class="contact-image-bg" style="background-image:url('assets/contacto.jpg');" aria-label="Imagen de contacto"></div>
+            </div>
+            <div class="row mt-4 gx-1 align-items-center">
+              <div class="col">
+                <h5>Dirección</h5>
+                <p class="mb-0">Calle Falsa 123, Buenos Aires. Argentina</p>
+              </div>
+              <div class="col-auto">
+                <h5>Teléfono</h5>
+                <p class="mb-0">+54 9 11 1234 5678</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="bg-dark text-white py-3">
+      <div class="container text-center small">
+        <div>© 2025 AROMANZA - Proyecto</div>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/main.js"></script>
+    
+  </body>
+</html>
