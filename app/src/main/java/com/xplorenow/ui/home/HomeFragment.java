@@ -39,6 +39,7 @@ import android.widget.Button;
 import android.widget.Toast;
 import java.util.HashSet;
 import java.util.Set;
+import android.widget.ViewFlipper;
 
 @AndroidEntryPoint
 public class HomeFragment extends Fragment {
@@ -54,11 +55,8 @@ public class HomeFragment extends Fragment {
     private TextView tvDestacadasTitulo;
     private HorizontalScrollView hsvDestacadas;
     private LinearLayout llDestacadasContainer;
-    private TextView tvNoticiasTitulo;
-    private ListView lvNoticias;
-    private NoticiaAdapter noticiaAdapter;
+    private ViewFlipper vfNoticias;
     private final List<NoticiaDTO> noticias = new ArrayList<>();
-    private Button btnVerTodasNoticias;
 
     // Footer views
     private android.widget.Button btnCargarMas;
@@ -129,33 +127,7 @@ public class HomeFragment extends Fragment {
         hsvDestacadas = header.findViewById(R.id.hsvDestacadas);
         llDestacadasContainer = header.findViewById(R.id.llDestacadasContainer);
 
-        tvNoticiasTitulo = header.findViewById(R.id.tvNoticiasTitulo);
-        lvNoticias = header.findViewById(R.id.lvNoticias);
-        noticiaAdapter = new NoticiaAdapter(requireContext(), noticias);
-        lvNoticias.setAdapter(noticiaAdapter);
-
-        btnVerTodasNoticias = header.findViewById(R.id.btnVerTodasNoticias);
-        btnVerTodasNoticias.setOnClickListener(v -> {
-            btnVerTodasNoticias.setVisibility(View.GONE);
-        noticiaAdapter.setLimitado(false);
-        noticiaAdapter.notifyDataSetChanged();
-        lvNoticias.post(() -> ajustarAlturaListView(lvNoticias));
-        });
-
-        lvNoticias.setOnItemClickListener((parent, v, position, id) -> {
-            NoticiaDTO noticia = noticias.get(position);
-            Bundle args = new Bundle();
-            if (noticia.getActividadRelacionadaId() != null) {
-                args.putLong(DetalleFragment.ARG_ACTIVIDAD_ID,
-                    noticia.getActividadRelacionadaId());
-                Navigation.findNavController(v)
-                    .navigate(R.id.action_home_to_detalle, args);
-            } else {
-                args.putLong("noticiaId", noticia.getId());
-                Navigation.findNavController(v)
-                    .navigate(R.id.action_home_to_noticiaDetalle, args);
-            }
-        });
+        vfNoticias = header.findViewById(R.id.vfNoticias);
 
         lvActividades.addHeaderView(header, null, false);
 
@@ -453,51 +425,63 @@ public class HomeFragment extends Fragment {
 
     private void cargarNoticias() {
         noticiaRepository.listarNoticias().enqueue(new Callback<List<NoticiaDTO>>() {
-            @Override
-            public void onResponse(Call<List<NoticiaDTO>> call,
-                                    Response<List<NoticiaDTO>> response) {
-                if (getView() == null) return;
-                if (response.isSuccessful() && response.body() != null
-                        && !response.body().isEmpty()) {
-                    mostrarNoticias(response.body());
-                }
+        @Override
+        public void onResponse(Call<List<NoticiaDTO>> call,
+                               Response<List<NoticiaDTO>> response) {
+            if (getView() == null) return;
+            if (response.isSuccessful() && response.body() != null
+                    && !response.body().isEmpty()) {
+                mostrarNoticias(response.body());
             }
+        }
 
-            @Override
-            public void onFailure(Call<List<NoticiaDTO>> call, Throwable t) {
-                if (getView() == null) return;
-                Log.e(TAG, "noticias onFailure", t);
-            }
-        });
-    }
+        @Override
+        public void onFailure(Call<List<NoticiaDTO>> call, Throwable t) {
+            if (getView() == null) return;
+            Log.e(TAG, "noticias onFailure", t);
+        }
+    });
+}
 
 
     private void mostrarNoticias(List<NoticiaDTO> recibidas) {
         noticias.clear();
         noticias.addAll(recibidas);
-        noticiaAdapter.notifyDataSetChanged();
-        tvNoticiasTitulo.setVisibility(View.VISIBLE);
-        lvNoticias.setVisibility(View.VISIBLE);
-        if (recibidas.size() > 2) {
-            btnVerTodasNoticias.setVisibility(View.VISIBLE);
+        vfNoticias.removeAllViews();
+
+        for (NoticiaDTO n : noticias) {
+            View slide = LayoutInflater.from(requireContext())
+                    .inflate(R.layout.item_noticia_carrusel, vfNoticias, false);
+
+            ImageView ivImagen = slide.findViewById(R.id.ivNoticiaImagen);
+            TextView tvTitulo = slide.findViewById(R.id.tvNoticiaTitulo);
+            TextView tvDesc = slide.findViewById(R.id.tvNoticiaDescripcion);
+
+            tvTitulo.setText(n.getTitulo());
+            tvDesc.setText(n.getDescripcionBreve());
+            Glide.with(this)
+                .load(n.getImagenUrl())
+                .placeholder(android.R.color.darker_gray)
+                .into(ivImagen);
+
+            slide.setOnClickListener(v -> {
+                Bundle args = new Bundle();
+                if (n.getActividadRelacionadaId() != null) {
+                    args.putLong(DetalleFragment.ARG_ACTIVIDAD_ID,
+                            n.getActividadRelacionadaId());
+                    Navigation.findNavController(v)
+                            .navigate(R.id.action_home_to_detalle, args);
+        } else {
+                args.putLong("noticiaId", n.getId());
+                Navigation.findNavController(v)
+                        .navigate(R.id.action_home_to_noticiaDetalle, args);
+            }
+        });
+
+            vfNoticias.addView(slide);
         }
-        lvNoticias.post(() -> ajustarAlturaListView(lvNoticias));
+        vfNoticias.setVisibility(View.VISIBLE);
     }
 
-    private void ajustarAlturaListView(ListView lv) {
-        if (lv.getAdapter() == null) return;
-        int totalHeight = 0;
-        for (int i = 0; i < lv.getAdapter().getCount(); i++) {
-            View item = lv.getAdapter().getView(i, null, lv);
-            item.measure(
-                    View.MeasureSpec.makeMeasureSpec(lv.getWidth(), View.MeasureSpec.AT_MOST),
-                    View.MeasureSpec.UNSPECIFIED);
-            totalHeight += item.getMeasuredHeight();
-        }
-        ViewGroup.LayoutParams params = lv.getLayoutParams();
-        params.height = totalHeight + (lv.getDividerHeight() * (lv.getAdapter().getCount() - 1));
-        lv.setLayoutParams(params);
-        lv.requestLayout();
-    }
 
 }
