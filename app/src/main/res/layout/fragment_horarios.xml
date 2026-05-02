@@ -41,7 +41,7 @@
         android:layout_height="wrap_content"
         android:paddingHorizontal="16dp"
         android:textSize="14sp"
-        android:textColor="#757575"
+        android:textColor="@color/text_secondary"
         android:visibility="gone" />
 
     <ListView

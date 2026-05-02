@@ -1,5 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Colores base -->
+    <color name="terracota">#C8623F</color>
+    <color name="terracota_dark">#A04E2F</color>
+    <color name="terracota_darker">#6B3520</color>
+    <color name="verde_militar">#5C6B47</color>
+    <color name="verde_militar_dark">#3F4A30</color>
+    <color name="verde_militar_light">#7A8B5C</color>
+    <color name="crema">#F5E6D3</color>
+    <color name="crema_clara">#FAF6F0</color>
+    <color name="crema_oscura">#E8D5B7</color>
+    <color name="tierra_oscura">#3F4A30</color>
+    <color name="dorado">#E8B14A</color>
+
+    <!-- ========== Mapeo a roles del theme ========== -->
+
+    <color name="primary">#C8623F</color>
+    <color name="primary_dark">#A04E2F</color>
+    <color name="primary_light">#E68B6A</color>
+    <color name="accent">#5C6B47</color>
+    <color name="accent_light">#7A8B5C</color>
+
+    <!-- Fondos -->
+    <color name="bg_app">#FAF6F0</color>
+    <color name="bg_card">#FFFFFF</color>
+    <color name="bg_voucher">#F5E6D3</color>
+
+    <!-- Texto -->
+    <color name="text_primary">#3F4A30</color>
+    <color name="text_secondary">#7A6B5A</color>
+    <color name="text_hint">#9C8E7A</color>
+    <color name="text_on_primary">#FFFFFF</color>
+    <color name="text_on_dark">#F5E6D3</color>
+
+    <!-- Estados de reservas -->
+    <color name="estado_confirmada">#5C6B47</color>
+    <color name="estado_cancelada">#C8623F</color>
+    <color name="estado_finalizada">#7A6B5A</color>
+
+    <!-- Bordes / divisores -->
+    <color name="divider">#E0D5C0</color>
+
+    <!-- Compatibilidad -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
 </resources>

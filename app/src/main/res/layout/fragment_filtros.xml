@@ -62,7 +62,7 @@
                         android:layout_height="wrap_content"
                         android:text="Destino"
                         android:textSize="13sp"
-                        android:textColor="#757575" />
+                        android:textColor="@color/text_secondary" />
 
                     <Spinner
                         android:id="@+id/spDestino"
@@ -76,7 +76,7 @@
                         android:layout_height="wrap_content"
                         android:text="Categoria"
                         android:textSize="13sp"
-                        android:textColor="#757575" />
+                        android:textColor="@color/text_secondary" />
 
                     <Spinner
                         android:id="@+id/spCategoria"
@@ -127,7 +127,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="Desde"
                                 android:textSize="13sp"
-                                android:textColor="#757575" />
+                                android:textColor="@color/text_secondary" />
 
                             <TextView
                                 android:id="@+id/tvFechaDesde"
@@ -153,7 +153,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="Hasta"
                                 android:textSize="13sp"
-                                android:textColor="#757575" />
+                                android:textColor="@color/text_secondary" />
 
                             <TextView
                                 android:id="@+id/tvFechaHasta"
@@ -198,7 +198,7 @@
                         android:layout_height="wrap_content"
                         android:text="Rango opcional en pesos"
                         android:textSize="12sp"
-                        android:textColor="#757575"
+                        android:textColor="@color/text_secondary"
                         android:layout_marginBottom="12dp" />
 
                     <LinearLayout

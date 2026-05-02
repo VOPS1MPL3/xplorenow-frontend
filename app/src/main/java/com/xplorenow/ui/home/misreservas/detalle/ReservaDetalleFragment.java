@@ -268,7 +268,7 @@ public class ReservaDetalleFragment extends Fragment {
         layoutCalificacionExistente.setVisibility(View.VISIBLE);
         layoutCalificacionExistente.setOnClickListener(null);
         tvRatingActividad.setText("⏰ El plazo para calificar esta actividad venció");
-        tvRatingActividad.setTextColor(Color.parseColor("#B71C1C"));
+        tvRatingActividad.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), com.xplorenow.R.color.estado_cancelada));
         tvRatingGuia.setVisibility(View.GONE);
         tvComentario.setVisibility(View.GONE);
     }
@@ -292,9 +292,9 @@ public class ReservaDetalleFragment extends Fragment {
     private int colorPara(EstadoReserva e) {
         if (e == null) return Color.GRAY;
         switch (e) {
-            case CONFIRMADA: return Color.parseColor("#1B5E20");
-            case CANCELADA:  return Color.parseColor("#B71C1C");
-            case FINALIZADA: return Color.parseColor("#37474F");
+            case CONFIRMADA: return androidx.core.content.ContextCompat.getColor(requireContext(), com.xplorenow.R.color.estado_confirmada);
+            case CANCELADA:  return androidx.core.content.ContextCompat.getColor(requireContext(), com.xplorenow.R.color.estado_cancelada);
+            case FINALIZADA: return androidx.core.content.ContextCompat.getColor(requireContext(), com.xplorenow.R.color.estado_finalizada);
             default: return Color.GRAY;
         }
     }

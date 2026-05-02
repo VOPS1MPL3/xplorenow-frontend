@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.xplorenow.R;
 import com.xplorenow.network.ApiService;
 import com.xplorenow.util.TokenManager;
@@ -35,6 +36,7 @@ public class OtpConfirmarFragment extends Fragment {
     @Inject
     TokenManager tokenManager;
 
+    private MaterialToolbar toolbar;
     private TextView tvEmailDestino;
     private TextView tvTimer;
     private EditText etCodigo;
@@ -54,11 +56,15 @@ public class OtpConfirmarFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        toolbar         = view.findViewById(R.id.toolbar);
         tvEmailDestino  = view.findViewById(R.id.tvEmailDestino);
         tvTimer         = view.findViewById(R.id.tvTimer);
         etCodigo        = view.findViewById(R.id.etCodigo);
         btnConfirmarOtp = view.findViewById(R.id.btnConfirmarOtp);
         btnReenviarOtp  = view.findViewById(R.id.btnReenviarOtp);
+
+        toolbar.setNavigationOnClickListener(v ->
+                Navigation.findNavController(v).popBackStack());
 
         if (getArguments() != null) {
             email = getArguments().getString("email", "");
@@ -96,7 +102,6 @@ public class OtpConfirmarFragment extends Fragment {
                     });
         });
 
-        // Reenviar — habilitado solo cuando el timer termina
         btnReenviarOtp.setOnClickListener(v -> {
             btnReenviarOtp.setEnabled(false);
 

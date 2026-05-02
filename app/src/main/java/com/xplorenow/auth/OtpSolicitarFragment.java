@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.xplorenow.R;
 import com.xplorenow.network.ApiService;
 import dagger.hilt.android.AndroidEntryPoint;
@@ -26,6 +27,7 @@ public class OtpSolicitarFragment extends Fragment {
     @Inject
     ApiService apiService;
 
+    private MaterialToolbar toolbar;
     private EditText etEmail;
     private Button btnSolicitarOtp;
 
@@ -39,8 +41,12 @@ public class OtpSolicitarFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        toolbar         = view.findViewById(R.id.toolbar);
         etEmail         = view.findViewById(R.id.etEmail);
         btnSolicitarOtp = view.findViewById(R.id.btnSolicitarOtp);
+
+        toolbar.setNavigationOnClickListener(v ->
+                Navigation.findNavController(v).popBackStack());
 
         btnSolicitarOtp.setOnClickListener(v -> {
             String email = etEmail.getText().toString().trim();

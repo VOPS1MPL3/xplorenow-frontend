@@ -36,7 +36,7 @@
                 android:layout_marginTop="16dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="3dp"
-                app:cardBackgroundColor="#FFF8E1">
+                app:cardBackgroundColor="@color/bg_voucher">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -73,7 +73,7 @@
                         android:textSize="12sp"
                         android:textStyle="bold"
                         android:textColor="@android:color/white"
-                        android:background="#1B5E20"
+                        android:background="@color/verde_militar"
                         tools:text="CONFIRMADA" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -98,7 +98,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:textSize="14sp"
-                    android:textColor="#757575"
+                    android:textColor="@color/text_secondary"
                     tools:text="Buenos Aires - Free Tour" />
             </LinearLayout>
 

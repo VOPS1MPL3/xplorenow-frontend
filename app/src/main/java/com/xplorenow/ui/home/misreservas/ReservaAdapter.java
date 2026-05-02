@@ -69,10 +69,11 @@ public class ReservaAdapter extends ArrayAdapter<ReservaDTO> {
 
         private int colorPara(EstadoReserva estado) {
             if (estado == null) return Color.GRAY;
+            android.content.Context ctx = ivImagen.getContext();
             switch (estado) {
-                case CONFIRMADA: return Color.parseColor("#1B5E20"); // verde
-                case CANCELADA:  return Color.parseColor("#B71C1C"); // rojo
-                case FINALIZADA: return Color.parseColor("#37474F"); // gris oscuro
+                case CONFIRMADA: return androidx.core.content.ContextCompat.getColor(ctx, com.xplorenow.R.color.estado_confirmada);
+                case CANCELADA:  return androidx.core.content.ContextCompat.getColor(ctx, com.xplorenow.R.color.estado_cancelada);
+                case FINALIZADA: return androidx.core.content.ContextCompat.getColor(ctx, com.xplorenow.R.color.estado_finalizada);
                 default: return Color.GRAY;
             }
         }
