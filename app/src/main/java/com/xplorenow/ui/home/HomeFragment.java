@@ -23,6 +23,7 @@ import com.xplorenow.data.repository.ActividadRepository;
 import com.xplorenow.data.util.PrecioFormatter;
 import com.xplorenow.ui.home.detalle.DetalleFragment;
 import com.xplorenow.ui.home.filtros.FiltrosFragment;
+import com.xplorenow.util.TokenManager;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
@@ -77,6 +78,8 @@ public class HomeFragment extends Fragment {
     NoticiaRepository noticiaRepository;
     @Inject
     FavoritoRepository favoritoRepository;
+    @Inject
+    TokenManager tokenManager;
 
     @Nullable
     @Override
@@ -120,13 +123,12 @@ public class HomeFragment extends Fragment {
                 }
         );
 
-        // Header (destacadas + titulo "Catalogo completo")
+        // Header (destacadas + noticias carrusel)
         View header = LayoutInflater.from(requireContext())
                 .inflate(R.layout.header_destacadas, lvActividades, false);
         tvDestacadasTitulo = header.findViewById(R.id.tvDestacadasTitulo);
         hsvDestacadas = header.findViewById(R.id.hsvDestacadas);
         llDestacadasContainer = header.findViewById(R.id.llDestacadasContainer);
-
         vfNoticias = header.findViewById(R.id.vfNoticias);
 
         lvActividades.addHeaderView(header, null, false);
@@ -142,10 +144,16 @@ public class HomeFragment extends Fragment {
         adapter = new ActividadAdapter(requireContext(), actividades);
         lvActividades.setAdapter(adapter);
 
-        // Toggle de favorito desde la card del catalogo (Punto 7).
-        // Optimistic update: cambiamos el icono al toque y revertimos si el
-        // backend falla, para que la UI se sienta instantanea.
+        // Toggle de favorito desde la card del catalogo.
+        // Verifica sesion antes de cualquier accion.
         adapter.setFavoritoListener((act, nuevoEstado) -> {
+            // Si no hay sesion activa, redirigir al login
+            if (!tokenManager.isTokenValid()) {
+                tokenManager.clearToken();
+                Navigation.findNavController(requireView()).navigate(R.id.loginFragment);
+                return;
+            }
+
             long actividadId = act.getId();
             if (nuevoEstado) {
                 adapter.marcarLocal(actividadId);
@@ -211,11 +219,11 @@ public class HomeFragment extends Fragment {
     }
 
     /**
-     * Carga el set de actividades favoritas del usuario para que el adapter
-     * dibuje el corazon lleno donde corresponda. Se invoca al entrar a Home
-     * y tambien en onResume() para refrescar despues de volver del detalle.
+     * Carga el set de actividades favoritas del usuario.
+     * Si no hay sesion activa se ignora silenciosamente — el home es publico.
      */
     private void cargarFavoritos() {
+        if (!tokenManager.isTokenValid()) return; // sin sesion, no cargar
         favoritoRepository.misFavoritos().enqueue(new Callback<List<FavoritoDTO>>() {
             @Override
             public void onResponse(Call<List<FavoritoDTO>> call,
@@ -228,6 +236,7 @@ public class HomeFragment extends Fragment {
                     }
                     adapter.setFavoritos(ids);
                 }
+                // 403 u otro error: ignorar silenciosamente
             }
             @Override
             public void onFailure(Call<List<FavoritoDTO>> call, Throwable t) {
@@ -259,7 +268,6 @@ public class HomeFragment extends Fragment {
                             ocultarDestacadas();
                         }
                     }
-
                     @Override
                     public void onFailure(Call<List<ActividadDTO>> call, Throwable t) {
                         if (getView() == null) return;
@@ -344,10 +352,7 @@ public class HomeFragment extends Fragment {
                             Call<PageResponseDTO<ActividadDTO>> call,
                             Response<PageResponseDTO<ActividadDTO>> response) {
                         if (getView() == null) return;
-                        if (miToken != requestToken) {
-                            // Respuesta vieja, ignorar
-                            return;
-                        }
+                        if (miToken != requestToken) return;
                         cargando = false;
                         if (response.isSuccessful() && response.body() != null) {
                             paginaActual = response.body().getNumber();
@@ -358,7 +363,6 @@ public class HomeFragment extends Fragment {
                         }
                         actualizarFooter();
                     }
-
                     @Override
                     public void onFailure(
                             Call<PageResponseDTO<ActividadDTO>> call,
@@ -423,26 +427,26 @@ public class HomeFragment extends Fragment {
         return f.estaVacio() ? null : f;
     }
 
+    // ---------- Noticias (ViewFlipper carrusel) ----------
+
     private void cargarNoticias() {
         noticiaRepository.listarNoticias().enqueue(new Callback<List<NoticiaDTO>>() {
-        @Override
-        public void onResponse(Call<List<NoticiaDTO>> call,
-                               Response<List<NoticiaDTO>> response) {
-            if (getView() == null) return;
-            if (response.isSuccessful() && response.body() != null
-                    && !response.body().isEmpty()) {
-                mostrarNoticias(response.body());
+            @Override
+            public void onResponse(Call<List<NoticiaDTO>> call,
+                                   Response<List<NoticiaDTO>> response) {
+                if (getView() == null) return;
+                if (response.isSuccessful() && response.body() != null
+                        && !response.body().isEmpty()) {
+                    mostrarNoticias(response.body());
+                }
             }
-        }
-
-        @Override
-        public void onFailure(Call<List<NoticiaDTO>> call, Throwable t) {
-            if (getView() == null) return;
-            Log.e(TAG, "noticias onFailure", t);
-        }
-    });
-}
-
+            @Override
+            public void onFailure(Call<List<NoticiaDTO>> call, Throwable t) {
+                if (getView() == null) return;
+                Log.e(TAG, "noticias onFailure", t);
+            }
+        });
+    }
 
     private void mostrarNoticias(List<NoticiaDTO> recibidas) {
         noticias.clear();
@@ -460,9 +464,9 @@ public class HomeFragment extends Fragment {
             tvTitulo.setText(n.getTitulo());
             tvDesc.setText(n.getDescripcionBreve());
             Glide.with(this)
-                .load(n.getImagenUrl())
-                .placeholder(android.R.color.darker_gray)
-                .into(ivImagen);
+                    .load(n.getImagenUrl())
+                    .placeholder(android.R.color.darker_gray)
+                    .into(ivImagen);
 
             slide.setOnClickListener(v -> {
                 Bundle args = new Bundle();
@@ -471,17 +475,15 @@ public class HomeFragment extends Fragment {
                             n.getActividadRelacionadaId());
                     Navigation.findNavController(v)
                             .navigate(R.id.action_home_to_detalle, args);
-        } else {
-                args.putLong("noticiaId", n.getId());
-                Navigation.findNavController(v)
-                        .navigate(R.id.action_home_to_noticiaDetalle, args);
-            }
-        });
+                } else {
+                    args.putLong("noticiaId", n.getId());
+                    Navigation.findNavController(v)
+                            .navigate(R.id.action_home_to_noticiaDetalle, args);
+                }
+            });
 
             vfNoticias.addView(slide);
         }
         vfNoticias.setVisibility(View.VISIBLE);
     }
-
-
 }
