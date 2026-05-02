@@ -18,14 +18,6 @@ import com.xplorenow.data.util.PrecioFormatter;
 
 import java.util.List;
 
-/**
- * Adapter de la pantalla "Mis favoritos" (Punto 7 del TPO).
- *
- * Muestra cada favorito como una card horizontal con imagen, nombre,
- * destino+categoria, precio y, si corresponde, un badge de novedad
- * ("¡Bajo de precio!" / "¡Hay mas cupos!"). El boton corazon a la
- * derecha permite quitarlo de favoritos sin abrir el detalle.
- */
 public class FavoritoAdapter extends ArrayAdapter<FavoritoDTO> {
 
     public interface OnQuitarListener {

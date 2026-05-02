@@ -7,8 +7,8 @@ import androidx.room.PrimaryKey;
 public class SyncActionEntity {
     @PrimaryKey(autoGenerate = true)
     private long id;
-    private String type; // Ejemplo: "CANCELAR_RESERVA"
-    private long targetId; // ID de la reserva
+    private String type;
+    private long targetId;
     private long timestamp;
 
     public SyncActionEntity(String type, long targetId) {

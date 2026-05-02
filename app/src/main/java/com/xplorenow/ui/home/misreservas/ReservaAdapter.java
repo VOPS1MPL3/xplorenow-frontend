@@ -81,12 +81,6 @@ public class ReservaAdapter extends ArrayAdapter<ReservaDTO> {
                     .into(ivImagen);
         }
 
-        /**
-         * Muestra el badge de resena segun el estado de la reserva:
-         *  - FINALIZADA + ya tiene calificacion -> "RESEÑADO" (verde)
-         *  - FINALIZADA + sin calificacion + dentro del plazo de 48h -> "RESEÑAR" (amarillo)
-         *  - cualquier otra cosa -> oculto
-         */
         private void actualizarBadgeResena(ReservaDTO r) {
             Context ctx = ivImagen.getContext();
 
@@ -95,7 +89,6 @@ public class ReservaAdapter extends ArrayAdapter<ReservaDTO> {
                 return;
             }
 
-            // Ya resenado
             if (r.getCalificacion() != null) {
                 tvBadgeResena.setText("RESEÑADO");
                 tvBadgeResena.setBackgroundColor(
@@ -104,7 +97,6 @@ public class ReservaAdapter extends ArrayAdapter<ReservaDTO> {
                 return;
             }
 
-            // Sin resena: chequear si todavia esta dentro del plazo
             if (estaEnPlazoParaResenar(r)) {
                 tvBadgeResena.setText("RESEÑAR");
                 tvBadgeResena.setBackgroundColor(

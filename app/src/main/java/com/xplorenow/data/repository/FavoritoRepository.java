@@ -10,12 +10,6 @@ import javax.inject.Singleton;
 
 import retrofit2.Call;
 
-/**
- * Repositorio para los endpoints de Favoritos (Punto 7 del TPO).
- *   GET    /favoritos               -> Listado con flag de novedad
- *   POST   /favoritos/{actId}       -> Marcar
- *   DELETE /favoritos/{actId}       -> Desmarcar
- */
 @Singleton
 public class FavoritoRepository {
 

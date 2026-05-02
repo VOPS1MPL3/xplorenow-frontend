@@ -1,9 +1,5 @@
 package com.xplorenow.data.dto;
 
-/**
- * Body de PUT /perfil.
- * El email NO se puede modificar desde acá (regla de negocio del backend, doc 6.2).
- */
 public class ActualizarPerfilRequest {
 
     private String nombre;

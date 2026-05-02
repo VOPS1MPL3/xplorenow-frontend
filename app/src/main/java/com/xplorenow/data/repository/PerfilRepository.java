@@ -10,11 +10,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import retrofit2.Call;
 
-/**
- * Repositorio para los endpoints de Perfil (Punto 2 del TPO).
- * Tambien expone "misReservas" para que la pantalla de perfil pueda
- * mostrar el resumen de actividades reservadas/finalizadas (punto 2.3).
- */
 @Singleton
 public class PerfilRepository {
 

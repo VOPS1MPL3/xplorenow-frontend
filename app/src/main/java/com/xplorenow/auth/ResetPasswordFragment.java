@@ -24,15 +24,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-/**
- * Pantalla "Olvide mi contrasena" (paso 2 de 2).
- *
- * El usuario ingresa el OTP que recibio por email + la nueva contrasena
- * (con confirmacion). Si el OTP es valido, el backend pisa la contrasena
- * vieja con la nueva y volvemos al login.
- *
- * Recibe el email como argumento desde OlvideContrasenaFragment.
- */
 @AndroidEntryPoint
 public class ResetPasswordFragment extends Fragment {
 

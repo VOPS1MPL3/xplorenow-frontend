@@ -52,13 +52,6 @@ public class TokenManager {
         return getToken() != null;
     }
 
-    /**
-     * Decodifica el payload del JWT y verifica si el campo "exp" ya pasó.
-     * No hace validación criptográfica — eso lo hace el backend.
-     * Si no puede parsear el token, asume que venció (fuerza re-login).
-     *
-     * @return true si el token existe y NO venció todavía
-     */
     public boolean isTokenValid() {
         String token = getToken();
         if (token == null) return false;

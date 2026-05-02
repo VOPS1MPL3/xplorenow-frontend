@@ -10,15 +10,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-/**
- * Utilidad para guardar imagenes (foto de perfil) en almacenamiento interno
- * de la app. Sigue el patron explicado en el apunte de la materia (seccion 9):
- * leer el Uri devuelto por la galeria, decodificarlo a Bitmap, y guardarlo
- * como JPEG en getFilesDir().
- *
- * Decision: se guarda con prefijo "file://" para que Glide pueda cargarlo
- * directamente y para que el backend reciba un URI valido en fotoUrl.
- */
 public final class ImageStorageUtil {
 
     private static final String PROFILE_IMAGE_NAME = "profile_image.jpg";
@@ -26,11 +17,6 @@ public final class ImageStorageUtil {
 
     private ImageStorageUtil() {}
 
-    /**
-     * Lee la imagen seleccionada en la galeria y la guarda dentro del
-     * almacenamiento interno de la app. Devuelve el path absoluto del
-     * archivo guardado (con prefijo "file://"), o null si fallo.
-     */
     public static String guardarFotoPerfil(Context context, Uri imageUri) {
         if (imageUri == null) return null;
 
@@ -57,11 +43,6 @@ public final class ImageStorageUtil {
         }
     }
 
-    /**
-     * Devuelve un objeto cargable por Glide a partir de la fotoUrl que viene
-     * del backend o que persistimos localmente. Glide acepta tanto String
-     * como File, asi que devolvemos el tipo mas adecuado segun el caso.
-     */
     public static Object resolverParaGlide(String fotoUrl) {
         if (fotoUrl == null || fotoUrl.isEmpty()) return null;
         if (fotoUrl.startsWith("file://")) {

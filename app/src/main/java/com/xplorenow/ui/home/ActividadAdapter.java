@@ -19,19 +19,6 @@ import com.xplorenow.data.util.PrecioFormatter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-/**
- * Adapter del catalogo. Muestra cada actividad como card y dibuja el
- * corazon de favorito flotando arriba a la derecha de la imagen.
- *
- * Decisiones:
- *  - El estado de "es favorita" se guarda en un Set<Long> de actividadId.
- *    El Fragment dueno del adapter se encarga de mantener el set sincronizado
- *    con el servidor (carga inicial via GET /favoritos al entrar a Home).
- *  - El click del corazon se delega via callback al Fragment, que llama al
- *    repositorio (POST/DELETE) y actualiza el set + notifyDataSetChanged().
- *    Asi el adapter no conoce nada de Retrofit y queda testeable.
- */
 public class ActividadAdapter extends ArrayAdapter<ActividadDTO> {
 
     /** Callback que ejecuta el Fragment cuando el usuario toca el corazon. */
@@ -43,8 +30,6 @@ public class ActividadAdapter extends ArrayAdapter<ActividadDTO> {
     private OnFavoritoToggleListener favoritoListener;
 
     public ActividadAdapter(@NonNull Context context, @NonNull List<ActividadDTO> items) {
-        // El segundo parametro (resource) no lo usamos porque inflamos el
-        // layout manualmente, pero el constructor lo pide. Pasamos 0.
         super(context, 0, items);
     }
 
@@ -52,7 +37,6 @@ public class ActividadAdapter extends ArrayAdapter<ActividadDTO> {
         this.favoritoListener = listener;
     }
 
-    /** Reemplaza el set de favoritos (lo llama el Fragment al cargar /favoritos). */
     public void setFavoritos(@NonNull Set<Long> ids) {
         favoritosIds.clear();
         favoritosIds.addAll(ids);

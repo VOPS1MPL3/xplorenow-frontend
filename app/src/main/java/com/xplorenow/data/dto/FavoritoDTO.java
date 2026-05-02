@@ -2,11 +2,6 @@ package com.xplorenow.data.dto;
 
 import java.math.BigDecimal;
 
-/**
- * Espeja FavoritoDTO del backend (Punto 7 del TPO).
- * El servidor incluye datos de la actividad + flags de novedad
- * comparando el snapshot al marcar contra el estado actual.
- */
 public class FavoritoDTO {
 
     private Long actividadId;

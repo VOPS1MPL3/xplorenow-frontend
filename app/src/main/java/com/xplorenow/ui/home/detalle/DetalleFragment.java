@@ -52,8 +52,7 @@ public class DetalleFragment extends Fragment {
     private MaterialToolbar toolbar;
     private Button btnReservar;
     private ActividadDetalleDTO actividadActual;
-    
-    /** Estado actual del corazon. Lo cargamos al entrar leyendo /favoritos. */
+
     private boolean esFavorita = false;
     private long actividadId = -1L;
 
@@ -129,12 +128,6 @@ public class DetalleFragment extends Fragment {
         });
     }
 
-    /**
-     * Pregunta al backend la lista de favoritos del usuario y busca esta
-     * actividad para saber si el corazon arranca lleno o vacio.
-     * Si la API falla, asumimos NO favorita (es el estado mas conservador
-     * y el usuario podra marcarlo manualmente).
-     */
     private void cargarEstadoFavorito(long actividadId) {
         favoritoRepository.misFavoritos().enqueue(new Callback<List<FavoritoDTO>>() {
             @Override
@@ -168,10 +161,6 @@ public class DetalleFragment extends Fragment {
                 : R.drawable.ic_corazon_vacio);
     }
 
-    /**
-     * Toggle optimista: cambiamos el icono al toque y revertimos si la
-     * llamada al backend falla.
-     */
     private void toggleFavorito() {
         if (actividadId < 0) return;
         boolean nuevoEstado = !esFavorita;

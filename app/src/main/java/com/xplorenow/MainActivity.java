@@ -58,9 +58,6 @@ public class MainActivity extends AppCompatActivity {
             NavController navController = navHostFragment.getNavController();
             NavigationUI.setupWithNavController(bottomNav, navController);
 
-            // Si hay token válido al abrir la app -> ir al login
-            // (para que el usuario elija huella o contraseña)
-            // Si no hay token -> queda en el home directamente
             if (savedInstanceState == null && tokenManager.isTokenValid()) {
                 navController.navigate(R.id.loginFragment);
             }

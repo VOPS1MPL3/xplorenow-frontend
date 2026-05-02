@@ -6,8 +6,8 @@ public class ActividadDTO {
     private Long id;
     private String nombre;
     private String imagenPrincipal;
-    private String destino;        // String, no DestinoDTO
-    private String categoria;      // String, no CategoriaDTO
+    private String destino;
+    private String categoria;
     private Integer duracionMinutos;
     private BigDecimal precio;
     private Integer cuposDisponibles;

@@ -1,9 +1,5 @@
 package com.xplorenow.auth;
 
-/**
- * Body de POST /auth/registro.
- * Campos sincronizados con el RegistroRequest del backend.
- */
 public class RegistroRequest {
     private String email;
     private String password;

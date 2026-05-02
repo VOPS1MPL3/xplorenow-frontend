@@ -57,7 +57,6 @@ public class LoginFragment extends Fragment {
         btnRegistro        = view.findViewById(R.id.btnRegistro);
         btnBiometria       = view.findViewById(R.id.btnBiometria);
 
-        // Mostrar biometría solo si el token es válido
         if (tokenManager.isTokenValid()) {
             btnBiometria.setVisibility(View.VISIBLE);
         } else {
@@ -65,7 +64,6 @@ public class LoginFragment extends Fragment {
             btnBiometria.setVisibility(View.GONE);
         }
 
-        // Login clásico
         btnLogin.setOnClickListener(v -> {
             String email    = etEmail.getText().toString().trim();
             String password = etPassword.getText().toString().trim();

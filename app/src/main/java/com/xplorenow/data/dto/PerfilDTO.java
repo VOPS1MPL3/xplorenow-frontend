@@ -2,10 +2,6 @@ package com.xplorenow.data.dto;
 
 import java.util.List;
 
-/**
- * DTO de respuesta de GET /perfil.
- * Espeja el PerfilDTO del backend (ver doc, sección 5.2).
- */
 public class PerfilDTO {
 
     private Long id;

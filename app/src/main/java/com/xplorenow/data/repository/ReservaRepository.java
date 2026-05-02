@@ -178,8 +178,8 @@ public class ReservaRepository {
         dto.setPoliticaCancelacion(e.getPoliticaCancelacion());
         dto.setFecha(e.getFecha());
         dto.setHora(e.getHora());
-        dto.setGuiaAsignado(e.getGuiaAsignado());   // ahora se lee
-        dto.setIdioma(e.getIdioma());               // ahora se lee
+        dto.setGuiaAsignado(e.getGuiaAsignado());
+        dto.setIdioma(e.getIdioma());
         return dto;
     }
 

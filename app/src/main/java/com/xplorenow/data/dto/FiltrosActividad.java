@@ -2,12 +2,12 @@ package com.xplorenow.data.dto;
 
 public class FiltrosActividad {
 
-    private Long destinoId;       // null = todos los destinos
-    private Long categoriaId;     // null = todas las categorias
-    private String fechaDesde;    // formato "YYYY-MM-DD" o null
-    private String fechaHasta;    // formato "YYYY-MM-DD" o null
-    private Double precioMin;     // null = sin minimo
-    private Double precioMax;     // null = sin maximo
+    private Long destinoId;
+    private Long categoriaId;
+    private String fechaDesde;
+    private String fechaHasta;
+    private Double precioMin;
+    private Double precioMax;
 
     public FiltrosActividad() {}
 
