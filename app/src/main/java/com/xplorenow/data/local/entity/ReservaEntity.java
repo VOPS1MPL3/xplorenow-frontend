@@ -20,11 +20,14 @@ public class ReservaEntity {
     private String politicaCancelacion;
     private String fecha;
     private String hora;
+    private String guiaAsignado;
+    private String idioma;
 
     public ReservaEntity(long id, String voucherCodigo, String estado, int cantidadParticipantes,
                          String actividadNombre, String actividadImagen, String destino, String categoria,
                          String puntoEncuentro, double latitud, double longitud,
-                         String politicaCancelacion, String fecha, String hora) {
+                         String politicaCancelacion, String fecha, String hora,
+                         String guiaAsignado, String idioma) {
         this.id = id;
         this.voucherCodigo = voucherCodigo;
         this.estado = estado;
@@ -39,6 +42,8 @@ public class ReservaEntity {
         this.politicaCancelacion = politicaCancelacion;
         this.fecha = fecha;
         this.hora = hora;
+        this.guiaAsignado = guiaAsignado;
+        this.idioma = idioma;
     }
 
     // Getters y Setters
@@ -70,4 +75,8 @@ public class ReservaEntity {
     public void setFecha(String fecha) { this.fecha = fecha; }
     public String getHora() { return hora; }
     public void setHora(String hora) { this.hora = hora; }
+    public String getGuiaAsignado() { return guiaAsignado; }
+    public void setGuiaAsignado(String guiaAsignado) { this.guiaAsignado = guiaAsignado; }
+    public String getIdioma() { return idioma; }
+    public void setIdioma(String idioma) { this.idioma = idioma; }
 }

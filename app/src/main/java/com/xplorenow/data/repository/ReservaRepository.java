@@ -49,7 +49,6 @@ public class ReservaRepository {
         executor.execute(() -> {
             List<ReservaEntity> entities = new ArrayList<>();
             for (ReservaDTO dto : dtos) {
-                // Buscamos si ya existe para no pisar campos de detalle que el DTO simple no tiene
                 ReservaEntity existente = reservaDao.obtenerReservaPorId(dto.getId());
                 ReservaEntity entity;
                 if (existente != null) {
@@ -57,6 +56,7 @@ public class ReservaRepository {
                     entity.setEstado(dto.getEstado() != null ? dto.getEstado().name() : entity.getEstado());
                     entity.setFecha(dto.getFecha());
                     entity.setHora(dto.getHora());
+                    // guiaAsignado e idioma no vienen en el DTO simple, se conservan los existentes
                 } else {
                     entity = new ReservaEntity(
                             dto.getId(),
@@ -66,12 +66,14 @@ public class ReservaRepository {
                             dto.getActividadNombre(),
                             dto.getActividadImagen(),
                             dto.getDestino(),
-                            "", // Categoria no viene en DTO simple
-                            "", // Punto encuentro no viene en DTO simple
+                            "",
+                            "",
                             0.0, 0.0,
-                            "", // Politica no viene en DTO simple
+                            "",
                             dto.getFecha(),
-                            dto.getHora()
+                            dto.getHora(),
+                            "", // guiaAsignado no viene en DTO simple
+                            ""  // idioma no viene en DTO simple
                     );
                 }
                 entities.add(entity);
@@ -95,7 +97,9 @@ public class ReservaRepository {
                 dto.getLongitud() != null ? dto.getLongitud() : 0.0,
                 dto.getPoliticaCancelacion(),
                 dto.getFecha(),
-                dto.getHora()
+                dto.getHora(),
+                dto.getGuiaAsignado(),   // ahora se guarda
+                dto.getIdioma()          // ahora se guarda
         );
     }
 
@@ -174,6 +178,8 @@ public class ReservaRepository {
         dto.setPoliticaCancelacion(e.getPoliticaCancelacion());
         dto.setFecha(e.getFecha());
         dto.setHora(e.getHora());
+        dto.setGuiaAsignado(e.getGuiaAsignado());   // ahora se lee
+        dto.setIdioma(e.getIdioma());               // ahora se lee
         return dto;
     }
 
@@ -185,8 +191,7 @@ public class ReservaRepository {
         executor.execute(() -> {
             SyncActionEntity action = new SyncActionEntity("CANCELAR_RESERVA", id);
             syncActionDao.insert(action);
-            
-            // Actualizamos localmente el estado a CANCELADA de inmediato para feedback visual
+
             ReservaEntity entity = reservaDao.obtenerReservaPorId(id);
             if (entity != null) {
                 entity.setEstado(EstadoReserva.CANCELADA.name());
@@ -207,7 +212,6 @@ public class ReservaRepository {
                             Response<ReservaDetalleDTO> response = api.cancelarReserva(action.getTargetId()).execute();
                             if (response.isSuccessful()) {
                                 syncActionDao.delete(action);
-                                // Actualizamos localmente el estado a CANCELADA usando el executor de la DB
                                 executor.execute(() -> {
                                     ReservaEntity entity = reservaDao.obtenerReservaPorId(action.getTargetId());
                                     if (entity != null) {
@@ -217,7 +221,6 @@ public class ReservaRepository {
                                 });
                             }
                         } catch (Exception e) {
-                            // Si falla, queda para el próximo intento
                             e.printStackTrace();
                         }
                     }
