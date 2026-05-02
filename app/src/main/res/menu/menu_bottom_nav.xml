@@ -3,7 +3,7 @@
 
     <item
         android:id="@+id/homeFragment"
-        android:title="Catalogo"
+        android:title="Home"
         android:icon="@android:drawable/ic_menu_compass" />
 
     <item
@@ -13,13 +13,8 @@
 
     <item
         android:id="@+id/misReservasFragment"
-        android:title="Mis reservas"
+        android:title="Reservas"
         android:icon="@android:drawable/ic_menu_agenda" />
-
-    <item
-        android:id="@+id/historialFragment"
-        android:title="Historial"
-        android:icon="@android:drawable/ic_menu_recent_history" />
 
     <item
         android:id="@+id/perfilFragment"

@@ -192,6 +192,9 @@
             android:id="@+id/action_perfil_to_preferencias"
             app:destination="@id/preferenciasFragment" />
         <action
+            android:id="@+id/action_perfil_to_historial"
+            app:destination="@id/historialFragment" />
+        <action
             android:id="@+id/action_perfil_to_login"
             app:destination="@id/loginFragment"
             app:popUpTo="@id/loginFragment"

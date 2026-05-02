@@ -76,7 +76,7 @@ public class PerfilFragment extends Fragment {
     private android.widget.ImageButton btnCambiarFoto;
     private TextView tvEmail, tvNombre, tvTelefono, tvPreferencias, tvResumenReservas;
     private EditText etNombre, etTelefono;
-    private Button btnEditar, btnCancelar, btnGuardar, btnEditarPreferencias, btnCerrarSesion;
+    private Button btnEditar, btnCancelar, btnGuardar, btnEditarPreferencias, btnVerHistorial, btnCerrarSesion;
     private LinearLayout llBotonesEdicion;
 
     private PerfilDTO perfilActual;
@@ -124,6 +124,7 @@ public class PerfilFragment extends Fragment {
         btnCancelar = view.findViewById(R.id.btnCancelar);
         btnGuardar = view.findViewById(R.id.btnGuardar);
         btnEditarPreferencias = view.findViewById(R.id.btnEditarPreferencias);
+        btnVerHistorial = view.findViewById(R.id.btnVerHistorial);
         btnCerrarSesion = view.findViewById(R.id.btnCerrarSesion);
         llBotonesEdicion = view.findViewById(R.id.llBotonesEdicion);
 
@@ -136,6 +137,8 @@ public class PerfilFragment extends Fragment {
         btnCambiarFoto.setOnClickListener(v -> seleccionarFoto());
         btnEditarPreferencias.setOnClickListener(v ->
                 Navigation.findNavController(v).navigate(R.id.action_perfil_to_preferencias));
+        btnVerHistorial.setOnClickListener(v ->
+                Navigation.findNavController(v).navigate(R.id.action_perfil_to_historial));
         btnCerrarSesion.setOnClickListener(v -> cerrarSesion());
 
         // Cuando preferencias guarda y vuelve, recargamos el perfil para

@@ -7,13 +7,16 @@
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="8dp"
     android:layout_marginVertical="6dp"
+    android:clickable="false"
+    android:focusable="false"
     app:cardCornerRadius="12dp"
     app:cardElevation="4dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="12dp">
+        android:padding="12dp"
+        android:descendantFocusability="blocksDescendants">
 
         <!-- Imagen miniatura -->
         <ImageView
@@ -48,6 +51,8 @@
             android:padding="6dp"
             android:src="@drawable/ic_corazon_lleno"
             android:background="?attr/selectableItemBackgroundBorderless"
+            android:focusable="true"
+            android:focusableInTouchMode="false"
             android:contentDescription="Quitar de favoritos"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />

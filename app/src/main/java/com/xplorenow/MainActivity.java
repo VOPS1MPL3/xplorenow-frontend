@@ -1,15 +1,11 @@
 package com.xplorenow;
-
 import android.os.Bundle;
 import android.view.View;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
-
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
@@ -22,7 +18,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // findViewById
         bottomNav = findViewById(R.id.bottomNav);
 
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
@@ -35,7 +30,6 @@ public class MainActivity extends AppCompatActivity {
             int id = destination.getId();
             if (id == R.id.homeFragment
                     || id == R.id.misReservasFragment
-                    || id == R.id.historialFragment
                     || id == R.id.perfilFragment
                     || id == R.id.favoritosFragment) {
                 bottomNav.setVisibility(View.VISIBLE);

@@ -1,4 +1,5 @@
 package com.xplorenow.ui.home.filtros;
+
 import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -12,19 +13,25 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
+
+import com.google.android.material.appbar.MaterialToolbar;
 import com.xplorenow.R;
 import com.xplorenow.data.dto.CategoriaDTO;
 import com.xplorenow.data.dto.DestinoDTO;
 import com.xplorenow.data.repository.CatalogoRepository;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+
 import javax.inject.Inject;
+
 import dagger.hilt.android.AndroidEntryPoint;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -43,10 +50,12 @@ public class FiltrosFragment extends Fragment {
     public static final String ARG_PRECIO_MIN = "precioMin";
     public static final String ARG_PRECIO_MAX = "precioMax";
 
+    private MaterialToolbar toolbarFiltros;
     private Spinner spDestino, spCategoria;
     private TextView tvFechaDesde, tvFechaHasta;
     private EditText etPrecioMin, etPrecioMax;
-    private Button btnLimpiar, btnAplicar;
+    private TextView btnLimpiar;
+    private Button btnBuscar;
 
     @Inject
     CatalogoRepository catalogoRepository;
@@ -66,6 +75,7 @@ public class FiltrosFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        toolbarFiltros = view.findViewById(R.id.toolbarFiltros);
         spDestino = view.findViewById(R.id.spDestino);
         spCategoria = view.findViewById(R.id.spCategoria);
         tvFechaDesde = view.findViewById(R.id.tvFechaDesde);
@@ -73,7 +83,10 @@ public class FiltrosFragment extends Fragment {
         etPrecioMin = view.findViewById(R.id.etPrecioMin);
         etPrecioMax = view.findViewById(R.id.etPrecioMax);
         btnLimpiar = view.findViewById(R.id.btnLimpiar);
-        btnAplicar = view.findViewById(R.id.btnAplicar);
+        btnBuscar = view.findViewById(R.id.btnBuscar);
+
+        toolbarFiltros.setNavigationOnClickListener(v ->
+                Navigation.findNavController(v).popBackStack());
 
         cargarDestinos();
         cargarCategorias();
@@ -82,8 +95,7 @@ public class FiltrosFragment extends Fragment {
         tvFechaHasta.setOnClickListener(v -> mostrarDatePicker(tvFechaHasta));
 
         btnLimpiar.setOnClickListener(v -> limpiar());
-        btnAplicar.setOnClickListener(v -> aplicar());
-
+        btnBuscar.setOnClickListener(v -> aplicar());
     }
 
     private void cargarDestinos() {
@@ -97,7 +109,7 @@ public class FiltrosFragment extends Fragment {
                     destinos.addAll(response.body());
 
                     List<String> labels = new ArrayList<>();
-                    labels.add("Todos los destinos");
+                    labels.add("Seleccioná un destino");
                     for (DestinoDTO d : destinos) labels.add(d.getNombre());
 
                     ArrayAdapter<String> ad = new ArrayAdapter<>(
@@ -127,7 +139,7 @@ public class FiltrosFragment extends Fragment {
                     categorias.addAll(response.body());
 
                     List<String> labels = new ArrayList<>();
-                    labels.add("Todas las categorias");
+                    labels.add("Todas las categorías");
                     for (CategoriaDTO c : categorias) labels.add(c.getNombre());
 
                     ArrayAdapter<String> ad = new ArrayAdapter<>(
@@ -190,12 +202,34 @@ public class FiltrosFragment extends Fragment {
     }
 
     private void limpiar() {
-        Bundle result = new Bundle();
-        getParentFragmentManager().setFragmentResult(RESULT_KEY, result);
-        Navigation.findNavController(requireView()).popBackStack();
+        // Reset visual de todos los campos
+        if (spDestino.getAdapter() != null && spDestino.getAdapter().getCount() > 0) {
+            spDestino.setSelection(0);
+        }
+        if (spCategoria.getAdapter() != null && spCategoria.getAdapter().getCount() > 0) {
+            spCategoria.setSelection(0);
+        }
+        tvFechaDesde.setText("");
+        tvFechaHasta.setText("");
+        etPrecioMin.setText("");
+        etPrecioMax.setText("");
+
+        // Aviso al usuario sin cerrar la pantalla
+        Toast.makeText(requireContext(), "Filtros limpiados",
+                Toast.LENGTH_SHORT).show();
     }
 
     private void aplicar() {
+        // VALIDACION: destino obligatorio
+        int posDestino = spDestino.getSelectedItemPosition();
+        if (posDestino <= 0 || posDestino - 1 >= destinos.size()) {
+            Toast.makeText(requireContext(),
+                    "Debe seleccionar al menos un destino para su viaje",
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        // Validacion de rango de fechas (solo si las dos estan completas)
         String desde = tvFechaDesde.getText().toString();
         String hasta = tvFechaHasta.getText().toString();
         if (!TextUtils.isEmpty(desde) && !TextUtils.isEmpty(hasta)) {
@@ -208,11 +242,7 @@ public class FiltrosFragment extends Fragment {
         }
 
         Bundle result = new Bundle();
-
-        int posDestino = spDestino.getSelectedItemPosition();
-        if (posDestino > 0 && posDestino - 1 < destinos.size()) {
-            result.putLong(ARG_DESTINO_ID, destinos.get(posDestino - 1).getId());
-        }
+        result.putLong(ARG_DESTINO_ID, destinos.get(posDestino - 1).getId());
 
         int posCategoria = spCategoria.getSelectedItemPosition();
         if (posCategoria > 0 && posCategoria - 1 < categorias.size()) {
@@ -233,9 +263,13 @@ public class FiltrosFragment extends Fragment {
             }
         } catch (NumberFormatException e) {
             Toast.makeText(requireContext(),
-                    "Precio invalido", Toast.LENGTH_SHORT).show();
+                    "Precio inválido", Toast.LENGTH_SHORT).show();
             return;
         }
+
+        Log.d(TAG, "Aplicando filtros - destinoId: " + result.getLong(ARG_DESTINO_ID, -1)
+                + " - destinos.size()=" + destinos.size()
+                + " - posDestino=" + posDestino);
 
         getParentFragmentManager().setFragmentResult(RESULT_KEY, result);
         Navigation.findNavController(requireView()).popBackStack();

@@ -111,7 +111,12 @@ public class HomeFragment extends Fragment {
                 FiltrosFragment.RESULT_KEY,
                 getViewLifecycleOwner(),
                 (requestKey, bundle) -> {
+                    Log.d(TAG, "Resultado recibido - bundle keys: " + bundle.keySet()
+                            + " - destinoId del bundle: "
+                            + bundle.getLong(FiltrosFragment.ARG_DESTINO_ID, -1));
                     filtrosActuales = bundleAFiltros(bundle);
+                    Log.d(TAG, "filtrosActuales: " + (filtrosActuales == null ? "null" :
+                            "destinoId=" + filtrosActuales.getDestinoId()));
                     reiniciarYRecargar();
                 }
         );
