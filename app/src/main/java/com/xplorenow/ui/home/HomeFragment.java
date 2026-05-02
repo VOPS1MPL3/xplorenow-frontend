@@ -23,6 +23,7 @@ import com.xplorenow.data.repository.ActividadRepository;
 import com.xplorenow.data.util.PrecioFormatter;
 import com.xplorenow.ui.home.detalle.DetalleFragment;
 import com.xplorenow.ui.home.filtros.FiltrosFragment;
+import com.xplorenow.util.TokenManager;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
@@ -39,6 +40,7 @@ import android.widget.Button;
 import android.widget.Toast;
 import java.util.HashSet;
 import java.util.Set;
+import android.widget.ViewFlipper;
 
 @AndroidEntryPoint
 public class HomeFragment extends Fragment {
@@ -54,11 +56,8 @@ public class HomeFragment extends Fragment {
     private TextView tvDestacadasTitulo;
     private HorizontalScrollView hsvDestacadas;
     private LinearLayout llDestacadasContainer;
-    private TextView tvNoticiasTitulo;
-    private ListView lvNoticias;
-    private NoticiaAdapter noticiaAdapter;
+    private ViewFlipper vfNoticias;
     private final List<NoticiaDTO> noticias = new ArrayList<>();
-    private Button btnVerTodasNoticias;
 
     // Footer views
     private android.widget.Button btnCargarMas;
@@ -71,6 +70,7 @@ public class HomeFragment extends Fragment {
     private int paginaActual = 0;
     private boolean esUltimaPagina = false;
     private boolean cargando = false;
+    private int requestToken = 0;
 
     @Inject
     ActividadRepository actividadRepository;
@@ -78,6 +78,8 @@ public class HomeFragment extends Fragment {
     NoticiaRepository noticiaRepository;
     @Inject
     FavoritoRepository favoritoRepository;
+    @Inject
+    TokenManager tokenManager;
 
     @Nullable
     @Override
@@ -111,45 +113,23 @@ public class HomeFragment extends Fragment {
                 FiltrosFragment.RESULT_KEY,
                 getViewLifecycleOwner(),
                 (requestKey, bundle) -> {
+                    Log.d(TAG, "Resultado recibido - bundle keys: " + bundle.keySet()
+                            + " - destinoId del bundle: "
+                            + bundle.getLong(FiltrosFragment.ARG_DESTINO_ID, -1));
                     filtrosActuales = bundleAFiltros(bundle);
+                    Log.d(TAG, "filtrosActuales: " + (filtrosActuales == null ? "null" :
+                            "destinoId=" + filtrosActuales.getDestinoId()));
                     reiniciarYRecargar();
                 }
         );
 
-        // Header (destacadas + titulo "Catalogo completo")
+        // Header (destacadas + noticias carrusel)
         View header = LayoutInflater.from(requireContext())
                 .inflate(R.layout.header_destacadas, lvActividades, false);
         tvDestacadasTitulo = header.findViewById(R.id.tvDestacadasTitulo);
         hsvDestacadas = header.findViewById(R.id.hsvDestacadas);
         llDestacadasContainer = header.findViewById(R.id.llDestacadasContainer);
-
-        tvNoticiasTitulo = header.findViewById(R.id.tvNoticiasTitulo);
-        lvNoticias = header.findViewById(R.id.lvNoticias);
-        noticiaAdapter = new NoticiaAdapter(requireContext(), noticias);
-        lvNoticias.setAdapter(noticiaAdapter);
-
-        btnVerTodasNoticias = header.findViewById(R.id.btnVerTodasNoticias);
-        btnVerTodasNoticias.setOnClickListener(v -> {
-            btnVerTodasNoticias.setVisibility(View.GONE);
-        noticiaAdapter.setLimitado(false);
-        noticiaAdapter.notifyDataSetChanged();
-        lvNoticias.post(() -> ajustarAlturaListView(lvNoticias));
-        });
-
-        lvNoticias.setOnItemClickListener((parent, v, position, id) -> {
-            NoticiaDTO noticia = noticias.get(position);
-            Bundle args = new Bundle();
-            if (noticia.getActividadRelacionadaId() != null) {
-                args.putLong(DetalleFragment.ARG_ACTIVIDAD_ID,
-                    noticia.getActividadRelacionadaId());
-                Navigation.findNavController(v)
-                    .navigate(R.id.action_home_to_detalle, args);
-            } else {
-                args.putLong("noticiaId", noticia.getId());
-                Navigation.findNavController(v)
-                    .navigate(R.id.action_home_to_noticiaDetalle, args);
-            }
-        });
+        vfNoticias = header.findViewById(R.id.vfNoticias);
 
         lvActividades.addHeaderView(header, null, false);
 
@@ -164,10 +144,16 @@ public class HomeFragment extends Fragment {
         adapter = new ActividadAdapter(requireContext(), actividades);
         lvActividades.setAdapter(adapter);
 
-        // Toggle de favorito desde la card del catalogo (Punto 7).
-        // Optimistic update: cambiamos el icono al toque y revertimos si el
-        // backend falla, para que la UI se sienta instantanea.
+        // Toggle de favorito desde la card del catalogo.
+        // Verifica sesion antes de cualquier accion.
         adapter.setFavoritoListener((act, nuevoEstado) -> {
+            // Si no hay sesion activa, redirigir al login
+            if (!tokenManager.isTokenValid()) {
+                tokenManager.clearToken();
+                Navigation.findNavController(requireView()).navigate(R.id.loginFragment);
+                return;
+            }
+
             long actividadId = act.getId();
             if (nuevoEstado) {
                 adapter.marcarLocal(actividadId);
@@ -233,11 +219,11 @@ public class HomeFragment extends Fragment {
     }
 
     /**
-     * Carga el set de actividades favoritas del usuario para que el adapter
-     * dibuje el corazon lleno donde corresponda. Se invoca al entrar a Home
-     * y tambien en onResume() para refrescar despues de volver del detalle.
+     * Carga el set de actividades favoritas del usuario.
+     * Si no hay sesion activa se ignora silenciosamente — el home es publico.
      */
     private void cargarFavoritos() {
+        if (!tokenManager.isTokenValid()) return; // sin sesion, no cargar
         favoritoRepository.misFavoritos().enqueue(new Callback<List<FavoritoDTO>>() {
             @Override
             public void onResponse(Call<List<FavoritoDTO>> call,
@@ -250,6 +236,7 @@ public class HomeFragment extends Fragment {
                     }
                     adapter.setFavoritos(ids);
                 }
+                // 403 u otro error: ignorar silenciosamente
             }
             @Override
             public void onFailure(Call<List<FavoritoDTO>> call, Throwable t) {
@@ -281,7 +268,6 @@ public class HomeFragment extends Fragment {
                             ocultarDestacadas();
                         }
                     }
-
                     @Override
                     public void onFailure(Call<List<ActividadDTO>> call, Throwable t) {
                         if (getView() == null) return;
@@ -354,7 +340,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void cargarPagina(int pagina) {
-        if (cargando) return;
+        final int miToken = ++requestToken;
         cargando = true;
         btnCargarMas.setEnabled(false);
         btnCargarMas.setText("Cargando...");
@@ -365,8 +351,9 @@ public class HomeFragment extends Fragment {
                     public void onResponse(
                             Call<PageResponseDTO<ActividadDTO>> call,
                             Response<PageResponseDTO<ActividadDTO>> response) {
-                        cargando = false;
                         if (getView() == null) return;
+                        if (miToken != requestToken) return;
+                        cargando = false;
                         if (response.isSuccessful() && response.body() != null) {
                             paginaActual = response.body().getNumber();
                             esUltimaPagina = response.body().isLast();
@@ -376,13 +363,13 @@ public class HomeFragment extends Fragment {
                         }
                         actualizarFooter();
                     }
-
                     @Override
                     public void onFailure(
                             Call<PageResponseDTO<ActividadDTO>> call,
                             Throwable t) {
-                        cargando = false;
                         if (getView() == null) return;
+                        if (miToken != requestToken) return;
+                        cargando = false;
                         mostrarError("Error de red: " + t.getMessage());
                         actualizarFooter();
                         Log.e(TAG, "onFailure", t);
@@ -440,18 +427,19 @@ public class HomeFragment extends Fragment {
         return f.estaVacio() ? null : f;
     }
 
+    // ---------- Noticias (ViewFlipper carrusel) ----------
+
     private void cargarNoticias() {
         noticiaRepository.listarNoticias().enqueue(new Callback<List<NoticiaDTO>>() {
             @Override
             public void onResponse(Call<List<NoticiaDTO>> call,
-                                    Response<List<NoticiaDTO>> response) {
+                                   Response<List<NoticiaDTO>> response) {
                 if (getView() == null) return;
                 if (response.isSuccessful() && response.body() != null
                         && !response.body().isEmpty()) {
                     mostrarNoticias(response.body());
                 }
             }
-
             @Override
             public void onFailure(Call<List<NoticiaDTO>> call, Throwable t) {
                 if (getView() == null) return;
@@ -460,33 +448,42 @@ public class HomeFragment extends Fragment {
         });
     }
 
-
     private void mostrarNoticias(List<NoticiaDTO> recibidas) {
         noticias.clear();
         noticias.addAll(recibidas);
-        noticiaAdapter.notifyDataSetChanged();
-        tvNoticiasTitulo.setVisibility(View.VISIBLE);
-        lvNoticias.setVisibility(View.VISIBLE);
-        if (recibidas.size() > 2) {
-            btnVerTodasNoticias.setVisibility(View.VISIBLE);
-        }
-        lvNoticias.post(() -> ajustarAlturaListView(lvNoticias));
-    }
+        vfNoticias.removeAllViews();
 
-    private void ajustarAlturaListView(ListView lv) {
-        if (lv.getAdapter() == null) return;
-        int totalHeight = 0;
-        for (int i = 0; i < lv.getAdapter().getCount(); i++) {
-            View item = lv.getAdapter().getView(i, null, lv);
-            item.measure(
-                    View.MeasureSpec.makeMeasureSpec(lv.getWidth(), View.MeasureSpec.AT_MOST),
-                    View.MeasureSpec.UNSPECIFIED);
-            totalHeight += item.getMeasuredHeight();
-        }
-        ViewGroup.LayoutParams params = lv.getLayoutParams();
-        params.height = totalHeight + (lv.getDividerHeight() * (lv.getAdapter().getCount() - 1));
-        lv.setLayoutParams(params);
-        lv.requestLayout();
-    }
+        for (NoticiaDTO n : noticias) {
+            View slide = LayoutInflater.from(requireContext())
+                    .inflate(R.layout.item_noticia_carrusel, vfNoticias, false);
 
+            ImageView ivImagen = slide.findViewById(R.id.ivNoticiaImagen);
+            TextView tvTitulo = slide.findViewById(R.id.tvNoticiaTitulo);
+            TextView tvDesc = slide.findViewById(R.id.tvNoticiaDescripcion);
+
+            tvTitulo.setText(n.getTitulo());
+            tvDesc.setText(n.getDescripcionBreve());
+            Glide.with(this)
+                    .load(n.getImagenUrl())
+                    .placeholder(android.R.color.darker_gray)
+                    .into(ivImagen);
+
+            slide.setOnClickListener(v -> {
+                Bundle args = new Bundle();
+                if (n.getActividadRelacionadaId() != null) {
+                    args.putLong(DetalleFragment.ARG_ACTIVIDAD_ID,
+                            n.getActividadRelacionadaId());
+                    Navigation.findNavController(v)
+                            .navigate(R.id.action_home_to_detalle, args);
+                } else {
+                    args.putLong("noticiaId", n.getId());
+                    Navigation.findNavController(v)
+                            .navigate(R.id.action_home_to_noticiaDetalle, args);
+                }
+            });
+
+            vfNoticias.addView(slide);
+        }
+        vfNoticias.setVisibility(View.VISIBLE);
+    }
 }

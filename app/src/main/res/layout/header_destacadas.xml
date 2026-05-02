@@ -1,16 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:paddingTop="8dp"
     android:paddingBottom="16dp">
 
+    <!-- Titulo noticias -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="8dp"
+        android:layout_marginBottom="8dp"
+        android:text="Noticias y ofertas"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <!-- Carrusel de noticias con bordes redondeados -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="180dp"
+        android:layout_marginHorizontal="8dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4dp">
+
+        <ViewFlipper
+            android:id="@+id/vfNoticias"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:autoStart="true"
+            android:flipInterval="4000"
+            android:inAnimation="@android:anim/slide_in_left"
+            android:outAnimation="@android:anim/slide_out_right"
+            android:visibility="gone" />
+
+    </androidx.cardview.widget.CardView>
+
     <TextView
         android:id="@+id/tvDestacadasTitulo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="8dp"
+        android:layout_marginTop="16dp"
         android:text="Destacadas para vos"
         android:textSize="18sp"
         android:textStyle="bold" />
@@ -31,36 +63,6 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal" />
     </HorizontalScrollView>
-
-    <TextView
-        android:id="@+id/tvNoticiasTitulo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="8dp"
-        android:layout_marginTop="20dp"
-        android:text="Noticias y ofertas"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:visibility="gone" />
-
-    <ListView
-        android:id="@+id/lvNoticias"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:nestedScrollingEnabled="false"
-        android:visibility="gone" />
-
-    <Button
-        android:id="@+id/btnVerTodasNoticias"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginBottom="4dp"
-        android:text="Ver todas"
-        android:textSize="13sp"
-        style="?attr/borderlessButtonStyle"
-        android:visibility="gone" />
 
     <TextView
         android:id="@+id/tvCatalogoTitulo"

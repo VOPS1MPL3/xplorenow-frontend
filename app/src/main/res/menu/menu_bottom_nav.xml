@@ -3,27 +3,22 @@
 
     <item
         android:id="@+id/homeFragment"
-        android:title="Catalogo"
-        android:icon="@android:drawable/ic_menu_compass" />
+        android:title="Explorar"
+        android:icon="@drawable/ic_nav_explorar" />
 
     <item
         android:id="@+id/favoritosFragment"
         android:title="Favoritos"
-        android:icon="@drawable/ic_corazon_lleno" />
+        android:icon="@drawable/ic_nav_favoritos" />
 
     <item
         android:id="@+id/misReservasFragment"
-        android:title="Mis reservas"
-        android:icon="@android:drawable/ic_menu_agenda" />
-
-    <item
-        android:id="@+id/historialFragment"
-        android:title="Historial"
-        android:icon="@android:drawable/ic_menu_recent_history" />
+        android:title="Reservas"
+        android:icon="@drawable/ic_nav_reservas" />
 
     <item
         android:id="@+id/perfilFragment"
         android:title="Perfil"
-        android:icon="@android:drawable/ic_menu_myplaces" />
+        android:icon="@drawable/ic_nav_perfil" />
 
 </menu>

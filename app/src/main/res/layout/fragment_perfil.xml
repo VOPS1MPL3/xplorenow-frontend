@@ -12,8 +12,6 @@
         android:background="?attr/colorPrimary"
         app:title="Mi perfil"
         app:titleTextColor="@android:color/white"
-        app:navigationIcon="@android:drawable/ic_menu_close_clear_cancel"
-        app:navigationIconTint="@android:color/white"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -34,16 +32,12 @@
             android:orientation="vertical"
             android:padding="20dp">
 
-            <!-- Foto de perfil con lapiz superpuesto.
-                 El FrameLayout deja al lapiz flotando sobre la esquina inferior
-                 derecha de la foto, igual que en cualquier app moderna. El lapiz
-                 SIEMPRE es visible (no depende del modo edicion). Tocarlo abre
-                 directamente la galeria. -->
+            <!-- Foto de perfil -->
             <FrameLayout
                 android:layout_width="140dp"
                 android:layout_height="140dp"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="16dp">
+                android:layout_marginBottom="24dp">
 
                 <ImageView
                     android:id="@+id/ivFotoPerfil"
@@ -66,13 +60,14 @@
                     android:contentDescription="Cambiar foto de perfil" />
             </FrameLayout>
 
-            <!-- Email (read-only siempre, regla de negocio del backend) -->
+            <!-- ============== DATOS PERSONALES ============== -->
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Email"
-                android:textStyle="bold"
-                android:layout_marginTop="8dp" />
+                android:textSize="14sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tvEmail"
@@ -82,11 +77,11 @@
                 android:padding="8dp"
                 android:layout_marginBottom="12dp" />
 
-            <!-- Nombre -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Nombre"
+                android:textSize="14sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -103,14 +98,15 @@
                 android:layout_height="wrap_content"
                 android:inputType="textPersonName"
                 android:hint="Tu nombre"
+                android:textSize="16sp"
                 android:visibility="gone"
                 android:layout_marginBottom="12dp" />
 
-            <!-- Telefono -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Telefono"
+                android:textSize="14sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -127,19 +123,73 @@
                 android:layout_height="wrap_content"
                 android:inputType="phone"
                 android:hint="Telefono de contacto"
+                android:textSize="16sp"
                 android:visibility="gone"
                 android:layout_marginBottom="12dp" />
 
-            <!-- Editar datos personales: queda debajo de los datos
-                 (nombre, email, telefono, foto) y arriba de Preferencias.
-                 En modo edicion, btnEditar se oculta y aparece llBotonesEdicion
-                 (Cancelar / Guardar) en este mismo lugar. -->
+            <!-- ============== PREFERENCIAS ============== -->
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@android:color/darker_gray"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="16dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Preferencias de viaje"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvPreferencias"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:padding="8dp"
+                android:text="Sin preferencias seleccionadas" />
+
+            <!-- ============== RESUMEN ============== -->
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@android:color/darker_gray"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="16dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Resumen de mis actividades"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/tvResumenReservas"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:padding="8dp"
+                android:text="Cargando..." />
+
+            <!-- ============== BOTONES ============== -->
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@android:color/darker_gray"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="16dp" />
+
             <Button
                 android:id="@+id/btnEditar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="8dp"
                 android:text="Editar datos personales" />
 
             <LinearLayout
@@ -148,8 +198,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:visibility="gone"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="16dp">
+                android:layout_marginBottom="8dp">
 
                 <Button
                     android:id="@+id/btnCancelar"
@@ -169,68 +218,34 @@
                     android:text="Guardar" />
             </LinearLayout>
 
-            <!-- Preferencias de viaje -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Preferencias de viaje"
-                android:textStyle="bold"
-                android:layout_marginTop="8dp" />
-
-            <TextView
-                android:id="@+id/tvPreferencias"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:padding="8dp"
-                android:text="Sin preferencias seleccionadas" />
-
             <Button
                 android:id="@+id/btnEditarPreferencias"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="8dp"
                 android:text="Editar preferencias" />
 
-            <!-- Resumen de reservas (punto 2.3) -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@android:color/darker_gray"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="12dp" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Resumen de mis actividades"
-                android:textStyle="bold"
-                android:textSize="18sp"
-                android:layout_marginBottom="8dp" />
-
-            <TextView
-                android:id="@+id/tvResumenReservas"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:padding="8dp"
-                android:text="Cargando..." />
-
-            <!-- Cerrar sesion -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@android:color/darker_gray"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp" />
-
             <Button
+                android:id="@+id/btnVerHistorial"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="Ver historial de actividades" />
+
+            <TextView
                 android:id="@+id/btnCerrarSesion"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Cerrar sesion" />
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="8dp"
+                android:padding="12dp"
+                android:gravity="center"
+                android:text="Cerrar sesión"
+                android:textSize="14sp"
+                android:textColor="@color/text_secondary"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground" />
 
         </LinearLayout>
     </ScrollView>

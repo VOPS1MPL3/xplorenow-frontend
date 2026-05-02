@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import com.xplorenow.R;
+import com.xplorenow.util.TokenManager;
 import com.xplorenow.data.dto.EstadoReserva;
 import com.xplorenow.data.dto.ReservaDTO;
 import com.xplorenow.data.repository.ReservaRepository;
@@ -46,6 +47,8 @@ public class MisReservasFragment extends Fragment {
 
     @Inject
     ReservaRepository reservaRepository;
+    @Inject
+    TokenManager tokenManager;
 
     @Nullable
     @Override
@@ -58,6 +61,12 @@ public class MisReservasFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        if (!tokenManager.isTokenValid()) {
+            tokenManager.clearToken();
+            Navigation.findNavController(view).navigate(R.id.loginFragment);
+            return;
+        }
 
         spEstado = view.findViewById(R.id.spEstado);
         tvStatus = view.findViewById(R.id.tvStatus);
@@ -74,85 +83,64 @@ public class MisReservasFragment extends Fragment {
                     R.id.action_misReservas_to_reservaDetalle, args);
         });
 
-        ArrayAdapter<String> spAdapter = new ArrayAdapter<>(
-                requireContext(),
-                android.R.layout.simple_spinner_item, opcionesFiltro);
-        spAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spEstado.setAdapter(spAdapter);
-
-        spEstado.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                cargarReservas(estadoSegunPosicion(pos));
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
-        });
-
-        cargarReservas(null);
+        cargarReservas();
     }
 
-    private EstadoReserva estadoSegunPosicion(int pos) {
-        switch (pos) {
-            case 1: return EstadoReserva.CONFIRMADA;
-            case 2: return EstadoReserva.CANCELADA;
-            case 3: return EstadoReserva.FINALIZADA;
-            default: return null;
-        }
-    }
-
-    private void cargarReservas(EstadoReserva estado) {
+    private void cargarReservas() {
         tvStatus.setText("Cargando...");
         tvStatus.setVisibility(View.VISIBLE);
         lvReservas.setVisibility(View.GONE);
 
-        reservaRepository.misReservas(estado).enqueue(new Callback<List<ReservaDTO>>() {
-            @Override
-            public void onResponse(Call<List<ReservaDTO>> call,
-                                   Response<List<ReservaDTO>> response) {
-                if (getView() == null) return;
-                if (response.isSuccessful() && response.body() != null) {
-                    List<ReservaDTO> lista = response.body();
-                    mostrar(lista);
-                    // Punto 19: Guardado automático de la lista para acceso offline
-                    if (estado == null || estado == EstadoReserva.CONFIRMADA) {
-                        reservaRepository.guardarReservasLocal(lista);
+        reservas.clear();
+
+        // Primera llamada: confirmadas
+        reservaRepository.misReservas(EstadoReserva.CONFIRMADA).enqueue(
+                new Callback<List<ReservaDTO>>() {
+                    @Override
+                    public void onResponse(Call<List<ReservaDTO>> call,
+                                           Response<List<ReservaDTO>> response) {
+                        if (getView() == null) return;
+                        if (response.isSuccessful() && response.body() != null) {
+                            reservas.addAll(response.body());
+                        }
+                        // Despues de confirmadas, pedimos las canceladas
+                        cargarCanceladas();
                     }
-                } else {
-                    cargarOffline();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<ReservaDTO>> call, Throwable t) {
-                if (getView() == null) return;
-                Log.e(TAG, "onFailure network, intentando offline", t);
-                cargarOffline();
-            }
-        });
+                    @Override
+                    public void onFailure(Call<List<ReservaDTO>> call, Throwable t) {
+                        if (getView() == null) return;
+                        Log.e(TAG, "confirmadas onFailure", t);
+                        cargarCanceladas();
+                    }
+                });
     }
 
-    private void cargarOffline() {
-        reservaRepository.obtenerReservasOffline(result -> {
-            if (getActivity() == null) return;
-            getActivity().runOnUiThread(() -> {
-                if (result != null && !result.isEmpty()) {
-                    mostrar(result);
-                } else {
-                    error("Sin conexión y sin datos locales guardados");
-                }
-            });
-        });
+    private void cargarCanceladas() {
+        reservaRepository.misReservas(EstadoReserva.CANCELADA).enqueue(
+                new Callback<List<ReservaDTO>>() {
+                    @Override
+                    public void onResponse(Call<List<ReservaDTO>> call,
+                                           Response<List<ReservaDTO>> response) {
+                        if (getView() == null) return;
+                        if (response.isSuccessful() && response.body() != null) {
+                            reservas.addAll(response.body());
+                        }
+                        mostrar();
+                    }
+                    @Override
+                    public void onFailure(Call<List<ReservaDTO>> call, Throwable t) {
+                        if (getView() == null) return;
+                        Log.e(TAG, "canceladas onFailure", t);
+                        mostrar();
+                    }
+                });
     }
 
-    private void mostrar(List<ReservaDTO> recibidas) {
-        if (recibidas == null || recibidas.isEmpty()) {
-            error("No tenes reservas con ese estado");
+    private void mostrar() {
+        if (reservas.isEmpty()) {
+            error("No tenes reservas activas");
             return;
         }
-        reservas.clear();
-        reservas.addAll(recibidas);
         adapter.notifyDataSetChanged();
         tvStatus.setVisibility(View.GONE);
         lvReservas.setVisibility(View.VISIBLE);

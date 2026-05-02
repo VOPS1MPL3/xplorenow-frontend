@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.xplorenow.R;
 import com.xplorenow.network.ApiService;
 import com.xplorenow.util.TokenManager;
@@ -29,6 +30,7 @@ public class RegistroFragment extends Fragment {
     @Inject
     TokenManager tokenManager;
 
+    private MaterialToolbar toolbar;
     private EditText etNombre;
     private EditText etApellido;
     private EditText etEmail;
@@ -50,6 +52,7 @@ public class RegistroFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        toolbar           = view.findViewById(R.id.toolbar);
         etNombre          = view.findViewById(R.id.etNombre);
         etApellido        = view.findViewById(R.id.etApellido);
         etEmail           = view.findViewById(R.id.etEmail);
@@ -59,6 +62,9 @@ public class RegistroFragment extends Fragment {
         btnRegistrar      = view.findViewById(R.id.btnRegistrar);
         btnVolver         = view.findViewById(R.id.btnVolver);
 
+        toolbar.setNavigationOnClickListener(v ->
+                Navigation.findNavController(v).popBackStack());
+
         btnRegistrar.setOnClickListener(v -> {
             String nombre   = etNombre.getText().toString().trim();
             String apellido = etApellido.getText().toString().trim();
@@ -67,7 +73,6 @@ public class RegistroFragment extends Fragment {
             String password = etPassword.getText().toString().trim();
             String confirm  = etPasswordConfirm.getText().toString().trim();
 
-            // Validaciones del lado de la app: el back no las hace todas.
             if (nombre.isEmpty() || apellido.isEmpty()
                     || email.isEmpty() || telefono.isEmpty()
                     || password.isEmpty()) {

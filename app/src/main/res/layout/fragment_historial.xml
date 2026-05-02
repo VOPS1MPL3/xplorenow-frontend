@@ -4,140 +4,155 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/bg_app"
     android:fitsSystemWindows="true">
 
+    <!-- Toolbar terracota con flecha de volver, consistente con el resto de la app -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
-        app:title="Historial"
+        app:title="Historial de actividades"
         app:titleTextColor="@android:color/white"
+        app:navigationIcon="?attr/homeAsUpIndicator"
+        app:navigationIconTint="@android:color/white"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Filtros: fondo oscuro consistente con el resto de la app, en lugar
-         del card blanco que generaba contraste roto con el toolbar lila. -->
-    <LinearLayout
-        android:id="@+id/llFiltros"
+    <!-- Seccion de filtros: card blanca con bordes redondeados sobre fondo crema -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardFiltros"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="12dp"
-        android:background="#2A1F45"
+        android:layout_marginHorizontal="12dp"
+        android:layout_marginTop="12dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="3dp"
+        app:cardBackgroundColor="@color/bg_card"
         app:layout_constraintTop_toBottomOf="@id/toolbar"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Destino"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/white" />
-
-        <!-- Spinner forzado a tema oscuro: backgroundTint asegura que la flecha
-             y el indicador queden lila en lugar del gris default. El popup se
-             configura via popupBackground para que el menu desplegable tampoco
-             quede blanco. -->
-        <Spinner
-            android:id="@+id/spDestino"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:backgroundTint="#A78BFA"
-            android:popupBackground="#2A1F45" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:orientation="horizontal">
-
-            <!-- Las "fechas" son TextViews que abren un DatePicker. Las dejamos
-                 con background sutil, texto blanco y hint claro para que se
-                 lean sobre el fondo violeta. -->
-            <TextView
-                android:id="@+id/tvFechaDesde"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="6dp"
-                android:padding="12dp"
-                android:background="#3D2E5F"
-                android:hint="Desde"
-                android:textColor="@android:color/white"
-                android:textColorHint="#B0A8C8"
-                android:textSize="13sp" />
+            android:orientation="vertical"
+            android:padding="16dp">
 
             <TextView
-                android:id="@+id/tvFechaHasta"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:padding="12dp"
-                android:background="#3D2E5F"
-                android:hint="Hasta"
-                android:textColor="@android:color/white"
-                android:textColorHint="#B0A8C8"
-                android:textSize="13sp" />
+                android:text="Filtrar por destino"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_secondary"
+                android:layout_marginBottom="4dp" />
+
+            <Spinner
+                android:id="@+id/spDestino"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:backgroundTint="@color/terracota"
+                android:popupBackground="@color/bg_card"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rango de fechas"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_secondary"
+                android:layout_marginBottom="4dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:id="@+id/tvFechaDesde"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="6dp"
+                    android:paddingHorizontal="12dp"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_campo_fecha"
+                    android:hint="Desde"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_hint"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/tvFechaHasta"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:paddingHorizontal="12dp"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_campo_fecha"
+                    android:hint="Hasta"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_hint"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnLimpiar"
+                    style="@style/XploreNow.Button.Outlined"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="6dp"
+                    android:text="Limpiar" />
+
+                <Button
+                    android:id="@+id/btnAplicar"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Aplicar" />
+            </LinearLayout>
+
         </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:orientation="horizontal">
-
-            <!-- Boton "Limpiar": estilo borderless con texto lila para que NO
-                 herede el fondo lila relleno del materialButtonStyle global. -->
-            <Button
-                android:id="@+id/btnLimpiar"
-                style="?attr/buttonBarButtonStyle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="6dp"
-                android:text="Limpiar"
-                android:textColor="#A78BFA" />
-
-            <!-- Boton "Aplicar": hereda XploreNow.Button (lila relleno). -->
-            <Button
-                android:id="@+id/btnAplicar"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Aplicar" />
-        </LinearLayout>
-
-    </LinearLayout>
-
+    <!-- Estado: cargando / vacio / error -->
     <TextView
         android:id="@+id/tvStatus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Cargando..."
-        android:textSize="16sp"
-        android:textColor="#B0A8C8"
+        android:textSize="15sp"
+        android:textColor="@color/text_secondary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/llFiltros" />
+        app:layout_constraintTop_toBottomOf="@id/cardFiltros" />
 
+    <!-- Lista de reservas del historial -->
     <ListView
         android:id="@+id/lvHistorial"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:divider="@android:color/transparent"
-        android:dividerHeight="6dp"
+        android:dividerHeight="0dp"
         android:visibility="gone"
-        android:padding="8dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="16dp"
         android:clipToPadding="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/llFiltros" />
+        app:layout_constraintTop_toBottomOf="@id/cardFiltros" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

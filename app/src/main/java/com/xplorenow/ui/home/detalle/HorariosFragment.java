@@ -103,55 +103,31 @@ public class HorariosFragment extends Fragment {
             horarioSeleccionado = horarios.get(position);
             llConfirmar.setVisibility(View.VISIBLE);
             Toast.makeText(requireContext(),
-                    "Horario seleccionado: " + horarioSeleccionado.getHora(),
+                    "Horario seleccionado: " + horarioSeleccionado.getFecha()
+                            + " " + horarioSeleccionado.getHora().substring(0, 5),
                     Toast.LENGTH_SHORT).show();
         });
 
         btnReservar.setOnClickListener(v -> confirmarReserva());
+
+        cargarHorarios();
     }
 
-    private void mostrarDatePicker() {
-        final Calendar c = Calendar.getInstance();
-        int year = c.get(Calendar.YEAR);
-        int month = c.get(Calendar.MONTH);
-        int day = c.get(Calendar.DAY_OF_MONTH);
-
-        DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(),
-                (view, year1, monthOfYear, dayOfMonth) -> {
-                    // Formato YYYY-MM-DD requerido por la API
-                    String fecha = String.format(Locale.US, "%04d-%02d-%02d", year1, monthOfYear + 1, dayOfMonth);
-                    etFecha.setText(fecha);
-                    buscarHorarios(fecha);
-                }, year, month, day);
-        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
-        datePickerDialog.show();
-    }
-
-    private void buscarHorarios(String fecha) {
-        if (actividadId < 0) {
-            mostrarError("ID de actividad no válido");
-            return;
-        }
-        
-        tvStatus.setText("Buscando horarios...");
+    private void cargarHorarios() {
+        tvStatus.setText("Cargando horarios disponibles...");
         tvStatus.setVisibility(View.VISIBLE);
         lvHorarios.setVisibility(View.GONE);
         llConfirmar.setVisibility(View.GONE);
-        horarioSeleccionado = null;
 
-        api.getHorarios(actividadId, fecha).enqueue(new Callback<List<HorarioDTO>>() {
+        api.getHorariosDisponibles(actividadId).enqueue(new Callback<List<HorarioDTO>>() {
             @Override
             public void onResponse(Call<List<HorarioDTO>> call,
                                    Response<List<HorarioDTO>> response) {
                 if (getView() == null) return;
                 if (response.isSuccessful() && response.body() != null) {
-                    if (response.body().isEmpty()) {
-                        mostrarError("No hay horarios disponibles para el " + fecha);
-                    } else {
-                        mostrarHorarios(response.body());
-                    }
+                    mostrarHorarios(response.body());
                 } else {
-                    mostrarError("No se encontraron horarios (Error " + response.code() + ")");
+                    mostrarError("No hay horarios disponibles para esta actividad");
                 }
             }
 
@@ -159,7 +135,7 @@ public class HorariosFragment extends Fragment {
             public void onFailure(Call<List<HorarioDTO>> call, Throwable t) {
                 if (getView() == null) return;
                 Log.e(TAG, "onFailure", t);
-                mostrarError("Error de conexión: " + t.getMessage());
+                mostrarError("Error de red: " + t.getMessage());
             }
         });
     }
@@ -172,7 +148,8 @@ public class HorariosFragment extends Fragment {
         for (HorarioDTO h : horarios) {
             String hora = h.getHora() != null && h.getHora().length() >= 5
                     ? h.getHora().substring(0, 5) : h.getHora();
-            items.add(hora + "  —  " + h.getCuposRestantes() + " cupos disponibles");
+            items.add(h.getFecha() + "  —  " + hora
+                    + "  —  " + h.getCuposRestantes() + " cupos");
         }
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(

@@ -7,12 +7,15 @@
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="8dp"
     android:layout_marginVertical="16dp"
+    android:clickable="false"
+    android:focusable="false"
     app:cardCornerRadius="12dp"
     app:cardElevation="4dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:descendantFocusability="blocksDescendants">
 
         <!-- Imagen principal -->
         <ImageView
@@ -25,9 +28,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Corazón de favorito flotando arriba a la derecha sobre la imagen.
-             Se actualiza visualmente a corazón lleno cuando el usuario lo
-             marca. El click se maneja en el adapter (ActividadAdapter). -->
         <ImageButton
             android:id="@+id/btnFavorito"
             android:layout_width="40dp"
@@ -37,11 +37,12 @@
             android:padding="6dp"
             android:src="@drawable/ic_corazon_vacio"
             android:background="#80000000"
+            android:focusable="true"
+            android:focusableInTouchMode="false"
             android:contentDescription="Marcar como favorito"
             app:layout_constraintTop_toTopOf="@id/ivImagen"
             app:layout_constraintEnd_toEndOf="@id/ivImagen" />
 
-        <!-- Nombre de la actividad -->
         <TextView
             android:id="@+id/tvNombre"
             android:layout_width="0dp"
@@ -58,7 +59,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Destino y categoria -->
         <TextView
             android:id="@+id/tvDestinoCategoria"
             android:layout_width="0dp"
@@ -67,13 +67,12 @@
             android:layout_marginTop="4dp"
             android:layout_marginEnd="16dp"
             android:textSize="14sp"
-            android:textColor="#757575"
+            android:textColor="@color/text_secondary"
             tools:text="Buenos Aires - Free Tour"
             app:layout_constraintTop_toBottomOf="@id/tvNombre"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Duracion (abajo a la izquierda) -->
         <TextView
             android:id="@+id/tvDuracion"
             android:layout_width="wrap_content"
@@ -87,21 +86,19 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
 
-        <!-- Cupos (centro) -->
         <TextView
             android:id="@+id/tvCupos"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:textSize="14sp"
-            android:textColor="#757575"
+            android:textColor="@color/text_secondary"
             tools:text="25 cupos"
             app:layout_constraintTop_toTopOf="@id/tvDuracion"
             app:layout_constraintStart_toEndOf="@id/tvDuracion"
             app:layout_constraintEnd_toStartOf="@id/tvPrecio"
             app:layout_constraintBottom_toBottomOf="@id/tvDuracion" />
 
-        <!-- Precio (abajo a la derecha) -->
         <TextView
             android:id="@+id/tvPrecio"
             android:layout_width="wrap_content"
@@ -111,7 +108,7 @@
             android:layout_marginBottom="16dp"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:textColor="#1B5E20"
+            android:textColor="@color/verde_militar"
             tools:text="$ 18.500"
             app:layout_constraintTop_toBottomOf="@id/tvDestinoCategoria"
             app:layout_constraintEnd_toEndOf="parent"

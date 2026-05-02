@@ -12,34 +12,11 @@
         app:title="Seleccionar horario"
         xmlns:app="http://schemas.android.com/apk/res-auto"/>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp">
-
-        <EditText
-            android:id="@+id/etFecha"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="YYYY-MM-DD"
-            android:inputType="date"
-            android:layout_marginEnd="8dp"/>
-
-        <Button
-            android:id="@+id/btnBuscar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Buscar" />
-
-    </LinearLayout>
-
     <TextView
         android:id="@+id/tvStatus"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="16dp"
+        android:padding="16dp"
         android:textSize="14sp"
         android:textColor="#757575"
         android:visibility="gone" />

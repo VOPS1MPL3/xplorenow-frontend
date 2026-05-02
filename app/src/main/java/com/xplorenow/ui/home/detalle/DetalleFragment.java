@@ -18,11 +18,15 @@ import androidx.fragment.app.Fragment;
 import com.bumptech.glide.Glide;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.xplorenow.R;
+import com.xplorenow.util.SessionGuard;
+import com.xplorenow.util.TokenManager;
 import com.xplorenow.data.dto.ActividadDetalleDTO;
 import com.xplorenow.data.dto.FavoritoDTO;
 import com.xplorenow.data.repository.ActividadRepository;
 import com.xplorenow.data.repository.FavoritoRepository;
 import com.xplorenow.data.util.PrecioFormatter;
+import com.xplorenow.util.MapUtil;
+
 import java.util.List;
 import javax.inject.Inject;
 import dagger.hilt.android.AndroidEntryPoint;
@@ -46,15 +50,17 @@ public class DetalleFragment extends Fragment {
     private ImageButton btnFavorito;
 
     private MaterialToolbar toolbar;
-
     private Button btnReservar;
-
+    private ActividadDetalleDTO actividadActual;
+    
     /** Estado actual del corazon. Lo cargamos al entrar leyendo /favoritos. */
     private boolean esFavorita = false;
     private long actividadId = -1L;
 
     @Inject
     ActividadRepository actividadRepository;
+    @Inject
+    TokenManager tokenManager;
     @Inject
     FavoritoRepository favoritoRepository;
 
@@ -91,10 +97,16 @@ public class DetalleFragment extends Fragment {
         toolbar.setNavigationOnClickListener(v ->
                 Navigation.findNavController(v).popBackStack());
 
-        btnVerMapa.setOnClickListener(v ->
-                Toast.makeText(requireContext(),
-                        "El mapa se va a integrar en el punto 10",
-                        Toast.LENGTH_SHORT).show());
+        btnVerMapa.setOnClickListener(v -> {
+            if (actividadActual != null) {
+                MapUtil.abrirMapaNavegacion(requireContext(),
+                        actividadActual.getLatitud(),
+                        actividadActual.getLongitud(),
+                        actividadActual.getNombre());
+            } else {
+                Toast.makeText(requireContext(), "Cargando información del mapa...", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         actividadId = requireArguments().getLong(ARG_ACTIVIDAD_ID, -1L);
         if (actividadId < 0) {
@@ -105,13 +117,15 @@ public class DetalleFragment extends Fragment {
         cargarDetalle(actividadId);
         cargarEstadoFavorito(actividadId);
 
-        btnFavorito.setOnClickListener(v -> toggleFavorito());
+        btnFavorito.setOnClickListener(v -> SessionGuard.verificar(this, tokenManager, this::toggleFavorito));
 
         btnReservar.setOnClickListener(v -> {
-            Bundle args = new Bundle();
-            args.putLong("actividadId", actividadId);
-            Navigation.findNavController(v)
-                .navigate(R.id.action_detalle_to_horarios, args);
+            SessionGuard.verificar(this, tokenManager, () -> {
+                Bundle args = new Bundle();
+                args.putLong("actividadId", actividadId);
+                Navigation.findNavController(requireView())
+                        .navigate(R.id.action_detalle_to_horarios, args);
+            });
         });
     }
 
@@ -245,6 +259,7 @@ public class DetalleFragment extends Fragment {
     }
 
     private void mostrarDetalle(ActividadDetalleDTO d) {
+        this.actividadActual = d;
         Glide.with(this)
                 .load(d.getImagenPrincipal())
                 .placeholder(android.R.color.darker_gray)

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Item seleccionado: lila brillante (mismo del boton del login) -->
-    <item android:state_checked="true" android:color="#A78BFA" />
-    <!-- Item no seleccionado: gris claro, legible sobre fondo oscuro -->
-    <item android:state_checked="false" android:color="#9E96B8" />
+    <!-- Item seleccionado: terracota -->
+    <item android:state_checked="true" android:color="@color/terracota" />
+    <!-- Item no seleccionado: texto secundario suave -->
+    <item android:state_checked="false" android:color="@color/text_hint" />
 </selector>

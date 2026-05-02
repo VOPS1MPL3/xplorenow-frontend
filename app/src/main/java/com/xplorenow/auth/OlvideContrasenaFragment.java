@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
+import com.google.android.material.appbar.MaterialToolbar;
 import com.xplorenow.R;
 import com.xplorenow.network.ApiService;
 
@@ -23,25 +24,13 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-/**
- * Pantalla "Olvide mi contrasena" (paso 1 de 2).
- *
- * El usuario ingresa el email de su cuenta. El backend genera un OTP y lo
- * envia por email (mismo mecanismo que el login OTP). Despues navegamos a
- * ResetPasswordFragment pasando el email como argumento, para que el usuario
- * complete el codigo y la nueva contrasena.
- *
- * Decision UX: el backend siempre responde 200 OK aunque el email no exista
- * (asi no revelamos cuentas registradas). Por eso desde aca SIEMPRE pasamos
- * a la siguiente pantalla — si el email no existia, el OTP nunca llega y el
- * intento de cambio fallara con "codigo invalido".
- */
 @AndroidEntryPoint
 public class OlvideContrasenaFragment extends Fragment {
 
     @Inject
     ApiService apiService;
 
+    private MaterialToolbar toolbar;
     private EditText etEmail;
     private Button btnEnviarCodigo;
     private Button btnVolver;
@@ -58,9 +47,13 @@ public class OlvideContrasenaFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        toolbar         = view.findViewById(R.id.toolbar);
         etEmail         = view.findViewById(R.id.etEmail);
         btnEnviarCodigo = view.findViewById(R.id.btnEnviarCodigo);
         btnVolver       = view.findViewById(R.id.btnVolver);
+
+        toolbar.setNavigationOnClickListener(v ->
+                Navigation.findNavController(v).popBackStack());
 
         btnEnviarCodigo.setOnClickListener(v -> {
             String email = etEmail.getText().toString().trim();

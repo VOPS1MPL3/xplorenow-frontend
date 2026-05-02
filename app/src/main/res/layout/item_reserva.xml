@@ -45,7 +45,7 @@
             android:layout_marginStart="12dp"
             android:layout_marginTop="4dp"
             android:textSize="13sp"
-            android:textColor="#757575"
+            android:textColor="@color/text_secondary"
             tools:text="2026-05-15 - 10:00"
             app:layout_constraintTop_toBottomOf="@id/tvNombre"
             app:layout_constraintStart_toEndOf="@id/ivImagen"
@@ -58,7 +58,7 @@
             android:layout_marginStart="12dp"
             android:layout_marginTop="4dp"
             android:textSize="13sp"
-            android:textColor="#757575"
+            android:textColor="@color/text_secondary"
             tools:text="2 participantes"
             app:layout_constraintTop_toBottomOf="@id/tvFechaHora"
             app:layout_constraintStart_toEndOf="@id/ivImagen"
@@ -75,10 +75,28 @@
             android:textSize="12sp"
             android:textStyle="bold"
             android:textColor="@android:color/white"
-            android:background="#1B5E20"
+            android:background="@color/verde_militar"
             tools:text="CONFIRMADA"
             app:layout_constraintTop_toBottomOf="@id/tvParticipantes"
             app:layout_constraintStart_toEndOf="@id/ivImagen" />
+
+        <TextView
+            android:id="@+id/tvBadgeResena"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="2dp"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:visibility="gone"
+            tools:text="RESEÑAR"
+            tools:visibility="visible"
+            tools:background="@color/estado_pendiente_resenar"
+            app:layout_constraintTop_toTopOf="@id/tvEstado"
+            app:layout_constraintBottom_toBottomOf="@id/tvEstado"
+            app:layout_constraintStart_toEndOf="@id/tvEstado" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
