@@ -76,7 +76,7 @@ public class PerfilFragment extends Fragment {
     private android.widget.ImageButton btnCambiarFoto;
     private TextView tvEmail, tvNombre, tvTelefono, tvPreferencias, tvResumenReservas;
     private EditText etNombre, etTelefono;
-    private Button btnEditar, btnCancelar, btnGuardar, btnEditarPreferencias, btnCerrarSesion;
+    private Button btnEditar, btnCancelar, btnGuardar, btnEditarPreferencias, btnVerHistorial, btnCerrarSesion;
     private LinearLayout llBotonesEdicion;
 
     private PerfilDTO perfilActual;
@@ -124,6 +124,7 @@ public class PerfilFragment extends Fragment {
         btnCancelar = view.findViewById(R.id.btnCancelar);
         btnGuardar = view.findViewById(R.id.btnGuardar);
         btnEditarPreferencias = view.findViewById(R.id.btnEditarPreferencias);
+        btnVerHistorial = view.findViewById(R.id.btnVerHistorial);
         btnCerrarSesion = view.findViewById(R.id.btnCerrarSesion);
         llBotonesEdicion = view.findViewById(R.id.llBotonesEdicion);
 
@@ -136,6 +137,8 @@ public class PerfilFragment extends Fragment {
         btnCambiarFoto.setOnClickListener(v -> seleccionarFoto());
         btnEditarPreferencias.setOnClickListener(v ->
                 Navigation.findNavController(v).navigate(R.id.action_perfil_to_preferencias));
+        btnVerHistorial.setOnClickListener(v ->
+                Navigation.findNavController(v).navigate(R.id.action_perfil_to_historial));
         btnCerrarSesion.setOnClickListener(v -> cerrarSesion());
 
         // Cuando preferencias guarda y vuelve, recargamos el perfil para
@@ -490,17 +493,10 @@ public class PerfilFragment extends Fragment {
     // ---------- Cerrar sesion ----------
 
     private void cerrarSesion() {
-        // Decision: NO borramos el token con tokenManager.clearToken().
-        // El LoginFragment muestra el boton "Ingresar con huella" solo si
-        // tokenManager.hasToken() devuelve true. Si lo borraramos, al volver
-        // al login el boton desaparece y el usuario pierde el acceso rapido
-        // por biometria que tenia antes.
-        //
-        // Igualmente la sesion queda "cerrada" desde el punto de vista del
-        // usuario porque el nav controller hace pop hasta loginFragment con
-        // popUpToInclusive=true (ver action_perfil_to_login en nav_graph.xml),
-        // asi que la pantalla de Perfil sale del back stack y no se puede
-        // volver con el boton de "atras" del sistema.
+        // Al cerrar sesion borramos el token: la proxima vez que el usuario
+        // abra la app no va a ver el boton de biometria y debera loguearse
+        // con email y contrasena.
+        tokenManager.clearToken();
         Navigation.findNavController(requireView())
                 .navigate(R.id.action_perfil_to_login);
     }

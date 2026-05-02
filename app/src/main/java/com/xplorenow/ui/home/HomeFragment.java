@@ -71,6 +71,7 @@ public class HomeFragment extends Fragment {
     private int paginaActual = 0;
     private boolean esUltimaPagina = false;
     private boolean cargando = false;
+    private int requestToken = 0;
 
     @Inject
     ActividadRepository actividadRepository;
@@ -111,7 +112,12 @@ public class HomeFragment extends Fragment {
                 FiltrosFragment.RESULT_KEY,
                 getViewLifecycleOwner(),
                 (requestKey, bundle) -> {
+                    Log.d(TAG, "Resultado recibido - bundle keys: " + bundle.keySet()
+                            + " - destinoId del bundle: "
+                            + bundle.getLong(FiltrosFragment.ARG_DESTINO_ID, -1));
                     filtrosActuales = bundleAFiltros(bundle);
+                    Log.d(TAG, "filtrosActuales: " + (filtrosActuales == null ? "null" :
+                            "destinoId=" + filtrosActuales.getDestinoId()));
                     reiniciarYRecargar();
                 }
         );
@@ -354,7 +360,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void cargarPagina(int pagina) {
-        if (cargando) return;
+        final int miToken = ++requestToken;
         cargando = true;
         btnCargarMas.setEnabled(false);
         btnCargarMas.setText("Cargando...");
@@ -365,8 +371,12 @@ public class HomeFragment extends Fragment {
                     public void onResponse(
                             Call<PageResponseDTO<ActividadDTO>> call,
                             Response<PageResponseDTO<ActividadDTO>> response) {
-                        cargando = false;
                         if (getView() == null) return;
+                        if (miToken != requestToken) {
+                            // Respuesta vieja, ignorar
+                            return;
+                        }
+                        cargando = false;
                         if (response.isSuccessful() && response.body() != null) {
                             paginaActual = response.body().getNumber();
                             esUltimaPagina = response.body().isLast();
@@ -381,8 +391,9 @@ public class HomeFragment extends Fragment {
                     public void onFailure(
                             Call<PageResponseDTO<ActividadDTO>> call,
                             Throwable t) {
-                        cargando = false;
                         if (getView() == null) return;
+                        if (miToken != requestToken) return;
+                        cargando = false;
                         mostrarError("Error de red: " + t.getMessage());
                         actualizarFooter();
                         Log.e(TAG, "onFailure", t);
