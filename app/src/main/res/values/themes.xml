@@ -52,4 +52,16 @@
         <item name="android:statusBarColor">@color/crema_clara</item>
         <item name="android:windowLightStatusBar">true</item>
     </style>
+
+    <style name="XploreNow.Button.Reservar" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@color/verde_militar</item>
+        <item name="android:textColor">@color/text_on_primary</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.1</item>
+        <item name="android:minHeight">52dp</item>
+        <item name="rippleColor">#33FFFFFF</item>
+        <item name="cornerRadius">8dp</item>
+        <item name="elevation">0dp</item>
+    </style>
 </resources>

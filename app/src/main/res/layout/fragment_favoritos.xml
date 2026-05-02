@@ -4,6 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/bg_app"
     android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.MaterialToolbar
@@ -17,26 +18,48 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Mensaje de estado: "Cargando", "No tenes favoritos", error -->
-    <TextView
-        android:id="@+id/tvStatus"
+    <!-- Estado vacío / cargando / error: centrado entre toolbar y bottom -->
+    <LinearLayout
+        android:id="@+id/llEstadoVacio"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Cargando..."
-        android:textSize="16sp"
-        android:textColor="#B0A8C8"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="24dp"
         app:layout_constraintTop_toBottomOf="@id/toolbar"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:id="@+id/ivEstadoIcono"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:src="@drawable/ic_corazon_vacio"
+            android:alpha="0.35"
+            android:layout_marginBottom="16dp"
+            android:contentDescription="Sin favoritos" />
+
+        <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cargando..."
+            android:textSize="16sp"
+            android:textColor="@color/text_secondary"
+            android:gravity="center"
+            android:lineSpacingMultiplier="1.4" />
+
+    </LinearLayout>
 
     <ListView
         android:id="@+id/lvFavoritos"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:divider="@android:color/transparent"
-        android:dividerHeight="2dp"
-        android:padding="6dp"
+        android:dividerHeight="0dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="16dp"
         android:clipToPadding="false"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/toolbar"

@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.xplorenow.R;
 import com.xplorenow.data.dto.DestinoDTO;
 import com.xplorenow.data.dto.ReservaDTO;
@@ -37,6 +38,7 @@ public class HistorialFragment extends Fragment {
 
     private static final String TAG = "HistorialFragment";
 
+    private MaterialToolbar toolbar;
     private Spinner spDestino;
     private TextView tvFechaDesde, tvFechaHasta, tvStatus;
     private Button btnLimpiar, btnAplicar;
@@ -63,6 +65,10 @@ public class HistorialFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        toolbar = view.findViewById(R.id.toolbar);
+        toolbar.setNavigationOnClickListener(v ->
+                Navigation.findNavController(v).navigateUp());
 
         spDestino = view.findViewById(R.id.spDestino);
         tvFechaDesde = view.findViewById(R.id.tvFechaDesde);

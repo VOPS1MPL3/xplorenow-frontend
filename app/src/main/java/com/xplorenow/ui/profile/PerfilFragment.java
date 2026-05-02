@@ -76,8 +76,8 @@ public class PerfilFragment extends Fragment {
     private android.widget.ImageButton btnCambiarFoto;
     private TextView tvEmail, tvNombre, tvTelefono, tvPreferencias, tvResumenReservas;
     private EditText etNombre, etTelefono;
-    private Button btnEditar, btnCancelar, btnGuardar, btnEditarPreferencias, btnVerHistorial, btnCerrarSesion;
-    private LinearLayout llBotonesEdicion;
+    private Button btnEditar, btnCancelar, btnGuardar, btnEditarPreferencias, btnVerHistorial;
+    private TextView btnCerrarSesion;    private LinearLayout llBotonesEdicion;
 
     private PerfilDTO perfilActual;
     private boolean modoEdicion = false;
@@ -133,6 +133,7 @@ public class PerfilFragment extends Fragment {
         btnEditarPreferencias = view.findViewById(R.id.btnEditarPreferencias);
         btnVerHistorial = view.findViewById(R.id.btnVerHistorial);
         btnCerrarSesion = view.findViewById(R.id.btnCerrarSesion);
+        btnCerrarSesion.setPaintFlags(btnCerrarSesion.getPaintFlags() | android.graphics.Paint.UNDERLINE_TEXT_FLAG);
         llBotonesEdicion = view.findViewById(R.id.llBotonesEdicion);
 
         toolbar.setNavigationOnClickListener(v ->
