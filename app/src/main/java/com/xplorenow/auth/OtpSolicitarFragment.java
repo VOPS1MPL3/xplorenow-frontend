@@ -1,6 +1,7 @@
 package com.xplorenow.auth;
 
 import android.os.Bundle;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,21 +39,31 @@ public class OtpSolicitarFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        etEmail = view.findViewById(R.id.etEmail);
+        etEmail         = view.findViewById(R.id.etEmail);
         btnSolicitarOtp = view.findViewById(R.id.btnSolicitarOtp);
 
         btnSolicitarOtp.setOnClickListener(v -> {
             String email = etEmail.getText().toString().trim();
 
             if (email.isEmpty()) {
-                Toast.makeText(requireContext(), "Ingresá tu email", Toast.LENGTH_SHORT).show();
+                etEmail.setError("Ingresá tu email");
+                etEmail.requestFocus();
                 return;
             }
+            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                etEmail.setError("El formato del email no es válido");
+                etEmail.requestFocus();
+                return;
+            }
+
+            btnSolicitarOtp.setEnabled(false);
+            btnSolicitarOtp.setText("Enviando...");
 
             apiService.solicitarOtp(new OtpSolicitarRequest(email))
                     .enqueue(new Callback<Void>() {
                         @Override
                         public void onResponse(Call<Void> call, Response<Void> response) {
+                            if (getView() == null) return;
                             Bundle args = new Bundle();
                             args.putString("email", email);
                             Navigation.findNavController(view)
@@ -60,6 +71,9 @@ public class OtpSolicitarFragment extends Fragment {
                         }
                         @Override
                         public void onFailure(Call<Void> call, Throwable t) {
+                            if (getView() == null) return;
+                            btnSolicitarOtp.setEnabled(true);
+                            btnSolicitarOtp.setText("Enviar código");
                             Toast.makeText(requireContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
                         }
                     });

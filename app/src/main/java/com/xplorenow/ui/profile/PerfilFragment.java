@@ -493,17 +493,10 @@ public class PerfilFragment extends Fragment {
     // ---------- Cerrar sesion ----------
 
     private void cerrarSesion() {
-        // Decision: NO borramos el token con tokenManager.clearToken().
-        // El LoginFragment muestra el boton "Ingresar con huella" solo si
-        // tokenManager.hasToken() devuelve true. Si lo borraramos, al volver
-        // al login el boton desaparece y el usuario pierde el acceso rapido
-        // por biometria que tenia antes.
-        //
-        // Igualmente la sesion queda "cerrada" desde el punto de vista del
-        // usuario porque el nav controller hace pop hasta loginFragment con
-        // popUpToInclusive=true (ver action_perfil_to_login en nav_graph.xml),
-        // asi que la pantalla de Perfil sale del back stack y no se puede
-        // volver con el boton de "atras" del sistema.
+        // Al cerrar sesion borramos el token: la proxima vez que el usuario
+        // abra la app no va a ver el boton de biometria y debera loguearse
+        // con email y contrasena.
+        tokenManager.clearToken();
         Navigation.findNavController(requireView())
                 .navigate(R.id.action_perfil_to_login);
     }

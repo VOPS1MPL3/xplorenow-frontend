@@ -19,7 +19,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="14sp"
-        android:layout_marginBottom="32dp"/>
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/tvTimer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="13sp"
+        android:textColor="#E65100"
+        android:visibility="gone"
+        android:layout_marginBottom="24dp"/>
 
     <EditText
         android:id="@+id/etCodigo"
@@ -41,6 +50,7 @@
         android:id="@+id/btnReenviarOtp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Reenviar código"/>
+        android:text="Reenviar código"
+        android:enabled="false"/>
 
 </LinearLayout>
