@@ -23,6 +23,8 @@ public class ActividadDetalleDTO {
     private String politicaCancelacion;
 
     private List<String> galeriaUrls;
+    private String fechaDisponibleDesde;
+    private String fechaDisponibleHasta;
 
     // Getters
     public Long getId() { return id; }
@@ -41,4 +43,7 @@ public class ActividadDetalleDTO {
     public String getGuiaAsignado() { return guiaAsignado; }
     public String getIdioma() { return idioma; }
     public String getPoliticaCancelacion() { return politicaCancelacion; }
-    public List<String> getGaleriaUrls() { return galeriaUrls; }}
+    public List<String> getGaleriaUrls() { return galeriaUrls; }
+    public String getFechaDisponibleDesde() { return fechaDisponibleDesde; }
+    public String getFechaDisponibleHasta() { return fechaDisponibleHasta; }
+}

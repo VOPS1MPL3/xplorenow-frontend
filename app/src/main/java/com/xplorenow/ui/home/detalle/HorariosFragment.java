@@ -38,8 +38,6 @@ public class HorariosFragment extends Fragment {
     public static final String ARG_ACTIVIDAD_ID = "actividadId";
 
     private MaterialToolbar toolbar;
-    private EditText etFecha;
-    private Button btnBuscar;
     private TextView tvStatus;
     private ListView lvHorarios;
     private LinearLayout llConfirmar;
@@ -69,8 +67,6 @@ public class HorariosFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         toolbar = view.findViewById(R.id.toolbar);
-        etFecha = view.findViewById(R.id.etFecha);
-        btnBuscar = view.findViewById(R.id.btnBuscar);
         tvStatus = view.findViewById(R.id.tvStatus);
         lvHorarios = view.findViewById(R.id.lvHorarios);
         llConfirmar = view.findViewById(R.id.llConfirmar);
@@ -82,35 +78,27 @@ public class HorariosFragment extends Fragment {
         toolbar.setNavigationOnClickListener(v ->
                 Navigation.findNavController(v).popBackStack());
 
-        btnBuscar.setOnClickListener(v -> {
-            String fecha = etFecha.getText().toString().trim();
-            if (fecha.isEmpty()) {
-                Toast.makeText(requireContext(),
-                        "Ingresá una fecha", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            buscarHorarios(fecha);
-        });
-
         lvHorarios.setOnItemClickListener((parent, v, position, id) -> {
             horarioSeleccionado = horarios.get(position);
             llConfirmar.setVisibility(View.VISIBLE);
             Toast.makeText(requireContext(),
-                    "Horario seleccionado: " + horarioSeleccionado.getHora(),
+                    "Horario seleccionado: " + horarioSeleccionado.getFecha()
+                            + " " + horarioSeleccionado.getHora().substring(0, 5),
                     Toast.LENGTH_SHORT).show();
         });
 
         btnReservar.setOnClickListener(v -> confirmarReserva());
+
+        cargarHorarios();
     }
 
-    private void buscarHorarios(String fecha) {
-        tvStatus.setText("Buscando horarios...");
+    private void cargarHorarios() {
+        tvStatus.setText("Cargando horarios disponibles...");
         tvStatus.setVisibility(View.VISIBLE);
         lvHorarios.setVisibility(View.GONE);
         llConfirmar.setVisibility(View.GONE);
-        horarioSeleccionado = null;
 
-        api.getHorarios(actividadId, fecha).enqueue(new Callback<List<HorarioDTO>>() {
+        api.getHorariosDisponibles(actividadId).enqueue(new Callback<List<HorarioDTO>>() {
             @Override
             public void onResponse(Call<List<HorarioDTO>> call,
                                    Response<List<HorarioDTO>> response) {
@@ -118,7 +106,7 @@ public class HorariosFragment extends Fragment {
                 if (response.isSuccessful() && response.body() != null) {
                     mostrarHorarios(response.body());
                 } else {
-                    mostrarError("No hay horarios disponibles para esa fecha");
+                    mostrarError("No hay horarios disponibles para esta actividad");
                 }
             }
 
@@ -139,7 +127,8 @@ public class HorariosFragment extends Fragment {
         for (HorarioDTO h : horarios) {
             String hora = h.getHora() != null && h.getHora().length() >= 5
                     ? h.getHora().substring(0, 5) : h.getHora();
-            items.add(hora + "  —  " + h.getCuposRestantes() + " cupos disponibles");
+            items.add(h.getFecha() + "  —  " + hora
+                    + "  —  " + h.getCuposRestantes() + " cupos");
         }
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
