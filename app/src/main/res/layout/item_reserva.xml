@@ -80,6 +80,24 @@
             app:layout_constraintTop_toBottomOf="@id/tvParticipantes"
             app:layout_constraintStart_toEndOf="@id/ivImagen" />
 
+        <TextView
+            android:id="@+id/tvBadgeResena"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="2dp"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:visibility="gone"
+            tools:text="RESEÑAR"
+            tools:visibility="visible"
+            tools:background="@color/estado_pendiente_resenar"
+            app:layout_constraintTop_toTopOf="@id/tvEstado"
+            app:layout_constraintBottom_toBottomOf="@id/tvEstado"
+            app:layout_constraintStart_toEndOf="@id/tvEstado" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.cardview.widget.CardView>

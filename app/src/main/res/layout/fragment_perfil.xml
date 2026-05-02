@@ -12,8 +12,6 @@
         android:background="?attr/colorPrimary"
         app:title="Mi perfil"
         app:titleTextColor="@android:color/white"
-        app:navigationIcon="@android:drawable/ic_menu_close_clear_cancel"
-        app:navigationIconTint="@android:color/white"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -34,7 +32,7 @@
             android:orientation="vertical"
             android:padding="20dp">
 
-            <!-- Foto de perfil con lapiz superpuesto -->
+            <!-- Foto de perfil -->
             <FrameLayout
                 android:layout_width="140dp"
                 android:layout_height="140dp"
@@ -68,6 +66,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Email"
+                android:textSize="14sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -82,6 +81,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Nombre"
+                android:textSize="14sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -98,6 +98,7 @@
                 android:layout_height="wrap_content"
                 android:inputType="textPersonName"
                 android:hint="Tu nombre"
+                android:textSize="16sp"
                 android:visibility="gone"
                 android:layout_marginBottom="12dp" />
 
@@ -105,6 +106,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Telefono"
+                android:textSize="14sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -121,6 +123,7 @@
                 android:layout_height="wrap_content"
                 android:inputType="phone"
                 android:hint="Telefono de contacto"
+                android:textSize="16sp"
                 android:visibility="gone"
                 android:layout_marginBottom="12dp" />
 
@@ -137,6 +140,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Preferencias de viaje"
+                android:textSize="16sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -160,19 +164,19 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Resumen de mis actividades"
+                android:textSize="16sp"
                 android:textStyle="bold"
-                android:textSize="18sp"
                 android:layout_marginBottom="8dp" />
 
             <TextView
                 android:id="@+id/tvResumenReservas"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="14sp"
+                android:textSize="16sp"
                 android:padding="8dp"
                 android:text="Cargando..." />
 
-            <!-- ============== BOTONES (todos juntos al final) ============== -->
+            <!-- ============== BOTONES ============== -->
 
             <View
                 android:layout_width="match_parent"
@@ -228,12 +232,20 @@
                 android:layout_marginBottom="8dp"
                 android:text="Ver historial de actividades" />
 
-            <Button
+            <TextView
                 android:id="@+id/btnCerrarSesion"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Cerrar sesion" />
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="8dp"
+                android:padding="12dp"
+                android:gravity="center"
+                android:text="Cerrar sesión"
+                android:textSize="14sp"
+                android:textColor="@color/text_secondary"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground" />
 
         </LinearLayout>
     </ScrollView>

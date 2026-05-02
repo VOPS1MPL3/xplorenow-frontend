@@ -5,6 +5,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,6 +42,8 @@ public class FavoritosFragment extends Fragment {
     @Inject TokenManager tokenManager;
 
     private TextView tvStatus;
+    private ImageView ivEstadoIcono;
+    private LinearLayout llEstadoVacio;
     private ListView lvFavoritos;
 
     private FavoritoAdapter adapter;
@@ -65,6 +69,8 @@ public class FavoritosFragment extends Fragment {
         }
 
         tvStatus = view.findViewById(R.id.tvStatus);
+        ivEstadoIcono = view.findViewById(R.id.ivEstadoIcono);
+        llEstadoVacio = view.findViewById(R.id.llEstadoVacio);
         lvFavoritos = view.findViewById(R.id.lvFavoritos);
 
         adapter = new FavoritoAdapter(requireContext(), favoritos);
@@ -96,7 +102,8 @@ public class FavoritosFragment extends Fragment {
 
     private void cargarFavoritos() {
         tvStatus.setText("Cargando...");
-        tvStatus.setVisibility(View.VISIBLE);
+        ivEstadoIcono.setVisibility(View.GONE);
+        llEstadoVacio.setVisibility(View.VISIBLE);
         lvFavoritos.setVisibility(View.GONE);
 
         favoritoRepository.misFavoritos().enqueue(new Callback<List<FavoritoDTO>>() {
@@ -108,18 +115,18 @@ public class FavoritosFragment extends Fragment {
                     favoritos.clear();
                     favoritos.addAll(response.body());
                     if (favoritos.isEmpty()) {
-                        tvStatus.setText("Todavía no tenés favoritos.\n\n\n"
-                                + "Selecciona aquellos que mas te interesen para recibir novedades! ;) ");
-                        tvStatus.setVisibility(View.VISIBLE);
+                        tvStatus.setText("Todavía no tenés favoritos.\nMarcá actividades con ♡ en el catálogo.");
+                        ivEstadoIcono.setVisibility(View.VISIBLE);
+                        llEstadoVacio.setVisibility(View.VISIBLE);
                         lvFavoritos.setVisibility(View.GONE);
                     } else {
-                        tvStatus.setVisibility(View.GONE);
+                        llEstadoVacio.setVisibility(View.GONE);
                         lvFavoritos.setVisibility(View.VISIBLE);
                         adapter.notifyDataSetChanged();
                     }
                 } else {
-                    tvStatus.setText("No se pudieron cargar tus favoritos "
-                            + "(HTTP " + response.code() + ")");
+                    ivEstadoIcono.setVisibility(View.GONE);
+                    tvStatus.setText("No se pudieron cargar tus favoritos.");
                 }
             }
 
@@ -173,12 +180,12 @@ public class FavoritosFragment extends Fragment {
 
     private void actualizarStatusSiVacio() {
         if (favoritos.isEmpty()) {
-            tvStatus.setText("Todavía no tenés favoritos.\n"
-                    + "Marcá actividades con el corazón en el catálogo.");
-            tvStatus.setVisibility(View.VISIBLE);
+            tvStatus.setText("Todavía no tenés favoritos.\nMarcá actividades con ♡ en el catálogo.");
+            ivEstadoIcono.setVisibility(View.VISIBLE);
+            llEstadoVacio.setVisibility(View.VISIBLE);
             lvFavoritos.setVisibility(View.GONE);
         } else {
-            tvStatus.setVisibility(View.GONE);
+            llEstadoVacio.setVisibility(View.GONE);
             lvFavoritos.setVisibility(View.VISIBLE);
         }
     }
