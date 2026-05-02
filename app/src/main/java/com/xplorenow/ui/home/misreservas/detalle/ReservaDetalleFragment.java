@@ -1,6 +1,8 @@
 package com.xplorenow.ui.home.misreservas.detalle;
 
+import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -53,6 +55,8 @@ public class ReservaDetalleFragment extends Fragment {
     private String actividadNombre = "";
     private String fechaActividad  = "";
     private String horaActividad   = "";
+    private Double latitud = null;
+    private Double longitud = null;
 
     @Inject
     ReservaRepository reservaRepository;
@@ -95,10 +99,11 @@ public class ReservaDetalleFragment extends Fragment {
         toolbar.setNavigationOnClickListener(v ->
                 Navigation.findNavController(v).popBackStack());
 
-        btnVerMapa.setOnClickListener(v ->
-                Toast.makeText(requireContext(),
-                        "El mapa se va a integrar en el punto 10",
-                        Toast.LENGTH_SHORT).show());
+        btnVerMapa.setOnClickListener(v -> {
+            if (latitud != null && longitud != null) {
+                abrirMapa(latitud, longitud);
+            }
+        });
 
         btnCancelar.setOnClickListener(v -> confirmarCancelacion());
 
@@ -108,6 +113,15 @@ public class ReservaDetalleFragment extends Fragment {
             return;
         }
         cargarDetalle(reservaIdActual);
+        observarReservaLocal(reservaIdActual);
+    }
+
+    private void observarReservaLocal(long id) {
+        reservaRepository.observarReserva(id).observe(getViewLifecycleOwner(), dto -> {
+            if (dto != null) {
+                mostrar(dto);
+            }
+        });
     }
 
     private void cargarDetalle(long id) {
@@ -117,22 +131,33 @@ public class ReservaDetalleFragment extends Fragment {
                                    Response<ReservaDetalleDTO> response) {
                 if (getView() == null) return;
                 if (response.isSuccessful() && response.body() != null) {
-                    mostrar(response.body());
+                    ReservaDetalleDTO dto = response.body();
+                    // Punto 19: Guardado automático para acceso offline
+                    reservaRepository.guardarReservaLocal(dto);
                 } else {
-                    Toast.makeText(requireContext(),
-                            "No se pudo cargar la reserva",
-                            Toast.LENGTH_SHORT).show();
+                    cargarOffline(id);
                 }
             }
 
             @Override
             public void onFailure(Call<ReservaDetalleDTO> call, Throwable t) {
                 if (getView() == null) return;
-                Log.e(TAG, "onFailure", t);
-                Toast.makeText(requireContext(),
-                        "Error de red: " + t.getMessage(),
-                        Toast.LENGTH_LONG).show();
+                Log.e(TAG, "onFailure network, intentando offline", t);
+                cargarOffline(id);
             }
+        });
+    }
+
+    private void cargarOffline(long id) {
+        reservaRepository.obtenerReservaOffline(id, result -> {
+            if (getActivity() == null) return;
+            getActivity().runOnUiThread(() -> {
+                if (result == null) {
+                    Toast.makeText(requireContext(),
+                            "No hay conexión y no existen datos guardados",
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
         });
     }
 
@@ -140,6 +165,8 @@ public class ReservaDetalleFragment extends Fragment {
         actividadNombre = d.getActividadNombre() != null ? d.getActividadNombre() : "";
         fechaActividad  = d.getFecha()           != null ? d.getFecha()           : "";
         horaActividad   = d.getHora()            != null ? d.getHora()            : "";
+        latitud         = d.getLatitud();
+        longitud        = d.getLongitud();
 
         Glide.with(this)
                 .load(d.getActividadImagen())
@@ -152,8 +179,8 @@ public class ReservaDetalleFragment extends Fragment {
         tvNombre.setText(actividadNombre);
         tvDestinoCategoria.setText(d.getDestino() + " - " + d.getCategoria());
 
-        String horaCorta = horaActividad.length() >= 5
-                ? horaActividad.substring(0, 5) : horaActividad;
+        String horaCorta = (horaActividad != null && horaActividad.length() >= 5)
+                ? horaActividad.substring(0, 5) : (horaActividad != null ? horaActividad : "");
         tvFechaHora.setText(fechaActividad + " - " + horaCorta);
 
         tvParticipantes.setText(d.getCantidadParticipantes() + " personas");
@@ -164,6 +191,8 @@ public class ReservaDetalleFragment extends Fragment {
 
         btnCancelar.setVisibility(
                 d.getEstado() == EstadoReserva.CONFIRMADA ? View.VISIBLE : View.GONE);
+        btnVerMapa.setEnabled(d.getLatitud() != null && d.getLongitud() != null 
+                && d.getLatitud() != 0.0 && d.getLongitud() != 0.0);
 
         btnCalificar.setVisibility(View.GONE);
         layoutCalificacionExistente.setVisibility(View.GONE);
@@ -279,6 +308,20 @@ public class ReservaDetalleFragment extends Fragment {
                 .navigate(R.id.action_reservaDetalle_to_calificacion, args);
     }
 
+    private void abrirMapa(double lat, double lng) {
+        Uri gmmIntentUri = Uri.parse("google.navigation:q=" + lat + "," + lng);
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+        mapIntent.setPackage("com.google.android.apps.maps");
+
+        if (mapIntent.resolveActivity(requireActivity().getPackageManager()) != null) {
+            startActivity(mapIntent);
+        } else {
+            // Fallback a navegador
+            Uri webUri = Uri.parse("https://www.google.com/maps/search/?api=1&query=" + lat + "," + lng);
+            startActivity(new Intent(Intent.ACTION_VIEW, webUri));
+        }
+    }
+
     private int colorPara(EstadoReserva e) {
         if (e == null) return Color.GRAY;
         switch (e) {
@@ -313,7 +356,7 @@ public class ReservaDetalleFragment extends Fragment {
                             Toast.makeText(requireContext(),
                                     "Reserva cancelada",
                                     Toast.LENGTH_SHORT).show();
-                            mostrar(response.body());
+                            reservaRepository.guardarReservaLocal(response.body());
                         } else {
                             btnCancelar.setEnabled(true);
                             btnCancelar.setText("Cancelar reserva");
@@ -326,12 +369,11 @@ public class ReservaDetalleFragment extends Fragment {
                     @Override
                     public void onFailure(Call<ReservaDetalleDTO> call, Throwable t) {
                         if (getView() == null) return;
-                        btnCancelar.setEnabled(true);
-                        btnCancelar.setText("Cancelar reserva");
+                        // Punto 20: Si falla por red, encolar para sincronización diferida
+                        reservaRepository.encolarCancelacion(reservaIdActual);
                         Toast.makeText(requireContext(),
-                                "Error de red: " + t.getMessage(),
+                                "Sin conexión. La cancelación se sincronizará automáticamente al recuperar red.",
                                 Toast.LENGTH_LONG).show();
-                        Log.e(TAG, "cancelar onFailure", t);
                     }
                 });
     }

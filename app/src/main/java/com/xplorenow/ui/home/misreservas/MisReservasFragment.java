@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -112,18 +113,36 @@ public class MisReservasFragment extends Fragment {
                                    Response<List<ReservaDTO>> response) {
                 if (getView() == null) return;
                 if (response.isSuccessful() && response.body() != null) {
-                    mostrar(response.body());
+                    List<ReservaDTO> lista = response.body();
+                    mostrar(lista);
+                    // Punto 19: Guardado automático de la lista para acceso offline
+                    if (estado == null || estado == EstadoReserva.CONFIRMADA) {
+                        reservaRepository.guardarReservasLocal(lista);
+                    }
                 } else {
-                    error("Error HTTP " + response.code());
+                    cargarOffline();
                 }
             }
 
             @Override
             public void onFailure(Call<List<ReservaDTO>> call, Throwable t) {
                 if (getView() == null) return;
-                error("Error de red: " + t.getMessage());
-                Log.e(TAG, "onFailure", t);
+                Log.e(TAG, "onFailure network, intentando offline", t);
+                cargarOffline();
             }
+        });
+    }
+
+    private void cargarOffline() {
+        reservaRepository.obtenerReservasOffline(result -> {
+            if (getActivity() == null) return;
+            getActivity().runOnUiThread(() -> {
+                if (result != null && !result.isEmpty()) {
+                    mostrar(result);
+                } else {
+                    error("Sin conexión y sin datos locales guardados");
+                }
+            });
         });
     }
 

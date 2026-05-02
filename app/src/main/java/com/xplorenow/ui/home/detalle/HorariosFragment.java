@@ -1,7 +1,10 @@
 package com.xplorenow.ui.home.detalle;
 
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.util.Log;
+import java.util.Calendar;
+import java.util.Locale;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -77,6 +80,10 @@ public class HorariosFragment extends Fragment {
         etCantidad = view.findViewById(R.id.etCantidad);
         btnReservar = view.findViewById(R.id.btnReservar);
 
+        // Configurar DatePicker para evitar errores de formato
+        etFecha.setFocusable(false);
+        etFecha.setOnClickListener(v -> mostrarDatePicker());
+
         actividadId = requireArguments().getLong(ARG_ACTIVIDAD_ID, -1L);
 
         toolbar.setNavigationOnClickListener(v ->
@@ -103,7 +110,29 @@ public class HorariosFragment extends Fragment {
         btnReservar.setOnClickListener(v -> confirmarReserva());
     }
 
+    private void mostrarDatePicker() {
+        final Calendar c = Calendar.getInstance();
+        int year = c.get(Calendar.YEAR);
+        int month = c.get(Calendar.MONTH);
+        int day = c.get(Calendar.DAY_OF_MONTH);
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(),
+                (view, year1, monthOfYear, dayOfMonth) -> {
+                    // Formato YYYY-MM-DD requerido por la API
+                    String fecha = String.format(Locale.US, "%04d-%02d-%02d", year1, monthOfYear + 1, dayOfMonth);
+                    etFecha.setText(fecha);
+                    buscarHorarios(fecha);
+                }, year, month, day);
+        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
+        datePickerDialog.show();
+    }
+
     private void buscarHorarios(String fecha) {
+        if (actividadId < 0) {
+            mostrarError("ID de actividad no válido");
+            return;
+        }
+        
         tvStatus.setText("Buscando horarios...");
         tvStatus.setVisibility(View.VISIBLE);
         lvHorarios.setVisibility(View.GONE);
@@ -116,9 +145,13 @@ public class HorariosFragment extends Fragment {
                                    Response<List<HorarioDTO>> response) {
                 if (getView() == null) return;
                 if (response.isSuccessful() && response.body() != null) {
-                    mostrarHorarios(response.body());
+                    if (response.body().isEmpty()) {
+                        mostrarError("No hay horarios disponibles para el " + fecha);
+                    } else {
+                        mostrarHorarios(response.body());
+                    }
                 } else {
-                    mostrarError("No hay horarios disponibles para esa fecha");
+                    mostrarError("No se encontraron horarios (Error " + response.code() + ")");
                 }
             }
 
@@ -126,7 +159,7 @@ public class HorariosFragment extends Fragment {
             public void onFailure(Call<List<HorarioDTO>> call, Throwable t) {
                 if (getView() == null) return;
                 Log.e(TAG, "onFailure", t);
-                mostrarError("Error de red: " + t.getMessage());
+                mostrarError("Error de conexión: " + t.getMessage());
             }
         });
     }
