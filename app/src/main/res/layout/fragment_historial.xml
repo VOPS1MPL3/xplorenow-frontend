@@ -47,7 +47,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:backgroundTint="#A78BFA"
+            android:backgroundTint="@color/verde_militar"
             android:popupBackground="#2A1F45" />
 
         <LinearLayout
@@ -101,7 +101,7 @@
                 android:layout_weight="1"
                 android:layout_marginEnd="6dp"
                 android:text="Limpiar"
-                android:textColor="#A78BFA" />
+                android:textColor="@color/verde_militar" />
 
             <!-- Boton "Aplicar": hereda XploreNow.Button (lila relleno). -->
             <Button

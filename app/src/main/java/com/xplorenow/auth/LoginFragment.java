@@ -36,7 +36,7 @@ public class LoginFragment extends Fragment {
     private TextView tvOlvideContrasena;
     private Button btnLogin;
     private Button btnIrOtp;
-    private Button btnRegistro;
+    private TextView btnRegistro;
     private Button btnBiometria;
 
     @Nullable

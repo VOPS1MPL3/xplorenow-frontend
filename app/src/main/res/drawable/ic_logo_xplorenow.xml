@@ -1,0 +1,48 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+
+    <!-- Fondo crema redondeado -->
+    <path
+        android:pathData="M60,0 L60,0 C93.137,0 120,26.863 120,60 L120,60 C120,93.137 93.137,120 60,120 L60,120 C26.863,120 0,93.137 0,60 L0,60 C0,26.863 26.863,0 60,0 Z"
+        android:fillColor="#F5E6D3" />
+
+    <!-- Montaña fondo (verde claro) -->
+    <path
+        android:pathData="M15,95 L40,55 L55,75 L75,40 L100,95 Z"
+        android:fillColor="#7A8B5C" />
+
+    <!-- Montaña frente (verde oscuro) -->
+    <path
+        android:pathData="M30,95 L50,65 L65,80 L80,55 L100,95 Z"
+        android:fillColor="#5C6B47" />
+
+    <!-- Sol -->
+    <path
+        android:pathData="M85,35 m-8,0 a8,8 0 1,0 16,0 a8,8 0 1,0 -16,0"
+        android:fillColor="#E8B14A" />
+
+    <!-- Brújula -->
+    <path
+        android:pathData="M60,90 m-18,0 a18,18 0 1,0 36,0 a18,18 0 1,0 -36,0"
+        android:fillColor="#C8623F"
+        android:strokeColor="#6B3520"
+        android:strokeWidth="1.5" />
+
+    <!-- Aguja brújula norte -->
+    <path
+        android:pathData="M60,77 L63,90 L60,103 L57,90 Z"
+        android:fillColor="#F5E6D3" />
+
+    <path
+        android:pathData="M60,77 L63,90 L60,90 Z"
+        android:fillColor="#FAF6F0" />
+
+    <!-- Centro brújula -->
+    <path
+        android:pathData="M60,90 m-2,0 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0"
+        android:fillColor="#3F4A30" />
+
+</vector>

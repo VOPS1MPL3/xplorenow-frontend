@@ -1,40 +1,55 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <style name="Base.Theme.XploreNow" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <!-- Paleta violeta oscura coherente con el resto de la app.
+        <!-- Paleta XploreNow - Tierra/Explorador.
              colorPrimary lo usan automaticamente los MaterialToolbar
              que tienen android:background="?attr/colorPrimary". -->
-        <item name="colorPrimary">#2D1B4E</item>
-        <item name="colorPrimaryDark">#1A0F2E</item>
-        <item name="colorOnPrimary">#FFFFFF</item>
-        <item name="colorAccent">#A78BFA</item>
+        <item name="colorPrimary">@color/terracota</item>
+        <item name="colorPrimaryDark">@color/terracota_dark</item>
+        <item name="colorOnPrimary">@color/text_on_primary</item>
+        <item name="colorAccent">@color/verde_militar</item>
 
-        <!-- Status bar violeta oscura para que no quede transparente sobre el header -->
-        <item name="android:statusBarColor">#1A0F2E</item>
+        <!-- Fondo general de la app -->
+        <item name="android:windowBackground">@color/bg_app</item>
+        <item name="android:colorBackground">@color/bg_app</item>
+
+        <!-- Status bar matcheando el toolbar -->
+        <item name="android:statusBarColor">@color/terracota_dark</item>
         <item name="android:windowLightStatusBar">false</item>
 
-        <!-- Estilo por default de los <Button>: lila brillante con texto blanco.
-             Se aplica automaticamente a todos los Button del proyecto sin tocar
-             un solo layout. Lo que ya tenia un style explicito (ej: buttonBarButtonStyle)
-             se mantiene como esta. -->
+        <!-- Estilo por default de los <Button>: terracota con texto crema -->
         <item name="materialButtonStyle">@style/XploreNow.Button</item>
     </style>
 
-    <!-- Boton primario: relleno lila brillante. -->
+    <!-- Boton primario: terracota relleno -->
     <style name="XploreNow.Button" parent="Widget.MaterialComponents.Button">
-        <item name="backgroundTint">#A78BFA</item>
-        <item name="android:textColor">#FFFFFF</item>
+        <item name="backgroundTint">@color/terracota</item>
+        <item name="android:textColor">@color/text_on_primary</item>
         <item name="rippleColor">#33FFFFFF</item>
+        <item name="cornerRadius">8dp</item>
+    </style>
+
+    <!-- Boton outline: borde terracota, texto terracota -->
+    <style name="XploreNow.Button.Outlined" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="strokeColor">@color/terracota</item>
+        <item name="strokeWidth">1.5dp</item>
+        <item name="android:textColor">@color/terracota</item>
+        <item name="rippleColor">#33C8623F</item>
+        <item name="cornerRadius">8dp</item>
+    </style>
+
+    <!-- Boton secundario: verde militar (para "Ver historial", "Editar preferencias", etc.) -->
+    <style name="XploreNow.Button.Secondary" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@color/verde_militar</item>
+        <item name="android:textColor">@color/text_on_primary</item>
+        <item name="rippleColor">#33FFFFFF</item>
+        <item name="cornerRadius">8dp</item>
     </style>
 
     <style name="Theme.XploreNow" parent="Base.Theme.XploreNow" />
 
-    <!-- Estilo de boton outline usado por fragment_perfil.xml.
-         Se mantiene el resto del tema como en main; este estilo se agrega
-         para no romper el layout de perfil al unificar. -->
-    <style name="XploreNow.Button.Outlined" parent="Widget.MaterialComponents.Button.OutlinedButton">
-        <item name="strokeColor">#A78BFA</item>
-        <item name="strokeWidth">1.5dp</item>
-        <item name="android:textColor">#A78BFA</item>
-        <item name="rippleColor">#33A78BFA</item>
+    <style name="Theme.XploreNow.Splash" parent="Theme.XploreNow">
+        <item name="android:windowBackground">@drawable/splash_background</item>
+        <item name="android:statusBarColor">@color/crema_clara</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 </resources>
