@@ -10,6 +10,20 @@
          fragments hijos NO se dibujen debajo de la status bar.
          Sin esto, los toolbars con altura fija quedaban encimados con la
          hora y los iconos del sistema (ver screenshot del usuario). -->
+    <TextView
+        android:id="@+id/tvOfflineBanner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FF9800"
+        android:gravity="center"
+        android:padding="4dp"
+        android:text="Sin conexión - Usando datos locales"
+        android:textColor="@android:color/white"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/nav_host_fragment"
         android:name="androidx.navigation.fragment.NavHostFragment"
@@ -18,7 +32,7 @@
         android:fitsSystemWindows="true"
         app:navGraph="@navigation/nav_graph"
         app:defaultNavHost="true"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvOfflineBanner"
         app:layout_constraintBottom_toTopOf="@id/bottomNav"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

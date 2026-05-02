@@ -61,7 +61,6 @@ public class FavoritosFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Requiere sesión activa
         if (!tokenManager.isTokenValid()) {
             tokenManager.clearToken();
             Navigation.findNavController(view).navigate(R.id.loginFragment);
@@ -91,7 +90,6 @@ public class FavoritosFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        // Si la sesión venció mientras estaba en pantalla, redirigir
         if (!tokenManager.isTokenValid()) {
             tokenManager.clearToken();
             Navigation.findNavController(requireView()).navigate(R.id.loginFragment);
@@ -134,7 +132,8 @@ public class FavoritosFragment extends Fragment {
             public void onFailure(Call<List<FavoritoDTO>> call, Throwable t) {
                 if (getView() == null) return;
                 Log.e(TAG, "favoritos onFailure", t);
-                tvStatus.setText("Error de conexión");
+                ivEstadoIcono.setVisibility(View.GONE);
+                tvStatus.setText("📵  Sin conexión\nConectate a internet para ver tus favoritos");
             }
         });
     }

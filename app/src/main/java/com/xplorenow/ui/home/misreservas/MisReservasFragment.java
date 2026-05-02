@@ -1,5 +1,4 @@
 package com.xplorenow.ui.home.misreservas;
-
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -7,24 +6,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
-
 import com.xplorenow.R;
+import com.xplorenow.util.NetworkObserver;
 import com.xplorenow.util.TokenManager;
 import com.xplorenow.data.dto.EstadoReserva;
 import com.xplorenow.data.dto.ReservaDTO;
 import com.xplorenow.data.repository.ReservaRepository;
 import com.xplorenow.ui.home.misreservas.detalle.ReservaDetalleFragment;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.inject.Inject;
-
 import dagger.hilt.android.AndroidEntryPoint;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -40,9 +35,12 @@ public class MisReservasFragment extends Fragment {
 
     private ReservaAdapter adapter;
     private final List<ReservaDTO> reservas = new ArrayList<>();
+    private boolean isOnline = true;
 
-    @Inject ReservaRepository reservaRepository;
-    @Inject TokenManager tokenManager;
+    @Inject
+    ReservaRepository reservaRepository;
+    @Inject
+    TokenManager tokenManager;
 
     @Nullable
     @Override
@@ -62,11 +60,19 @@ public class MisReservasFragment extends Fragment {
             return;
         }
 
-        tvStatus   = view.findViewById(R.id.tvStatus);
+        tvStatus = view.findViewById(R.id.tvStatus);
         lvReservas = view.findViewById(R.id.lvReservas);
 
         adapter = new ReservaAdapter(requireContext(), reservas);
         lvReservas.setAdapter(adapter);
+
+        new NetworkObserver(requireContext()).observe(getViewLifecycleOwner(), connected -> {
+            boolean changed = (isOnline != connected);
+            isOnline = connected;
+            if (changed) {
+                cargarReservas();
+            }
+        });
 
         lvReservas.setOnItemClickListener((parent, v, position, id) -> {
             ReservaDTO seleccionada = reservas.get(position);
@@ -86,7 +92,17 @@ public class MisReservasFragment extends Fragment {
 
         reservas.clear();
 
-        // Primera llamada: confirmadas
+        if (!isOnline) {
+            reservaRepository.obtenerReservasOffline(results -> {
+                if (getActivity() == null) return;
+                getActivity().runOnUiThread(() -> {
+                    reservas.addAll(results);
+                    mostrar();
+                });
+            });
+            return;
+        }
+
         reservaRepository.misReservas(EstadoReserva.CONFIRMADA).enqueue(
                 new Callback<List<ReservaDTO>>() {
                     @Override
@@ -94,9 +110,10 @@ public class MisReservasFragment extends Fragment {
                                            Response<List<ReservaDTO>> response) {
                         if (getView() == null) return;
                         if (response.isSuccessful() && response.body() != null) {
-                            reservas.addAll(response.body());
+                            List<ReservaDTO> body = response.body();
+                            reservas.addAll(body);
+                            reservaRepository.guardarReservasLocal(body);
                         }
-                        // Despues de confirmadas, pedimos las canceladas
                         cargarCanceladas();
                     }
                     @Override
@@ -116,7 +133,9 @@ public class MisReservasFragment extends Fragment {
                                            Response<List<ReservaDTO>> response) {
                         if (getView() == null) return;
                         if (response.isSuccessful() && response.body() != null) {
-                            reservas.addAll(response.body());
+                            List<ReservaDTO> body = response.body();
+                            reservas.addAll(body);
+                            reservaRepository.guardarReservasLocal(body);
                         }
                         mostrar();
                     }
@@ -131,7 +150,7 @@ public class MisReservasFragment extends Fragment {
 
     private void mostrar() {
         if (reservas.isEmpty()) {
-            error("No tenes reservas activas");
+            error("No tenés reservas activas");
             return;
         }
         adapter.notifyDataSetChanged();
