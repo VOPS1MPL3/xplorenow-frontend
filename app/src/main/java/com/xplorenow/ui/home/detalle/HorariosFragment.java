@@ -23,6 +23,7 @@ import com.xplorenow.data.dto.HorarioDTO;
 import com.xplorenow.data.dto.ReservaDetalleDTO;
 import com.xplorenow.data.repository.ReservaRepository;
 import com.xplorenow.data.api.XploreNowApi;
+import com.xplorenow.util.NetworkObserver;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
@@ -39,6 +40,7 @@ public class HorariosFragment extends Fragment {
 
     private MaterialToolbar toolbar;
     private TextView tvStatus;
+    private TextView tvOfflineBanner;
     private ListView lvHorarios;
     private LinearLayout llConfirmar;
     private EditText etCantidad;
@@ -47,6 +49,7 @@ public class HorariosFragment extends Fragment {
     private final List<HorarioDTO> horarios = new ArrayList<>();
     private HorarioDTO horarioSeleccionado = null;
     private long actividadId;
+    private boolean isOnline = true;
 
     @Inject
     ReservaRepository reservaRepository;
@@ -68,6 +71,7 @@ public class HorariosFragment extends Fragment {
 
         toolbar = view.findViewById(R.id.toolbar);
         tvStatus = view.findViewById(R.id.tvStatus);
+        tvOfflineBanner = view.findViewById(R.id.tvOfflineBanner);
         lvHorarios = view.findViewById(R.id.lvHorarios);
         llConfirmar = view.findViewById(R.id.llConfirmar);
         etCantidad = view.findViewById(R.id.etCantidad);
@@ -77,6 +81,15 @@ public class HorariosFragment extends Fragment {
 
         toolbar.setNavigationOnClickListener(v ->
                 Navigation.findNavController(v).popBackStack());
+
+        new NetworkObserver(requireContext()).observe(getViewLifecycleOwner(), connected -> {
+            isOnline = connected;
+            tvOfflineBanner.setVisibility(connected ? View.GONE : View.VISIBLE);
+            btnReservar.setEnabled(connected);
+            if (!connected) {
+                Toast.makeText(requireContext(), "Sin conexión para reservar", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         lvHorarios.setOnItemClickListener((parent, v, position, id) -> {
             horarioSeleccionado = horarios.get(position);
