@@ -45,7 +45,7 @@ public class ReservaDetalleFragment extends Fragment {
     public static final String ARG_RESERVA_ID = "reservaId";
 
     private MaterialToolbar toolbar;
-    private TextView tvOfflineBanner;
+
     private ImageView ivImagen;
     private TextView tvVoucher, tvEstado, tvNombre, tvDestinoCategoria;
     private TextView tvFechaHora, tvParticipantes, tvPuntoEncuentro;
@@ -83,7 +83,6 @@ public class ReservaDetalleFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         toolbar                     = view.findViewById(R.id.toolbar);
-        tvOfflineBanner             = view.findViewById(R.id.tvOfflineBanner);
         ivImagen                    = view.findViewById(R.id.ivImagen);
         tvVoucher                   = view.findViewById(R.id.tvVoucher);
         tvEstado                    = view.findViewById(R.id.tvEstado);
@@ -108,7 +107,6 @@ public class ReservaDetalleFragment extends Fragment {
 
         new NetworkObserver(requireContext()).observe(getViewLifecycleOwner(), connected -> {
             isOnline = connected;
-            tvOfflineBanner.setVisibility(connected ? View.GONE : View.VISIBLE);
         });
 
         btnVerMapa.setOnClickListener(v -> {

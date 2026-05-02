@@ -145,9 +145,7 @@ public class HomeFragment extends Fragment {
         lvActividades.setAdapter(adapter);
 
         // Toggle de favorito desde la card del catalogo.
-        // Verifica sesion antes de cualquier accion.
         adapter.setFavoritoListener((act, nuevoEstado) -> {
-            // Si no hay sesion activa, redirigir al login
             if (!tokenManager.isTokenValid()) {
                 tokenManager.clearToken();
                 Navigation.findNavController(requireView()).navigate(R.id.loginFragment);
@@ -218,12 +216,8 @@ public class HomeFragment extends Fragment {
         cargarFavoritos();
     }
 
-    /**
-     * Carga el set de actividades favoritas del usuario.
-     * Si no hay sesion activa se ignora silenciosamente — el home es publico.
-     */
     private void cargarFavoritos() {
-        if (!tokenManager.isTokenValid()) return; // sin sesion, no cargar
+        if (!tokenManager.isTokenValid()) return;
         favoritoRepository.misFavoritos().enqueue(new Callback<List<FavoritoDTO>>() {
             @Override
             public void onResponse(Call<List<FavoritoDTO>> call,
@@ -236,7 +230,6 @@ public class HomeFragment extends Fragment {
                     }
                     adapter.setFavoritos(ids);
                 }
-                // 403 u otro error: ignorar silenciosamente
             }
             @Override
             public void onFailure(Call<List<FavoritoDTO>> call, Throwable t) {
@@ -249,7 +242,6 @@ public class HomeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        // Volver del detalle puede haber cambiado el estado de favoritos.
         if (adapter != null) cargarFavoritos();
     }
 
@@ -359,7 +351,7 @@ public class HomeFragment extends Fragment {
                             esUltimaPagina = response.body().isLast();
                             agregarActividades(response.body().getContent());
                         } else {
-                            mostrarError("Error HTTP " + response.code());
+                            mostrarError("No se pudo cargar el catálogo (HTTP " + response.code() + ")");
                         }
                         actualizarFooter();
                     }
@@ -370,7 +362,7 @@ public class HomeFragment extends Fragment {
                         if (getView() == null) return;
                         if (miToken != requestToken) return;
                         cargando = false;
-                        mostrarError("Error de red: " + t.getMessage());
+                        mostrarError("📵  Sin conexión\nConectate a internet para explorar actividades");
                         actualizarFooter();
                         Log.e(TAG, "onFailure", t);
                     }

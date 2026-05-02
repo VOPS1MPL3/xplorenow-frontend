@@ -31,7 +31,6 @@ public class MisReservasFragment extends Fragment {
     private static final String TAG = "MisReservasFragment";
 
     private TextView tvStatus;
-    private TextView tvOfflineBanner;
     private ListView lvReservas;
 
     private ReservaAdapter adapter;
@@ -62,7 +61,6 @@ public class MisReservasFragment extends Fragment {
         }
 
         tvStatus = view.findViewById(R.id.tvStatus);
-        tvOfflineBanner = view.findViewById(R.id.tvOfflineBanner);
         lvReservas = view.findViewById(R.id.lvReservas);
 
         adapter = new ReservaAdapter(requireContext(), reservas);
@@ -71,8 +69,6 @@ public class MisReservasFragment extends Fragment {
         new NetworkObserver(requireContext()).observe(getViewLifecycleOwner(), connected -> {
             boolean changed = (isOnline != connected);
             isOnline = connected;
-            tvOfflineBanner.setVisibility(connected ? View.GONE : View.VISIBLE);
-            
             if (changed) {
                 cargarReservas();
             }
@@ -107,7 +103,6 @@ public class MisReservasFragment extends Fragment {
             return;
         }
 
-        // Primera llamada: confirmadas
         reservaRepository.misReservas(EstadoReserva.CONFIRMADA).enqueue(
                 new Callback<List<ReservaDTO>>() {
                     @Override
@@ -119,7 +114,6 @@ public class MisReservasFragment extends Fragment {
                             reservas.addAll(body);
                             reservaRepository.guardarReservasLocal(body);
                         }
-                        // Despues de confirmadas, pedimos las canceladas
                         cargarCanceladas();
                     }
                     @Override
@@ -156,7 +150,7 @@ public class MisReservasFragment extends Fragment {
 
     private void mostrar() {
         if (reservas.isEmpty()) {
-            error("No tenes reservas activas");
+            error("No tenés reservas activas");
             return;
         }
         adapter.notifyDataSetChanged();

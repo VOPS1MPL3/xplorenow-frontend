@@ -18,19 +18,6 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
-        android:id="@+id/tvOfflineBanner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#FFF3E0"
-        android:padding="8dp"
-        android:text="Modo Offline: Mostrando reservas guardadas"
-        android:textColor="#E65100"
-        android:textSize="12sp"
-        android:textAlignment="center"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/toolbar"/>
-
-    <TextView
         android:id="@+id/tvStatus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -39,7 +26,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvOfflineBanner" />
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
     <ListView
         android:id="@+id/lvReservas"
@@ -53,6 +40,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvOfflineBanner" />
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
