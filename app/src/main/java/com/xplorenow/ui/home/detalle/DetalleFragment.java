@@ -18,6 +18,8 @@ import androidx.fragment.app.Fragment;
 import com.bumptech.glide.Glide;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.xplorenow.R;
+import com.xplorenow.util.SessionGuard;
+import com.xplorenow.util.TokenManager;
 import com.xplorenow.data.dto.ActividadDetalleDTO;
 import com.xplorenow.data.dto.FavoritoDTO;
 import com.xplorenow.data.repository.ActividadRepository;
@@ -57,6 +59,8 @@ public class DetalleFragment extends Fragment {
 
     @Inject
     ActividadRepository actividadRepository;
+    @Inject
+    TokenManager tokenManager;
     @Inject
     FavoritoRepository favoritoRepository;
 
@@ -113,13 +117,15 @@ public class DetalleFragment extends Fragment {
         cargarDetalle(actividadId);
         cargarEstadoFavorito(actividadId);
 
-        btnFavorito.setOnClickListener(v -> toggleFavorito());
+        btnFavorito.setOnClickListener(v -> SessionGuard.verificar(this, tokenManager, this::toggleFavorito));
 
         btnReservar.setOnClickListener(v -> {
-            Bundle args = new Bundle();
-            args.putLong("actividadId", actividadId);
-            Navigation.findNavController(v)
-                .navigate(R.id.action_detalle_to_horarios, args);
+            SessionGuard.verificar(this, tokenManager, () -> {
+                Bundle args = new Bundle();
+                args.putLong("actividadId", actividadId);
+                Navigation.findNavController(requireView())
+                        .navigate(R.id.action_detalle_to_horarios, args);
+            });
         });
     }
 

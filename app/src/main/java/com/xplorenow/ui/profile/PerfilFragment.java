@@ -110,6 +110,13 @@ public class PerfilFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Requiere sesion activa
+        if (!tokenManager.isTokenValid()) {
+            tokenManager.clearToken();
+            Navigation.findNavController(view).navigate(R.id.action_perfil_to_login);
+            return;
+        }
+
         toolbar = view.findViewById(R.id.toolbarPerfil);
         ivFoto = view.findViewById(R.id.ivFotoPerfil);
         btnCambiarFoto = view.findViewById(R.id.btnCambiarFoto);

@@ -11,7 +11,6 @@
         android:padding="24dp"
         android:gravity="center">
 
-        <!-- Logo -->
         <ImageView
             android:layout_width="120dp"
             android:layout_height="120dp"
@@ -57,7 +56,6 @@
             android:autofillHints="password"
             android:layout_marginBottom="8dp" />
 
-        <!-- Links: crear cuenta a la izquierda, olvide contrasena a la derecha -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

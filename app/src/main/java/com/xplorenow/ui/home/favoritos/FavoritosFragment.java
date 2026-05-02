@@ -16,6 +16,7 @@ import androidx.navigation.Navigation;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.xplorenow.R;
+import com.xplorenow.util.TokenManager;
 import com.xplorenow.data.dto.FavoritoDTO;
 import com.xplorenow.data.repository.FavoritoRepository;
 import com.xplorenow.ui.home.detalle.DetalleFragment;
@@ -30,25 +31,13 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-/**
- * Pantalla "Mis favoritos" (Punto 7 del TPO).
- *
- * Funcionalidad:
- *  - Lista las actividades marcadas como favoritas (GET /favoritos).
- *  - Tap en una card -> abre el detalle de la actividad (acceso rapido a reservar).
- *  - Tap en el corazon de la card -> quita de favoritos.
- *  - Si el backend reporta tieneNovedad=true para una actividad, muestra
- *    un badge "Bajo de precio" / "Hay mas cupos".
- *  - Recarga al volver a la pantalla (onResume) para reflejar cambios
- *    hechos desde el catalogo o el detalle.
- */
 @AndroidEntryPoint
 public class FavoritosFragment extends Fragment {
 
     private static final String TAG = "FavoritosFragment";
 
-    @Inject
-    FavoritoRepository favoritoRepository;
+    @Inject FavoritoRepository favoritoRepository;
+    @Inject TokenManager tokenManager;
 
     private TextView tvStatus;
     private ListView lvFavoritos;
@@ -68,11 +57,12 @@ public class FavoritosFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        MaterialToolbar toolbar = view.findViewById(R.id.toolbar);
-        // Esta pantalla cuelga del bottom nav, no necesita boton atras.
-        // Si en algun caso entra desde otra pantalla, mostrara el boton al
-        // setearlo aca.
-        // toolbar.setNavigationOnClickListener(v -> Navigation...popBackStack());
+        // Requiere sesión activa
+        if (!tokenManager.isTokenValid()) {
+            tokenManager.clearToken();
+            Navigation.findNavController(view).navigate(R.id.loginFragment);
+            return;
+        }
 
         tvStatus = view.findViewById(R.id.tvStatus);
         lvFavoritos = view.findViewById(R.id.lvFavoritos);
@@ -80,7 +70,6 @@ public class FavoritosFragment extends Fragment {
         adapter = new FavoritoAdapter(requireContext(), favoritos);
         lvFavoritos.setAdapter(adapter);
 
-        // Tap en una card -> ir al detalle de la actividad.
         lvFavoritos.setOnItemClickListener((parent, v, position, id) -> {
             FavoritoDTO f = favoritos.get(position);
             if (f.getActividadId() == null) return;
@@ -90,13 +79,18 @@ public class FavoritosFragment extends Fragment {
                     .navigate(R.id.action_favoritos_to_detalle, args);
         });
 
-        // Quitar de favoritos desde el corazon de la card.
         adapter.setOnQuitarListener(this::quitarFavorito);
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        // Si la sesión venció mientras estaba en pantalla, redirigir
+        if (!tokenManager.isTokenValid()) {
+            tokenManager.clearToken();
+            Navigation.findNavController(requireView()).navigate(R.id.loginFragment);
+            return;
+        }
         cargarFavoritos();
     }
 
@@ -138,15 +132,10 @@ public class FavoritosFragment extends Fragment {
         });
     }
 
-    /**
-     * Quita el favorito del backend. Optimistic update: lo sacamos de la lista
-     * al toque y, si la API falla, lo volvemos a poner.
-     */
     private void quitarFavorito(FavoritoDTO f) {
         if (f.getActividadId() == null) return;
         long actId = f.getActividadId();
 
-        // Guardar copia por si tenemos que revertir
         int posicion = favoritos.indexOf(f);
         favoritos.remove(f);
         adapter.notifyDataSetChanged();
@@ -159,8 +148,7 @@ public class FavoritosFragment extends Fragment {
                 if (!r.isSuccessful()) {
                     revertir(f, posicion);
                     Toast.makeText(requireContext(),
-                            "No se pudo quitar de favoritos",
-                            Toast.LENGTH_SHORT).show();
+                            "No se pudo quitar de favoritos", Toast.LENGTH_SHORT).show();
                 }
             }
             @Override

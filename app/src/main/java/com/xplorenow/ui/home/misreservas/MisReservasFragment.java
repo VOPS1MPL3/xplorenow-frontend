@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import com.xplorenow.R;
+import com.xplorenow.util.TokenManager;
 import com.xplorenow.data.dto.EstadoReserva;
 import com.xplorenow.data.dto.ReservaDTO;
 import com.xplorenow.data.repository.ReservaRepository;
@@ -26,7 +27,6 @@ import dagger.hilt.android.AndroidEntryPoint;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import androidx.navigation.Navigation;
 
 @AndroidEntryPoint
 public class MisReservasFragment extends Fragment {
@@ -43,8 +43,8 @@ public class MisReservasFragment extends Fragment {
     private final List<String> opcionesFiltro = Arrays.asList(
             "Todas", "Confirmadas", "Canceladas", "Finalizadas");
 
-    @Inject
-    ReservaRepository reservaRepository;
+    @Inject ReservaRepository reservaRepository;
+    @Inject TokenManager tokenManager;
 
     @Nullable
     @Override
@@ -58,8 +58,15 @@ public class MisReservasFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        spEstado = view.findViewById(R.id.spEstado);
-        tvStatus = view.findViewById(R.id.tvStatus);
+        // Requiere sesión activa — navegar al login si no hay token
+        if (!tokenManager.isTokenValid()) {
+            tokenManager.clearToken();
+            Navigation.findNavController(view).navigate(R.id.loginFragment);
+            return;
+        }
+
+        spEstado   = view.findViewById(R.id.spEstado);
+        tvStatus   = view.findViewById(R.id.tvStatus);
         lvReservas = view.findViewById(R.id.lvReservas);
 
         adapter = new ReservaAdapter(requireContext(), reservas);
@@ -84,7 +91,6 @@ public class MisReservasFragment extends Fragment {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                 cargarReservas(estadoSegunPosicion(pos));
             }
-
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
         });
@@ -117,7 +123,6 @@ public class MisReservasFragment extends Fragment {
                     error("Error HTTP " + response.code());
                 }
             }
-
             @Override
             public void onFailure(Call<List<ReservaDTO>> call, Throwable t) {
                 if (getView() == null) return;
