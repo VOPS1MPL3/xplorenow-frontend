@@ -114,4 +114,7 @@ public interface XploreNowApi {
 
     @DELETE("favoritos/{actividadId}")
     Call<Void> desmarcarFavorito(@Path("actividadId") long actividadId);
+
+    @GET("actividades/{id}/horarios/disponibles")
+    Call<List<HorarioDTO>> getHorariosDisponibles(@Path("id") long actividadId);
 }

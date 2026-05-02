@@ -52,7 +52,7 @@ public class DetalleFragment extends Fragment {
     private MaterialToolbar toolbar;
     private Button btnReservar;
     private ActividadDetalleDTO actividadActual;
-
+    
     /** Estado actual del corazon. Lo cargamos al entrar leyendo /favoritos. */
     private boolean esFavorita = false;
     private long actividadId = -1L;
