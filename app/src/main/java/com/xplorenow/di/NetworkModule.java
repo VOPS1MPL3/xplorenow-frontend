@@ -2,6 +2,7 @@ package com.xplorenow.di;
 
 import com.xplorenow.network.ApiService;
 import com.xplorenow.util.TokenManager;
+import java.util.concurrent.TimeUnit;
 import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
@@ -26,6 +27,15 @@ public class NetworkModule {
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
 
         return new OkHttpClient.Builder()
+                .connectTimeout(10, TimeUnit.SECONDS)
+                // Punto 12: /notificaciones/novedades sostiene la conexion hasta
+                // 25s del lado del servidor (long polling). Con el readTimeout
+                // default de OkHttp (10s) el cliente cortaria con
+                // SocketTimeoutException antes de que el servidor llegue a
+                // responder. Ver apunte "Camara QR y Notificaciones Long Polling",
+                // Consideracion 3: Resiliencia y Timeouts.
+                .readTimeout(35, TimeUnit.SECONDS)
+                .writeTimeout(15, TimeUnit.SECONDS)
                 .addInterceptor(chain -> {
                     Request original = chain.request();
                     String token = tokenManager.getToken();

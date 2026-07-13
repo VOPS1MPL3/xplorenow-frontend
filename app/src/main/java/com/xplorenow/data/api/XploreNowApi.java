@@ -11,6 +11,7 @@ import com.xplorenow.data.dto.DestinoDTO;
 import com.xplorenow.data.dto.FavoritoDTO;
 import com.xplorenow.data.dto.HorarioDTO;
 import com.xplorenow.data.dto.NoticiaDTO;
+import com.xplorenow.data.dto.NovedadDTO;
 import com.xplorenow.data.dto.PageResponseDTO;
 import com.xplorenow.data.dto.PerfilDTO;
 import com.xplorenow.data.dto.PreferenciasRequest;
@@ -117,4 +118,9 @@ public interface XploreNowApi {
 
     @GET("actividades/{id}/horarios/disponibles")
     Call<List<HorarioDTO>> getHorariosDisponibles(@Path("id") long actividadId);
+
+    // ===== Notificaciones (Punto 12 del TPO - long polling) =====
+
+    @GET("notificaciones/novedades")
+    Call<List<NovedadDTO>> obtenerNovedades(@Query("ultimaFecha") String ultimaFecha);
 }
