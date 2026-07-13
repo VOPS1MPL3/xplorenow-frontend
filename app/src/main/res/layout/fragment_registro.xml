@@ -79,23 +79,37 @@
                 android:autofillHints="phoneNumber"
                 android:layout_marginBottom="16dp" />
 
-            <EditText
-                android:id="@+id/etPassword"
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Contraseña"
-                android:inputType="textPassword"
-                android:autofillHints="newPassword"
-                android:layout_marginBottom="16dp" />
+                android:layout_marginBottom="16dp"
+                app:endIconMode="password_toggle">
 
-            <EditText
-                android:id="@+id/etPasswordConfirm"
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Contraseña"
+                    android:inputType="textPassword"
+                    android:autofillHints="newPassword" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Confirmar contraseña"
-                android:inputType="textPassword"
-                android:autofillHints="newPassword"
-                android:layout_marginBottom="32dp" />
+                android:layout_marginBottom="32dp"
+                app:endIconMode="password_toggle">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etPasswordConfirm"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Confirmar contraseña"
+                    android:inputType="textPassword"
+                    android:autofillHints="newPassword" />
+
+            </com.google.android.material.textfield.TextInputLayout>
 
             <Button
                 android:id="@+id/btnRegistrar"
