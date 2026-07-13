@@ -33,6 +33,8 @@ import dagger.hilt.android.AndroidEntryPoint;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import com.xplorenow.data.api.XploreNowApi;
+import com.xplorenow.data.dto.HorarioDTO;
 
 @AndroidEntryPoint
 public class DetalleFragment extends Fragment {
@@ -63,6 +65,9 @@ public class DetalleFragment extends Fragment {
     TokenManager tokenManager;
     @Inject
     FavoritoRepository favoritoRepository;
+    @Inject
+    XploreNowApi api;
+
 
     @Nullable
     @Override
@@ -279,6 +284,7 @@ public class DetalleFragment extends Fragment {
         tvPoliticaCancelacion.setText(d.getPoliticaCancelacion());
 
         cargarGaleria(d.getGaleriaUrls());
+        verificarHorariosDisponibles(d.getId());
     }
 
     private void cargarGaleria(List<String> urls) {
@@ -308,5 +314,30 @@ public class DetalleFragment extends Fragment {
         int mins = minutos % 60;
         if (mins == 0) return horas + " h";
         return horas + "h " + mins + "m";
+    }
+    private void verificarHorariosDisponibles(long actividadId) {
+    api.getHorariosDisponibles(actividadId).enqueue(new Callback<List<HorarioDTO>>() {
+        @Override
+        public void onResponse(Call<List<HorarioDTO>> call,
+                               Response<List<HorarioDTO>> response) {
+            if (getView() == null) return;
+            boolean hayHorarios = response.isSuccessful()
+                    && response.body() != null
+                    && !response.body().isEmpty();
+
+            if (!hayHorarios) {
+                btnReservar.setEnabled(false);
+                btnReservar.setText("Actualmente no hay horarios disponibles");
+                btnReservar.setBackgroundTintList(
+                        android.content.res.ColorStateList.valueOf(
+                                android.graphics.Color.parseColor("#9E9E9E")));
+            }
+        }
+
+        @Override
+        public void onFailure(Call<List<HorarioDTO>> call, Throwable t) {
+            Log.e(TAG, "verificarHorariosDisponibles onFailure", t);
+            }
+        });
     }
 }
