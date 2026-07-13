@@ -263,8 +263,10 @@ public class ReservaDetalleFragment extends Fragment {
         if (d.getEstado() == EstadoReserva.CONFIRMADA) {
         btnEscanearQr.setVisibility(View.VISIBLE);
         btnEscanearQr.setOnClickListener(v -> {
-            Toast.makeText(requireContext(),
-            "Escáner QR próximamente", Toast.LENGTH_SHORT).show();
+            Bundle args = new Bundle();
+            args.putString("voucherCodigo", d.getVoucherCodigo());
+            Navigation.findNavController(v)
+            .navigate(R.id.action_reservaDetalle_to_qrScanner, args);
         });
         } else {
             btnEscanearQr.setVisibility(View.GONE);

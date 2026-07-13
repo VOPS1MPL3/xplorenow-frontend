@@ -133,12 +133,15 @@
         android:name="com.xplorenow.ui.home.misreservas.detalle.ReservaDetalleFragment"
         android:label="Detalle de reserva"
         tools:layout="@layout/fragment_reserva_detalle">
-        <argument
-            android:name="reservaId"
-            app:argType="long" />
-        <action
-            android:id="@+id/action_reservaDetalle_to_calificacion"
-            app:destination="@id/calificacionFragment" />
+    <argument
+        android:name="reservaId"
+        app:argType="long" />
+    <action
+        android:id="@+id/action_reservaDetalle_to_calificacion"
+        app:destination="@id/calificacionFragment" />
+    <action
+        android:id="@+id/action_reservaDetalle_to_qrScanner"
+        app:destination="@id/qrScannerFragment" />
     </fragment>
 
     <fragment
@@ -240,6 +243,35 @@
             app:destination="@id/loginFragment"
             app:popUpTo="@id/loginFragment"
             app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/qrScannerFragment"
+        android:name="com.xplorenow.ui.home.misreservas.qr.QrScannerFragment"
+        android:label="Escanear QR"
+        tools:layout="@layout/fragment_qr_scanner">
+    <argument
+        android:name="voucherCodigo"
+        app:argType="string"
+        android:defaultValue="" />
+    <action
+        android:id="@+id/action_qrScanner_to_checkinResultado"
+        app:destination="@id/checkinResultadoFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/checkinResultadoFragment"
+        android:name="com.xplorenow.ui.home.misreservas.qr.CheckinResultadoFragment"
+        android:label="Resultado Check-in"
+        tools:layout="@layout/fragment_checkin_resultado">
+        <argument
+            android:name="exitoso"
+            app:argType="boolean"
+            android:defaultValue="false" />
+        <argument
+            android:name="mensajeQr"
+            app:argType="string"
+            android:defaultValue="" />
     </fragment>
 
 </navigation>
