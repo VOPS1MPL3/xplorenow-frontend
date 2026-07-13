@@ -63,6 +63,12 @@ public class OlvideContrasenaFragment extends Fragment {
                         Toast.LENGTH_SHORT).show();
                 return;
             }
+            if (!email.contains("@") || !email.contains(".")) {
+                Toast.makeText(requireContext(),
+                        "El formato del email no es válido",
+                        Toast.LENGTH_SHORT).show();
+                return;
+            }
 
             btnEnviarCodigo.setEnabled(false);
 
