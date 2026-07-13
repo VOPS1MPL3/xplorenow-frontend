@@ -74,6 +74,10 @@ public class LoginFragment extends Fragment {
                 Toast.makeText(requireContext(), "Completá todos los campos", Toast.LENGTH_SHORT).show();
                 return;
             }
+            if (!email.contains("@") || !email.contains(".")) {
+                Toast.makeText(requireContext(), "El formato del email no es válido", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
             apiService.login(new LoginRequest(email, password))
                     .enqueue(new Callback<AuthResponse>() {
