@@ -38,6 +38,12 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import android.graphics.Bitmap;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
+
 @AndroidEntryPoint
 public class ReservaDetalleFragment extends Fragment {
 
@@ -63,6 +69,9 @@ public class ReservaDetalleFragment extends Fragment {
     private Double latitud = null;
     private Double longitud = null;
     private boolean isOnline = true;
+
+    private ImageView ivQr;
+    private Button btnEscanearQr;
 
     @Inject
     ReservaRepository reservaRepository;
@@ -101,6 +110,8 @@ public class ReservaDetalleFragment extends Fragment {
         tvRatingActividad           = view.findViewById(R.id.tvRatingActividad);
         tvRatingGuia                = view.findViewById(R.id.tvRatingGuia);
         tvComentario                = view.findViewById(R.id.tvComentario);
+        ivQr                        = view.findViewById(R.id.ivQr);
+        btnEscanearQr               = view.findViewById(R.id.btnEscanearQr);
 
         toolbar.setNavigationOnClickListener(v ->
                 Navigation.findNavController(v).popBackStack());
@@ -137,6 +148,25 @@ public class ReservaDetalleFragment extends Fragment {
 
         cargarDetalle(reservaIdActual);
     }
+    private void generarQr(String contenido) {
+        try {
+            QRCodeWriter writer = new QRCodeWriter();
+            BitMatrix bitMatrix = writer.encode(contenido, BarcodeFormat.QR_CODE, 512, 512);
+            int width = bitMatrix.getWidth();
+            int height = bitMatrix.getHeight();
+            Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < height; y++) {
+                    bitmap.setPixel(x, y, bitMatrix.get(x, y)
+                            ? android.graphics.Color.BLACK
+                            : android.graphics.Color.WHITE);
+                }
+            }
+            ivQr.setImageBitmap(bitmap);
+        } catch (WriterException e) {
+        Log.e(TAG, "Error generando QR", e);
+        }
+        }
 
     private void cargarDetalle(long id) {
         if (!isOnline) {
@@ -223,6 +253,21 @@ public class ReservaDetalleFragment extends Fragment {
 
         if (d.getEstado() == EstadoReserva.FINALIZADA) {
             verificarCalificacion();
+        }
+        // Generar QR con el codigo del voucher
+        if (d.getVoucherCodigo() != null) {
+        generarQr(d.getVoucherCodigo());
+        }
+
+        // Mostrar boton de escaneo solo para reservas CONFIRMADAS
+        if (d.getEstado() == EstadoReserva.CONFIRMADA) {
+        btnEscanearQr.setVisibility(View.VISIBLE);
+        btnEscanearQr.setOnClickListener(v -> {
+            Toast.makeText(requireContext(),
+            "Escáner QR próximamente", Toast.LENGTH_SHORT).show();
+        });
+        } else {
+            btnEscanearQr.setVisibility(View.GONE);
         }
     }
 
