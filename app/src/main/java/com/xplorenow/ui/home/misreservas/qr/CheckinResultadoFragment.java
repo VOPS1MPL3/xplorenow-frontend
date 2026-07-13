@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import com.xplorenow.R;
+import androidx.fragment.app.FragmentResultListener;
 
 public class CheckinResultadoFragment extends Fragment {
 
@@ -40,6 +41,11 @@ public class CheckinResultadoFragment extends Fragment {
             tvTitulo.setTextColor(android.graphics.Color.parseColor("#1B5E20"));
             tvMensaje.setText("Tu check-in fue registrado correctamente. ¡Disfrutá la actividad!");
             tvMensaje.setTextColor(android.graphics.Color.parseColor("#2E7D32"));
+
+            Bundle resultado = new Bundle();
+            resultado.putBoolean("checkinExitoso", true);
+            getParentFragmentManager().setFragmentResult("checkin_result", resultado);
+        
         } else {
             view.setBackgroundColor(android.graphics.Color.parseColor("#FFEBEE"));
             tvIcono.setText("❌");
@@ -48,7 +54,7 @@ public class CheckinResultadoFragment extends Fragment {
             tvMensaje.setText("El código QR escaneado no corresponde a esta reserva. Verificá que estés escaneando el QR correcto.");
             tvMensaje.setTextColor(android.graphics.Color.parseColor("#C62828"));
         }
-
+        
         btnVolver.setOnClickListener(v ->
                 Navigation.findNavController(v).popBackStack(
                         R.id.reservaDetalleFragment, false));

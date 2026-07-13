@@ -43,6 +43,7 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
+import android.content.SharedPreferences;
 
 @AndroidEntryPoint
 public class ReservaDetalleFragment extends Fragment {
@@ -146,8 +147,29 @@ public class ReservaDetalleFragment extends Fragment {
             }
         });
 
+        // Escuchar resultado del check-in por QR
+        getParentFragmentManager().setFragmentResultListener(
+        "checkin_result",
+        getViewLifecycleOwner(),
+        (requestKey, bundle) -> {
+            if (bundle.getBoolean("checkinExitoso", false) && reservaActual != null) {
+                requireContext()
+                        .getSharedPreferences("checkins", 0)
+                        .edit()
+                        .putBoolean("checkin_" + reservaActual.getVoucherCodigo(), true)
+                        .apply();
+
+                btnEscanearQr.setEnabled(false);
+                btnEscanearQr.setText("Check-in realizado ✓");
+                btnEscanearQr.setBackgroundTintList(
+                        android.content.res.ColorStateList.valueOf(
+                                android.graphics.Color.parseColor("#4CAF50")));
+            }
+        });
+
         cargarDetalle(reservaIdActual);
     }
+
     private void generarQr(String contenido) {
         try {
             QRCodeWriter writer = new QRCodeWriter();
@@ -164,9 +186,9 @@ public class ReservaDetalleFragment extends Fragment {
             }
             ivQr.setImageBitmap(bitmap);
         } catch (WriterException e) {
-        Log.e(TAG, "Error generando QR", e);
+            Log.e(TAG, "Error generando QR", e);
         }
-        }
+    }
 
     private void cargarDetalle(long id) {
         if (!isOnline) {
@@ -256,20 +278,38 @@ public class ReservaDetalleFragment extends Fragment {
         }
         // Generar QR con el codigo del voucher
         if (d.getVoucherCodigo() != null) {
-        generarQr(d.getVoucherCodigo());
+            generarQr(d.getVoucherCodigo());
         }
 
         // Mostrar boton de escaneo solo para reservas CONFIRMADAS
         if (d.getEstado() == EstadoReserva.CONFIRMADA) {
+    boolean yaEscaneado = requireContext()
+            .getSharedPreferences("checkins", 0)
+            .getBoolean("checkin_" + d.getVoucherCodigo(), false);
+
+    if (yaEscaneado) {
         btnEscanearQr.setVisibility(View.VISIBLE);
+        btnEscanearQr.setEnabled(false);
+        btnEscanearQr.setText("Check-in realizado ✓");
+        btnEscanearQr.setBackgroundTintList(
+                android.content.res.ColorStateList.valueOf(
+                        android.graphics.Color.parseColor("#4CAF50")));
+    } else {
+        btnEscanearQr.setVisibility(View.VISIBLE);
+        btnEscanearQr.setEnabled(true);
+        btnEscanearQr.setText("Escanear QR del guía");
+        btnEscanearQr.setBackgroundTintList(
+                android.content.res.ColorStateList.valueOf(
+                        android.graphics.Color.parseColor("#6200EE")));
         btnEscanearQr.setOnClickListener(v -> {
             Bundle args = new Bundle();
             args.putString("voucherCodigo", d.getVoucherCodigo());
             Navigation.findNavController(v)
-            .navigate(R.id.action_reservaDetalle_to_qrScanner, args);
-        });
+                    .navigate(R.id.action_reservaDetalle_to_qrScanner, args);
+            });
+        }
         } else {
-            btnEscanearQr.setVisibility(View.GONE);
+        btnEscanearQr.setVisibility(View.GONE);
         }
     }
 
