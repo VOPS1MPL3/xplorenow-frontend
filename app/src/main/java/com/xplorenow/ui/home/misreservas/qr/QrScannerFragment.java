@@ -41,6 +41,7 @@ public class QrScannerFragment extends Fragment {
     private ExecutorService cameraExecutor;
     private boolean yaEscaneado = false;
     private String voucherEsperado;
+    private ProcessCameraProvider cameraProvider;
 
     private final ActivityResultLauncher<String> permisoCamara =
             registerForActivityResult(
@@ -83,60 +84,60 @@ public class QrScannerFragment extends Fragment {
     }
 
     private void iniciarCamara() {
-        ListenableFuture<ProcessCameraProvider> future =
-                ProcessCameraProvider.getInstance(requireContext());
+    ListenableFuture<ProcessCameraProvider> future =
+            ProcessCameraProvider.getInstance(requireContext());
 
-        future.addListener(() -> {
-            try {
-                ProcessCameraProvider cameraProvider = future.get();
+    future.addListener(() -> {
+        try {
+            cameraProvider = future.get();  // ← sin "ProcessCameraProvider" adelante
 
-                Preview preview = new Preview.Builder().build();
-                preview.setSurfaceProvider(previewView.getSurfaceProvider());
+            Preview preview = new Preview.Builder().build();
+            preview.setSurfaceProvider(previewView.getSurfaceProvider());
 
-                BarcodeScannerOptions options = new BarcodeScannerOptions.Builder()
-                        .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
-                        .build();
-                BarcodeScanner scanner = BarcodeScanning.getClient(options);
+            BarcodeScannerOptions options = new BarcodeScannerOptions.Builder()
+                    .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
+                    .build();
+            BarcodeScanner scanner = BarcodeScanning.getClient(options);
 
-                ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
-                        .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                        .build();
+            ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
+                    .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                    .build();
 
-                imageAnalysis.setAnalyzer(cameraExecutor, imageProxy -> {
-                    if (yaEscaneado) {
-                        imageProxy.close();
-                        return;
-                    }
+            imageAnalysis.setAnalyzer(cameraExecutor, imageProxy -> {
+                if (yaEscaneado) {
+                    imageProxy.close();
+                    return;
+                }
 
-                    @SuppressWarnings("UnsafeOptInUsageError")
-                    InputImage image = InputImage.fromMediaImage(
-                            imageProxy.getImage(),
-                            imageProxy.getImageInfo().getRotationDegrees());
+                @SuppressWarnings("UnsafeOptInUsageError")
+                InputImage image = InputImage.fromMediaImage(
+                        imageProxy.getImage(),
+                        imageProxy.getImageInfo().getRotationDegrees());
 
-                    scanner.process(image)
-                            .addOnSuccessListener(barcodes -> {
-                                for (Barcode barcode : barcodes) {
-                                    String valor = barcode.getRawValue();
-                                    if (valor != null && !yaEscaneado) {
-                                        yaEscaneado = true;
-                                        procesarQr(valor);
-                                    }
+                scanner.process(image)
+                        .addOnSuccessListener(barcodes -> {
+                            for (Barcode barcode : barcodes) {
+                                String valor = barcode.getRawValue();
+                                if (valor != null && !yaEscaneado) {
+                                    yaEscaneado = true;
+                                    procesarQr(valor);
                                 }
-                            })
-                            .addOnFailureListener(e ->
-                                    Log.e(TAG, "Error escaneando", e))
-                            .addOnCompleteListener(task -> imageProxy.close());
-                });
+                            }
+                        })
+                        .addOnFailureListener(e ->
+                                Log.e(TAG, "Error escaneando", e))
+                        .addOnCompleteListener(task -> imageProxy.close());
+            });
 
-                CameraSelector cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
-                cameraProvider.unbindAll();
-                cameraProvider.bindToLifecycle(
-                        getViewLifecycleOwner(), cameraSelector, preview, imageAnalysis);
+            CameraSelector cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
+            cameraProvider.unbindAll();
+            cameraProvider.bindToLifecycle(
+                    getViewLifecycleOwner(), cameraSelector, preview, imageAnalysis);
 
-            } catch (ExecutionException | InterruptedException e) {
-                Log.e(TAG, "Error iniciando camara", e);
-            }
-        }, ContextCompat.getMainExecutor(requireContext()));
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e(TAG, "Error iniciando camara", e);
+        }
+    }, ContextCompat.getMainExecutor(requireContext()));
     }
 
     private void procesarQr(String valorLeido) {
@@ -154,8 +155,19 @@ public class QrScannerFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        if (cameraProvider != null) {
+            cameraProvider.unbindAll();
+            cameraProvider = null;
+        }
         if (cameraExecutor != null) {
             cameraExecutor.shutdown();
+            cameraExecutor = null;
         }
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        yaEscaneado = false;
+    }   
 }
