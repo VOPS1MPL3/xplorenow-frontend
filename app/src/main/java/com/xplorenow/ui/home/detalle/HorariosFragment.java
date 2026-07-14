@@ -194,6 +194,8 @@ public class HorariosFragment extends Fragment {
                 if (getView() == null) return;
                 if (response.isSuccessful() && response.body() != null) {
                     ReservaDetalleDTO detalle = response.body();
+                    // Persistir al confirmar para que voucher/detalle estén offline
+                    reservaRepository.guardarReservaLocal(detalle);
                     Bundle args = new Bundle();
                     args.putLong("reservaId", detalle.getId());
                     Navigation.findNavController(requireView())
@@ -201,7 +203,15 @@ public class HorariosFragment extends Fragment {
                 } else {
                     btnReservar.setEnabled(true);
                     btnReservar.setText("Confirmar reserva");
-                    mostrarError("Error al reservar: " + response.code());
+                    if (response.code() == 409 || response.code() == 400) {
+                        Toast.makeText(requireContext(),
+                                "Ya no hay cupos disponibles para este horario",
+                                Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(requireContext(),
+                                "Error al reservar: " + response.code(),
+                                Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
 
