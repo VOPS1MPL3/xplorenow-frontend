@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,6 +20,7 @@ import com.xplorenow.notificacion.NotificacionPollingService;
 import com.xplorenow.util.NetworkObserver;
 import com.xplorenow.util.TokenManager;
 import dagger.hilt.android.AndroidEntryPoint;
+import java.util.List;
 import javax.inject.Inject;
 
 @AndroidEntryPoint
@@ -56,9 +58,9 @@ public class MainActivity extends AppCompatActivity {
             if (tvOfflineBanner != null) {
                 if (isConnected) {
                     tvOfflineBanner.setVisibility(View.GONE);
-                    // Solo sincronizar si hay internet Y el usuario está logueado
+                    // Cancelaciones pendientes + refresco del cache local
                     if (reservaRepository != null && tokenManager.isTokenValid()) {
-                        reservaRepository.sincronizarAccionesPendientes();
+                        reservaRepository.sincronizarAlReconectar(this::mostrarCancelacionesRechazadas);
                     }
                 } else {
                     tvOfflineBanner.setVisibility(View.VISIBLE);
@@ -125,6 +127,23 @@ public class MainActivity extends AppCompatActivity {
         if (reservaIdDeNotificacion != null && navController != null) {
             abrirVoucher(reservaIdDeNotificacion);
         }
+    }
+
+    private void mostrarCancelacionesRechazadas(int cantidad, List<String> nombres) {
+        runOnUiThread(() -> {
+            if (isFinishing()) return;
+            String mensaje;
+            if (cantidad == 1) {
+                String nombre = (nombres != null && !nombres.isEmpty())
+                        ? nombres.get(0) : "una reserva";
+                mensaje = "No se pudo cancelar \"" + nombre
+                        + "\". La reserva volvió a aparecer como confirmada.";
+            } else {
+                mensaje = "No se pudieron sincronizar " + cantidad
+                        + " cancelaciones. Esas reservas volvieron a estar confirmadas.";
+            }
+            Toast.makeText(this, mensaje, Toast.LENGTH_LONG).show();
+        });
     }
 
     private Long extraerReservaIdDeIntent(Intent intent) {

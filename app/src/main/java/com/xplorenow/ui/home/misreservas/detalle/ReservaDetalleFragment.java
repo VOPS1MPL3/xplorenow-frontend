@@ -1,8 +1,6 @@
 package com.xplorenow.ui.home.misreservas.detalle;
 
-import android.content.Intent;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -67,9 +65,8 @@ public class ReservaDetalleFragment extends Fragment {
     private String fechaActividad  = "";
     private String horaActividad   = "";
     private ReservaDetalleDTO reservaActual;
-    private Double latitud = null;
-    private Double longitud = null;
     private boolean isOnline = true;
+    private TextView tvOfflineBanner;
 
     private ImageView ivQr;
     private Button btnEscanearQr;
@@ -113,12 +110,21 @@ public class ReservaDetalleFragment extends Fragment {
         tvComentario                = view.findViewById(R.id.tvComentario);
         ivQr                        = view.findViewById(R.id.ivQr);
         btnEscanearQr               = view.findViewById(R.id.btnEscanearQr);
+        tvOfflineBanner             = view.findViewById(R.id.tvOfflineBanner);
 
         toolbar.setNavigationOnClickListener(v ->
                 Navigation.findNavController(v).popBackStack());
 
         new NetworkObserver(requireContext()).observe(getViewLifecycleOwner(), connected -> {
+            boolean estabaOffline = !isOnline;
             isOnline = connected;
+            if (tvOfflineBanner != null) {
+                tvOfflineBanner.setVisibility(connected ? View.GONE : View.VISIBLE);
+            }
+            // Al recuperar red, refrescar detalle desde el servidor
+            if (connected && estabaOffline && reservaIdActual >= 0) {
+                cargarDetalle(reservaIdActual);
+            }
         });
 
         btnVerMapa.setOnClickListener(v -> {
@@ -206,9 +212,8 @@ public class ReservaDetalleFragment extends Fragment {
                     mostrar(dto);
                     reservaRepository.guardarReservaLocal(dto);
                 } else {
-                    Toast.makeText(requireContext(),
-                            "No se pudo cargar la reserva",
-                            Toast.LENGTH_SHORT).show();
+                    Log.w(TAG, "Detalle HTTP " + response.code() + ", intentando offline");
+                    cargarOffline(id);
                 }
             }
 
@@ -241,8 +246,6 @@ public class ReservaDetalleFragment extends Fragment {
         actividadNombre = d.getActividadNombre() != null ? d.getActividadNombre() : "";
         fechaActividad  = d.getFecha()           != null ? d.getFecha()           : "";
         horaActividad   = d.getHora()            != null ? d.getHora()            : "";
-        latitud         = d.getLatitud();
-        longitud        = d.getLongitud();
 
         Glide.with(this)
                 .load(d.getActividadImagen())
@@ -409,19 +412,6 @@ public class ReservaDetalleFragment extends Fragment {
         args.putString(CalificacionFragment.ARG_ACTIVIDAD_NOMBRE, actividadNombre);
         Navigation.findNavController(view)
                 .navigate(R.id.action_reservaDetalle_to_calificacion, args);
-    }
-
-    private void abrirMapa(double lat, double lng) {
-        Uri gmmIntentUri = Uri.parse("google.navigation:q=" + lat + "," + lng);
-        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-        mapIntent.setPackage("com.google.android.apps.maps");
-
-        if (mapIntent.resolveActivity(requireActivity().getPackageManager()) != null) {
-            startActivity(mapIntent);
-        } else {
-            Uri webUri = Uri.parse("https://www.google.com/maps/search/?api=1&query=" + lat + "," + lng);
-            startActivity(new Intent(Intent.ACTION_VIEW, webUri));
-        }
     }
 
     private int colorPara(EstadoReserva e) {

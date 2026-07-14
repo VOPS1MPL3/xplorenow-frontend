@@ -23,6 +23,7 @@ import com.xplorenow.data.repository.CatalogoRepository;
 import com.xplorenow.data.repository.ReservaRepository;
 import com.xplorenow.ui.home.misreservas.ReservaAdapter;
 import com.xplorenow.ui.home.misreservas.detalle.ReservaDetalleFragment;
+import com.xplorenow.util.NetworkObserver;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
