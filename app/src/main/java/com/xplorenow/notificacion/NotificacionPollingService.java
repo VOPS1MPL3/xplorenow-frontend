@@ -23,6 +23,8 @@ import javax.inject.Inject;
 public class NotificacionPollingService extends Service {
 
     public static final String CHANNEL_ID = "xplorenow_novedades";
+    public static final String CHANNEL_ID_FOREGROUND = "xplorenow_servicio";
+    private static final int NOTIF_ID_FOREGROUND = 1000;
     public static final String EXTRA_RESERVA_ID = "reserva_id";
 
     @Inject NotificacionRepository notificacionRepository;
@@ -34,10 +36,15 @@ public class NotificacionPollingService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        // Foreground service: le pide al sistema que no mate el proceso
+        // cuando la app pasa a background. A cambio, Android exige mostrar
+        // una notificacion persistente mientras el service corre.
+        startForeground(NOTIF_ID_FOREGROUND, construirNotificacionDelServicio());
+
         activo.set(true);
         pollingThread = new Thread(this::loopDePolling, "notificaciones-polling");
         pollingThread.start();
-
     }
 
     @Override
@@ -85,6 +92,32 @@ public class NotificacionPollingService extends Service {
         }
     }
 
+
+    /**
+     * Notificacion persistente obligatoria para un foreground service.
+     * Android la exige como contrapartida: a cambio de no matar el proceso
+     * cuando la app pasa a background, el usuario tiene que ver que la app
+     * esta corriendo algo. Va en un canal LOW para no sonar ni molestar.
+     */
+    private Notification construirNotificacionDelServicio() {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+        int piFlags = PendingIntent.FLAG_UPDATE_CURRENT;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            piFlags |= PendingIntent.FLAG_IMMUTABLE;
+        }
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, piFlags);
+
+        return new NotificationCompat.Builder(this, CHANNEL_ID_FOREGROUND)
+                .setSmallIcon(R.drawable.ic_notification_bell)
+                .setContentTitle("XploreNow")
+                .setContentText("Escuchando novedades de tus actividades")
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setOngoing(true)
+                .setContentIntent(pendingIntent)
+                .build();
+    }
     private void mostrarNotificacion(NovedadDTO novedad) {
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
