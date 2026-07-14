@@ -47,6 +47,7 @@ public class HistorialFragment extends Fragment {
     private ReservaAdapter adapter;
     private final List<ReservaDTO> reservas = new ArrayList<>();
     private final List<DestinoDTO> destinos = new ArrayList<>();
+    private boolean isOnline = true;
 
     @Inject
     ReservaRepository reservaRepository;
@@ -100,6 +101,14 @@ public class HistorialFragment extends Fragment {
             cargar();
         });
 
+        new NetworkObserver(requireContext()).observe(getViewLifecycleOwner(), connected -> {
+            boolean cambioEstado = (isOnline != connected);
+            isOnline = connected;
+            if (cambioEstado && isAdded()) {
+                cargar();
+            }
+        });
+
         cargarDestinos();
         cargar();
     }
@@ -146,6 +155,11 @@ public class HistorialFragment extends Fragment {
         tvStatus.setText("Cargando...");
         tvStatus.setVisibility(View.VISIBLE);
         lvHistorial.setVisibility(View.GONE);
+
+        if (!isOnline) {
+            error("📵  Sin conexión\nConectate a internet para ver el historial");
+            return;
+        }
 
         Long destinoId = null;
         int pos = spDestino.getSelectedItemPosition();
