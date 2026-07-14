@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -32,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
     ReservaRepository reservaRepository;
 
     private BottomNavigationView bottomNav;
-    private View tvOfflineBanner;
+    private TextView tvOfflineBanner;
     private NavController navController;
 
     private final ActivityResultLauncher<String> permisoNotificacionesLauncher =
@@ -50,21 +51,17 @@ public class MainActivity extends AppCompatActivity {
 
         bottomNav = findViewById(R.id.bottomNav);
         tvOfflineBanner = findViewById(R.id.tvOfflineBanner);
+        if (tvOfflineBanner != null) {
+            tvOfflineBanner.setText("Sin conexión Wi‑Fi / internet — Modo offline");
+        }
 
         pedirPermisoNotificacionesSiHaceFalta();
 
-        // Observar estado de conexión para el Modo Offline y Sincronización
+        // Banner global: visible en todas las pantallas mientras no haya red
         new NetworkObserver(this).observe(this, isConnected -> {
-            if (tvOfflineBanner != null) {
-                if (isConnected) {
-                    tvOfflineBanner.setVisibility(View.GONE);
-                    // Cancelaciones pendientes + refresco del cache local
-                    if (reservaRepository != null && tokenManager.isTokenValid()) {
-                        reservaRepository.sincronizarAlReconectar(this::mostrarCancelacionesRechazadas);
-                    }
-                } else {
-                    tvOfflineBanner.setVisibility(View.VISIBLE);
-                }
+            actualizarBannerOffline(!isConnected);
+            if (isConnected && reservaRepository != null && tokenManager.isTokenValid()) {
+                reservaRepository.sincronizarAlReconectar(this::mostrarCancelacionesRechazadas);
             }
         });
 
@@ -126,6 +123,17 @@ public class MainActivity extends AppCompatActivity {
         Long reservaIdDeNotificacion = extraerReservaIdDeIntent(intent);
         if (reservaIdDeNotificacion != null && navController != null) {
             abrirVoucher(reservaIdDeNotificacion);
+        }
+    }
+
+    private void actualizarBannerOffline(boolean sinConexion) {
+        if (tvOfflineBanner == null) return;
+        if (sinConexion) {
+            tvOfflineBanner.setText("Sin conexión Wi‑Fi / internet — Modo offline");
+            tvOfflineBanner.setVisibility(View.VISIBLE);
+            tvOfflineBanner.bringToFront();
+        } else {
+            tvOfflineBanner.setVisibility(View.GONE);
         }
     }
 
