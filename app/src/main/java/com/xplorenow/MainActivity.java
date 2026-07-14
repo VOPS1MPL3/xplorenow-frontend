@@ -167,7 +167,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void iniciarServicioNotificaciones() {
-        startService(new Intent(this, NotificacionPollingService.class));
+        androidx.core.content.ContextCompat.startForegroundService(
+                this, new Intent(this, NotificacionPollingService.class));
     }
 
     private void detenerServicioNotificaciones() {
