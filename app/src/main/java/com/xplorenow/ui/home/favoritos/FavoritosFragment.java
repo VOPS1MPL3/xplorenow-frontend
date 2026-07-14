@@ -18,6 +18,7 @@ import androidx.navigation.Navigation;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.xplorenow.R;
+import com.xplorenow.util.NetworkObserver;
 import com.xplorenow.util.TokenManager;
 import com.xplorenow.data.dto.FavoritoDTO;
 import com.xplorenow.data.repository.FavoritoRepository;
@@ -45,6 +46,7 @@ public class FavoritosFragment extends Fragment {
     private ImageView ivEstadoIcono;
     private LinearLayout llEstadoVacio;
     private ListView lvFavoritos;
+    private boolean isOnline = true;
 
     private FavoritoAdapter adapter;
     private final List<FavoritoDTO> favoritos = new ArrayList<>();
@@ -75,6 +77,14 @@ public class FavoritosFragment extends Fragment {
         adapter = new FavoritoAdapter(requireContext(), favoritos);
         lvFavoritos.setAdapter(adapter);
 
+        new NetworkObserver(requireContext()).observe(getViewLifecycleOwner(), connected -> {
+            boolean cambioEstado = (isOnline != connected);
+            isOnline = connected;
+            if (cambioEstado && isAdded()) {
+                cargarFavoritos();
+            }
+        });
+
         lvFavoritos.setOnItemClickListener((parent, v, position, id) -> {
             FavoritoDTO f = favoritos.get(position);
             if (f.getActividadId() == null) return;
@@ -103,6 +113,14 @@ public class FavoritosFragment extends Fragment {
         ivEstadoIcono.setVisibility(View.GONE);
         llEstadoVacio.setVisibility(View.VISIBLE);
         lvFavoritos.setVisibility(View.GONE);
+
+        if (!isOnline) {
+            tvStatus.setText("📵  Sin conexión\nConectate a internet para ver tus favoritos");
+            ivEstadoIcono.setVisibility(View.VISIBLE);
+            llEstadoVacio.setVisibility(View.VISIBLE);
+            lvFavoritos.setVisibility(View.GONE);
+            return;
+        }
 
         favoritoRepository.misFavoritos().enqueue(new Callback<List<FavoritoDTO>>() {
             @Override
