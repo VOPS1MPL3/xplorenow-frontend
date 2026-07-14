@@ -123,4 +123,7 @@ public interface XploreNowApi {
 
     @GET("notificaciones/novedades")
     Call<List<NovedadDTO>> obtenerNovedades(@Query("ultimaFecha") String ultimaFecha);
+
+    @GET("notificaciones/pendientes")
+    Call<List<NovedadDTO>> obtenerPendientes();
 }

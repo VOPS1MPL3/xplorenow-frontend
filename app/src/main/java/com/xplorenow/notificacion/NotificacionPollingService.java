@@ -48,6 +48,15 @@ public class NotificacionPollingService extends Service {
     private void loopDePolling() {
         String ultimaFecha = null;
 
+        // Sincronizacion inicial: novedades generadas con la app cerrada
+        // (el long polling solo ve lo que pasa desde que se conecta).
+        if (tokenManager.isTokenValid()) {
+            for (NovedadDTO n : notificacionRepository.obtenerPendientes()) {
+                mostrarNotificacion(n);
+                ultimaFecha = n.getFecha();
+            }
+        }
+
         while (activo.get()) {
             try {
                 if (!tokenManager.isTokenValid()) {
