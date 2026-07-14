@@ -6,6 +6,8 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,6 +21,7 @@ import com.xplorenow.notificacion.NotificacionPollingService;
 import com.xplorenow.util.NetworkObserver;
 import com.xplorenow.util.TokenManager;
 import dagger.hilt.android.AndroidEntryPoint;
+import java.util.List;
 import javax.inject.Inject;
 
 @AndroidEntryPoint
@@ -30,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
     ReservaRepository reservaRepository;
 
     private BottomNavigationView bottomNav;
-    private View tvOfflineBanner;
+    private TextView tvOfflineBanner;
     private NavController navController;
 
     private final ActivityResultLauncher<String> permisoNotificacionesLauncher =
@@ -48,21 +51,17 @@ public class MainActivity extends AppCompatActivity {
 
         bottomNav = findViewById(R.id.bottomNav);
         tvOfflineBanner = findViewById(R.id.tvOfflineBanner);
+        if (tvOfflineBanner != null) {
+            tvOfflineBanner.setText("Sin conexión Wi‑Fi / internet — Modo offline");
+        }
 
         pedirPermisoNotificacionesSiHaceFalta();
 
-        // Observar estado de conexión para el Modo Offline y Sincronización
+        // Banner global: visible en todas las pantallas mientras no haya red
         new NetworkObserver(this).observe(this, isConnected -> {
-            if (tvOfflineBanner != null) {
-                if (isConnected) {
-                    tvOfflineBanner.setVisibility(View.GONE);
-                    // Solo sincronizar si hay internet Y el usuario está logueado
-                    if (reservaRepository != null && tokenManager.isTokenValid()) {
-                        reservaRepository.sincronizarAccionesPendientes();
-                    }
-                } else {
-                    tvOfflineBanner.setVisibility(View.VISIBLE);
-                }
+            actualizarBannerOffline(!isConnected);
+            if (isConnected && reservaRepository != null && tokenManager.isTokenValid()) {
+                reservaRepository.sincronizarAlReconectar(this::mostrarCancelacionesRechazadas);
             }
         });
 
@@ -125,6 +124,34 @@ public class MainActivity extends AppCompatActivity {
         if (reservaIdDeNotificacion != null && navController != null) {
             abrirVoucher(reservaIdDeNotificacion);
         }
+    }
+
+    private void actualizarBannerOffline(boolean sinConexion) {
+        if (tvOfflineBanner == null) return;
+        if (sinConexion) {
+            tvOfflineBanner.setText("Sin conexión Wi‑Fi / internet — Modo offline");
+            tvOfflineBanner.setVisibility(View.VISIBLE);
+            tvOfflineBanner.bringToFront();
+        } else {
+            tvOfflineBanner.setVisibility(View.GONE);
+        }
+    }
+
+    private void mostrarCancelacionesRechazadas(int cantidad, List<String> nombres) {
+        runOnUiThread(() -> {
+            if (isFinishing()) return;
+            String mensaje;
+            if (cantidad == 1) {
+                String nombre = (nombres != null && !nombres.isEmpty())
+                        ? nombres.get(0) : "una reserva";
+                mensaje = "No se pudo cancelar \"" + nombre
+                        + "\". La reserva volvió a aparecer como confirmada.";
+            } else {
+                mensaje = "No se pudieron sincronizar " + cantidad
+                        + " cancelaciones. Esas reservas volvieron a estar confirmadas.";
+            }
+            Toast.makeText(this, mensaje, Toast.LENGTH_LONG).show();
+        });
     }
 
     private Long extraerReservaIdDeIntent(Intent intent) {

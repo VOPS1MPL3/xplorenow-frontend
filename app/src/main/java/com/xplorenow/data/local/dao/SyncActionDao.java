@@ -15,6 +15,9 @@ public interface SyncActionDao {
     @Query("SELECT * FROM sync_actions ORDER BY timestamp ASC")
     List<SyncActionEntity> getAllPending();
 
+    @Query("SELECT COUNT(*) FROM sync_actions WHERE type = :type AND targetId = :targetId")
+    int countByTypeAndTarget(String type, long targetId);
+
     @Delete
     void delete(SyncActionEntity action);
 }

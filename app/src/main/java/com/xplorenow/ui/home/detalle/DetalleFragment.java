@@ -283,6 +283,9 @@ public class DetalleFragment extends Fragment {
         tvIdioma.setText(d.getIdioma());
         tvPoliticaCancelacion.setText(d.getPoliticaCancelacion());
 
+        btnVerMapa.setEnabled(d.getLatitud() != null && d.getLongitud() != null
+                && d.getLatitud() != 0.0 && d.getLongitud() != 0.0);
+
         cargarGaleria(d.getGaleriaUrls());
         verificarHorariosDisponibles(d.getId());
     }

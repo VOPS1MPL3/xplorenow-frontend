@@ -36,6 +36,7 @@ public class MisReservasFragment extends Fragment {
     private ReservaAdapter adapter;
     private final List<ReservaDTO> reservas = new ArrayList<>();
     private boolean isOnline = true;
+    private boolean falloRedConfirmadas = false;
 
     @Inject
     ReservaRepository reservaRepository;
@@ -91,15 +92,10 @@ public class MisReservasFragment extends Fragment {
         lvReservas.setVisibility(View.GONE);
 
         reservas.clear();
+        falloRedConfirmadas = false;
 
         if (!isOnline) {
-            reservaRepository.obtenerReservasOffline(results -> {
-                if (getActivity() == null) return;
-                getActivity().runOnUiThread(() -> {
-                    reservas.addAll(results);
-                    mostrar();
-                });
-            });
+            cargarOffline();
             return;
         }
 
@@ -113,6 +109,8 @@ public class MisReservasFragment extends Fragment {
                             List<ReservaDTO> body = response.body();
                             reservas.addAll(body);
                             reservaRepository.guardarReservasLocal(body);
+                        } else {
+                            falloRedConfirmadas = true;
                         }
                         cargarCanceladas();
                     }
@@ -120,6 +118,7 @@ public class MisReservasFragment extends Fragment {
                     public void onFailure(Call<List<ReservaDTO>> call, Throwable t) {
                         if (getView() == null) return;
                         Log.e(TAG, "confirmadas onFailure", t);
+                        falloRedConfirmadas = true;
                         cargarCanceladas();
                     }
                 });
@@ -136,16 +135,35 @@ public class MisReservasFragment extends Fragment {
                             List<ReservaDTO> body = response.body();
                             reservas.addAll(body);
                             reservaRepository.guardarReservasLocal(body);
+                            mostrar();
+                        } else if (falloRedConfirmadas || reservas.isEmpty()) {
+                            cargarOffline();
+                        } else {
+                            mostrar();
                         }
-                        mostrar();
                     }
                     @Override
                     public void onFailure(Call<List<ReservaDTO>> call, Throwable t) {
                         if (getView() == null) return;
                         Log.e(TAG, "canceladas onFailure", t);
-                        mostrar();
+                        if (falloRedConfirmadas || reservas.isEmpty()) {
+                            cargarOffline();
+                        } else {
+                            mostrar();
+                        }
                     }
                 });
+    }
+
+    private void cargarOffline() {
+        reservaRepository.obtenerReservasOffline(results -> {
+            if (getActivity() == null) return;
+            getActivity().runOnUiThread(() -> {
+                reservas.clear();
+                reservas.addAll(results);
+                mostrar();
+            });
+        });
     }
 
     private void mostrar() {
